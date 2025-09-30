@@ -21,6 +21,7 @@ public class ArticleImage {
 	private String imageUrl;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@MapsId("articleId")
 	@JoinColumn(name = "article_id", nullable = false)
 	private Article article;
 	

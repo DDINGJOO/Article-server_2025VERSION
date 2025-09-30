@@ -17,10 +17,12 @@ public class KeywordMappingTable {
 	
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@MapsId("articleId")
 	@JoinColumn(name = "article_id", insertable = false, updatable = false)
 	private Article article;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@MapsId("keywordId")
 	@JoinColumn(name = "keyword_id", insertable = false, updatable = false)
 	private keywords keyword;
 }
