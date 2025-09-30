@@ -51,6 +51,17 @@ class ConvertorImplTest {
   }
 
   @Test
+  @DisplayName("convertKeywords(List<?>): Int형 리스트를 Keyword 리스트로 변환")
+  void convertKeywords_withIntValuesIds() {
+    List<Keyword> result = convertor.convertKeywords(Arrays.asList(1, 2));
+    assertThat(result).hasSize(2);
+    assertThat(result.get(0).getId()).isEqualTo(1L);
+    assertThat(result.get(0).getKeyword()).isEqualTo("k1");
+    assertThat(result.get(1).getId()).isEqualTo(2L);
+    assertThat(result.get(1).getKeyword()).isEqualTo("k2");
+  }
+
+  @Test
   @DisplayName("convertKeywords(List<?>): String 리스트를 Keyword 리스트로 변환")
   void convertKeywords_withNames() {
     List<Keyword> result = convertor.convertKeywords(Arrays.asList("k1", "k2"));
@@ -62,11 +73,15 @@ class ConvertorImplTest {
   }
 
   @Test
-  @DisplayName("convertBoard(Object): Long 또는 String 값을 받아 Board 로 변환")
+  @DisplayName("convertBoard(Object): Long, Int 또는 String 값을 받아 Board 로 변환")
   void convertBoard_dynamic() {
     Board b1 = convertor.convertBoard(10L);
     assertThat(b1.getId()).isEqualTo(10L);
     assertThat(b1.getBoardName()).isEqualTo("b1");
+
+    Board b3 = convertor.convertBoard(10);
+    assertThat(b3.getId()).isEqualTo(10L);
+    assertThat(b3.getBoardName()).isEqualTo("b1");
 
     Board b2 = convertor.convertBoard("b1");
     assertThat(b2.getId()).isEqualTo(10L);
