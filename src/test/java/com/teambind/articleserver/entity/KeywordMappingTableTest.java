@@ -1,6 +1,5 @@
 package com.teambind.articleserver.entity;
 
-import com.teambind.articleserver.entity.embeddable_id.KeywordMappingTableId;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
@@ -54,11 +53,7 @@ class KeywordMappingTableTest {
 		
 		List<KeywordMappingTable> keywordMappingTables = new ArrayList<>();
 		keywordMappingTables.add(
-				KeywordMappingTable.builder()
-						.id(new KeywordMappingTableId(keyword.getId(), article.getId()))
-						.keyword(keyword)
-						.article(article)
-						.build()
+				new KeywordMappingTable(article, keyword)
 		);
 		article.setKeywords(keywordMappingTables);
 		entityManager.persist(keyword);

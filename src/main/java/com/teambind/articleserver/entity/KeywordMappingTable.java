@@ -2,18 +2,24 @@ package com.teambind.articleserver.entity;
 
 import com.teambind.articleserver.entity.embeddable_id.KeywordMappingTableId;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "keyword_mapping_table")
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
 public class KeywordMappingTable {
 	@EmbeddedId
 	private KeywordMappingTableId id;
+	
+	KeywordMappingTable(Article article, Keyword keyword) {
+		this.id = new KeywordMappingTableId(keyword.getId(), article.getId());
+		this.article = article;
+		this.keyword = keyword;
+	}
 	
 	
 	@ManyToOne(fetch = FetchType.LAZY)
