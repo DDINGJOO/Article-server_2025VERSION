@@ -16,4 +16,13 @@
 
 ## 요구사항 기반 erd 초안 
 ![erd+1.png](docs/images/erd%2B1.png)
+- todo : 이미지 시퀀스 넘버 까지 pk 로 추가
+
+----
+
+## 외부 서버에서 받아오는 데이터 목록
+- userId
+- profileImageUrls
+
+---
 
