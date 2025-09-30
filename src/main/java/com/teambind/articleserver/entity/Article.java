@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -44,10 +45,10 @@ public class Article {
 	private Board board;
 	
 	@OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<ArticleImage> images;
+	private List<ArticleImage> images = new ArrayList<>();
 	
 	@OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<KeywordMappingTable> keywords;
+	private List<KeywordMappingTable> keywords = new ArrayList<>();
 	
 	public void addKeywordMapping(KeywordMappingTable km) {
 		keywords.add(km);

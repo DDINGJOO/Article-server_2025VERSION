@@ -24,5 +24,5 @@ public class KeywordMappingTable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@MapsId("keywordId")
 	@JoinColumn(name = "keyword_id", insertable = false, updatable = false)
-	private keywords keyword;
+	private Keyword keyword;
 }
