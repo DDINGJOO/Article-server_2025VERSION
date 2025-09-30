@@ -48,6 +48,8 @@ public class Article {
 	@OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<KeywordMappingTable> keywords = new ArrayList<>();
 	
+	
+	// 관계 편의성 메서드
 	public void addKeyword(String keyword) {
 		long index = 0L;
 		if (this.keywords == null) {
