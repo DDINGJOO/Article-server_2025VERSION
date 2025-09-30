@@ -11,6 +11,7 @@ CREATE TABLE articles (
                           writer_id VARCHAR(100),
                           version INT,
                           board_id INT,
+                          title VARCHAR(100),
                           status VARCHAR(100),
                           created_at DATETIME,
                           updated_at DATETIME,
