@@ -11,4 +11,5 @@ public interface Validator {
 	void keywordNameValidator(String keywordName);
 	
 	
+	// TODO : Object -> isInstance 하면 Id value 한번에 합칠수 있음
 }
