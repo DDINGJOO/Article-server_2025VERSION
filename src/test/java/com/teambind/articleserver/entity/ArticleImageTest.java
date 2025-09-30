@@ -47,7 +47,7 @@ class ArticleImageTest {
 		
 		
 		List<ArticleImage> images = new ArrayList<>();
-		ArticleImagesId imagesId = new ArticleImagesId("article1", 0);
+		ArticleImagesId imagesId = new ArticleImagesId("article1", 0L);
 		ArticleImage articleImage = new ArticleImage();
 		articleImage.setId(imagesId);
 		articleImage.setImageUrl("test-url");
@@ -86,7 +86,7 @@ class ArticleImageTest {
 		
 		List<ArticleImage> images = new ArrayList<>();
 		for (int i = 0; i < 3; i++) {
-			ArticleImagesId imagesId = new ArticleImagesId("article1", i);
+			ArticleImagesId imagesId = new ArticleImagesId("article1", (long) i);
 			ArticleImage articleImage = new ArticleImage();
 			articleImage.setId(imagesId);
 			articleImage.setImageUrl("test-url-" + i);
