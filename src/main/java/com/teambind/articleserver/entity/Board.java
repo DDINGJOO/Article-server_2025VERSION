@@ -22,4 +22,9 @@ public class Board {
 
   @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Article> articles;
+
+  public Board(Long boardId, String name) {
+    this.id = boardId;
+    this.boardName = name;
+  }
 }
