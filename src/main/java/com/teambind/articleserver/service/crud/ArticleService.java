@@ -1,4 +1,4 @@
-package com.teambind.articleserver.service;
+package com.teambind.articleserver.service.crud;
 
 import com.teambind.articleserver.dto.condition.ArticleSearchCriteria;
 import com.teambind.articleserver.entity.Article;
