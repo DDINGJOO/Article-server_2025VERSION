@@ -30,10 +30,15 @@ public class ConvertorImpl implements Convertor {
     if (keywordList == null) throw new CustomException(ErrorCode.REQUIRED_FIELD_NULL);
     if (keywordList.isEmpty()) return new ArrayList<>();
     Object first = keywordList.get(0);
-    if (first instanceof Long) {
+    if (first instanceof Number) {
       @SuppressWarnings("unchecked")
-      List<Long> ids = (List<Long>) keywordList;
-      return convertKeywordsInternalFromIds(ids);
+      List<Number> ids = (List<Number>) keywordList;
+      // 숫자 타입(Integer, Long 등)에 상관없이 long으로 변환
+      List<Long> longIds = new ArrayList<>();
+      for (Number n : ids) {
+        longIds.add(n.longValue());
+      }
+      return convertKeywordsInternalFromIds(longIds);
     } else if (first instanceof String) {
       @SuppressWarnings("unchecked")
       List<String> names = (List<String>) keywordList;
@@ -45,8 +50,9 @@ public class ConvertorImpl implements Convertor {
   @Override
   public Board convertBoard(Object board) {
     if (board == null) throw new CustomException(ErrorCode.REQUIRED_FIELD_NULL);
-    if (board instanceof Long) {
-      return convertBoardId((Long) board);
+    if (board instanceof Number) {
+      Long boardId = ((Number) board).longValue();
+      return convertBoardId(boardId);
     } else if (board instanceof String) {
       return convertBoardName((String) board);
     }
