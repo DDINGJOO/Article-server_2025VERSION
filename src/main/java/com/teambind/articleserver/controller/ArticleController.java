@@ -32,7 +32,7 @@ public class ArticleController {
         articleCreateService.createArticle(
             request.getTitle(), request.getContent(), request.getWriterId(), board, keywords);
 
-    log.info("create article success");
+    log.info("게시글이 성공적으로 저장되었습니다. article id : {}", article.getId());
 
     return ResponseEntity.ok(article.getId());
   }
