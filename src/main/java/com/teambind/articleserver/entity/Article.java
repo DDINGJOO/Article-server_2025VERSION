@@ -50,7 +50,9 @@ public class Article {
 	
 	public void addKeyword(String keyword) {
 		long index = 0L;
-		if (!keywords.isEmpty() || keyword == null) {
+		if (this.keywords == null) {
+			this.keywords = new ArrayList<KeywordMappingTable>();
+		} else {
 			index = (long) keywords.size() + 1;
 		}
 		keywords.add(
@@ -61,5 +63,22 @@ public class Article {
 	public void removeKeywords() {
 		keywords.forEach(km -> km.setArticle(null));
 		keywords.clear();
+	}
+	
+	public void addImage(String keyword) {
+		long index = 0L;
+		if (this.images == null) {
+			this.images = new ArrayList<ArticleImage>();
+		} else {
+			index = (long) images.size() + 1;
+		}
+		images.add(
+				new ArticleImage(this, index, keyword)
+		);
+	}
+	
+	public void removeImages() {
+		images.forEach(im -> im.setArticle(null));
+		images.clear();
 	}
 }

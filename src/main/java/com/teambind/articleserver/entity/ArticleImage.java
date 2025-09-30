@@ -25,4 +25,10 @@ public class ArticleImage {
 	@JoinColumn(name = "article_id", nullable = false)
 	private Article article;
 	
+	ArticleImage(Article article, Long index, String imageUrl) {
+		this.id = new ArticleImagesId(article.getId(), index);
+		this.imageUrl = imageUrl;
+		this.article = article;
+	}
+	
 }
