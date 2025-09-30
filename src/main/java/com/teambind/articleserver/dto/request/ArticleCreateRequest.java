@@ -13,8 +13,10 @@ import java.util.List;
 public class ArticleCreateRequest {
 	private String title;
 	private String content;
-	private Long boardId;
 	private String writerId;
+	
+	
 	private List<?> keywords;
+	private Object board;
 	
 }
