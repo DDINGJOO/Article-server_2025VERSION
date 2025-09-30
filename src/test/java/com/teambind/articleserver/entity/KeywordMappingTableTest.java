@@ -63,4 +63,51 @@ class KeywordMappingTableTest {
 		log.info("keyword mapping table id : {}", entityManager.find(Article.class, article.getId()).getKeywords().get(0).getKeyword().getKeyword());
 	}
 	
+	
+	@Test
+	@DisplayName("키워드가 여러개인 게시물 생성")
+	public void saveArticleWithMultipleKeywordsTest() {
+		Board board = Board.builder()
+				.boardName("테스트 게시판")
+				.build();
+		entityManager.persist(board);
+		entityManager.flush();
+		
+		Article article = Article.builder()
+				.id("test-article-id")
+				.title("테스트 게시글")
+				.content("테스트 게시글 내용")
+				.writerId("test-writer-id")
+				.createdAt(LocalDateTime.now())
+				.keywords(new ArrayList<>())
+				.updatedAt(LocalDateTime.now())
+				.board(board)
+				.build();
+		
+		entityManager.persist(article);
+		entityManager.flush();
+		
+		
+		List<KeywordMappingTable> keywordMappingTables = new ArrayList<>();
+		for (int i = 0; i < 3; i++) {
+			Keyword keyword = Keyword.builder()
+					.id(i + 1L)
+					.keyword("test-keyword-" + i)
+					.build();
+			
+			keywordMappingTables.add(
+					new KeywordMappingTable(article, keyword)
+			);
+		}
+		article.setKeywords(keywordMappingTables);
+		entityManager.persist(article);
+		
+		assertEquals(3, keywordMappingTables.size());
+		for (KeywordMappingTable keyword : article.getKeywords()) {
+			log.info("keyword mapping table keyword : {}", keyword.getKeyword().getKeyword());
+		}
+	}
+	
+
+	
 }

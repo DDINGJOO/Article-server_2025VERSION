@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -56,5 +57,44 @@ class ArticleTest {
 		log.info("article board name : {}", article.getBoard().getBoardName());
 	}
 	
+	
+	@Test
+	@DisplayName("addKeywordTest")
+	public void addKeywordTest() {
+		Board board = Board.builder()
+				.boardName("테스트 게시판")
+				.build();
+		entityManager.persist(board);
+		
+		Article article = Article.builder()
+				.id("test-article-id")
+				.title("테스트 게시글")
+				.content("테스트 게시글 내용")
+				.writerId("test-writer-id")
+				.keywords(new ArrayList<>())
+				.createdAt(LocalDateTime.now())
+				.updatedAt(LocalDateTime.now())
+				.board(board)
+				.build();
+		
+		entityManager.persist(article);
+		entityManager.flush();
+		
+		article.addKeyword("test-keyword1");
+		article.addKeyword("test-keyword2");
+		article.addKeyword("test-keyword3");
+		
+		entityManager.persist(article);
+		entityManager.flush();
+		
+		assertThat(article.getId()).isNotNull();
+		assertThat(article.getKeywords()).isNotNull();
+		assertThat(article.getKeywords().size()).isEqualTo(3);
+		log.info("article id : {}", article.getId());
+		log.info("article keyword size : {}", article.getKeywords().size());
+		article.getKeywords().forEach(keyword -> {
+			log.info("article keyword : {}", keyword.getKeyword().getKeyword());
+		});
+	}
 	
 }

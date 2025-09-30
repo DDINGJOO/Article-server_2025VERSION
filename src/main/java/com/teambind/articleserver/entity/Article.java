@@ -1,6 +1,4 @@
 package com.teambind.articleserver.entity;
-
-
 import com.teambind.articleserver.entity.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
@@ -50,15 +48,18 @@ public class Article {
 	@OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<KeywordMappingTable> keywords = new ArrayList<>();
 	
-	public void addKeywordMapping(KeywordMappingTable km) {
-		keywords.add(km);
-		km.setArticle(this);
+	public void addKeyword(String keyword) {
+		long index = 0L;
+		if (!keywords.isEmpty() || keyword == null) {
+			index = (long) keywords.size() + 1;
+		}
+		keywords.add(
+				new KeywordMappingTable(this, Keyword.builder().id(index).keyword(keyword).build())
+		);
 	}
 	
-	public void removeKeywordMapping(KeywordMappingTable km) {
-		keywords.remove(km);
-		km.setArticle(null);
+	public void removeKeywords() {
+		keywords.forEach(km -> km.setArticle(null));
+		keywords.clear();
 	}
-	
-	
 }

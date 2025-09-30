@@ -16,7 +16,6 @@ import java.util.List;
 @Builder
 public class Keyword {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "keyword_id", nullable = false)
 	private Long id;
 	
@@ -30,6 +29,7 @@ public class Keyword {
 	
 	public void addMapping(KeywordMappingTable km) {
 		mappings.add(km);
+		
 		km.setKeyword(this);
 	}
 	
