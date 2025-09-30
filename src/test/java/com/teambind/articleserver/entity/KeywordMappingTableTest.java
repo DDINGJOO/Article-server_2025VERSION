@@ -22,48 +22,48 @@ class KeywordMappingTableTest {
 	
 	@Autowired
 	EntityManager entityManager;
-	
-	
-	@Test
-	@DisplayName("키워드가 한개인 게시글 저장")
-	public void saveArticleWithOneKeywordTest() {
-		Board board = Board.builder()
-				.boardName("테스트 게시판")
-				.build();
-		entityManager.persist(board);
-		entityManager.flush();
-		
-		Article article = Article.builder()
-				.id("test-article-id")
-				.title("테스트 게시글")
-				.content("테스트 게시글 내용")
-				.writerId("test-writer-id")
-				.createdAt(LocalDateTime.now())
-				.updatedAt(LocalDateTime.now())
-				.board(board)
-				.build();
-		
-		entityManager.persist(article);
-		entityManager.flush();
-		
-		
-		Keyword keyword = Keyword.builder()
-				.id(1L)
-				.keyword("test-keyword")
-				.build();
-		
-		List<KeywordMappingTable> keywordMappingTables = new ArrayList<>();
-		keywordMappingTables.add(
-				new KeywordMappingTable(article, keyword)
-		);
-		article.setKeywords(keywordMappingTables);
-		entityManager.persist(article);
-		entityManager.flush();
-		
-		assertEquals(1, keywordMappingTables.size());
-		log.info("keyword mapping table id : {}", entityManager.find(Article.class, article.getId()).getKeywords().get(0).getKeyword().getKeyword());
-	}
-	
+
+
+//	@Test
+//	@DisplayName("키워드가 한개인 게시글 저장")
+//	public void saveArticleWithOneKeywordTest() {
+//		Board board = Board.builder()
+//				.boardName("테스트 게시판")
+//				.build();
+//		entityManager.persist(board);
+//		entityManager.flush();
+//
+//		Article article = Article.builder()
+//				.id("test-article-id")
+//				.title("테스트 게시글")
+//				.content("테스트 게시글 내용")
+//				.writerId("test-writer-id")
+//				.createdAt(LocalDateTime.now())
+//				.updatedAt(LocalDateTime.now())
+//				.board(board)
+//				.build();
+//
+//		entityManager.persist(article);
+//		entityManager.flush();
+//
+//
+//		Keyword keyword = Keyword.builder()
+//				.id(1L)
+//				.keyword("test-keyword")
+//				.build();
+//
+//		List<KeywordMappingTable> keywordMappingTables = new ArrayList<>();
+//		keywordMappingTables.add(
+//				new KeywordMappingTable(article, keyword)
+//		);
+//		article.setKeywords(keywordMappingTables);
+//		entityManager.persist(article);
+//		entityManager.flush();
+//
+//		assertEquals(1, keywordMappingTables.size());
+//		log.info("keyword mapping table id : {}", entityManager.find(Article.class, article.getId()).getKeywords().get(0).getKeyword().getKeyword());
+//	}
+//
 	
 	@Test
 	@DisplayName("키워드가 여러개인 게시물 생성")

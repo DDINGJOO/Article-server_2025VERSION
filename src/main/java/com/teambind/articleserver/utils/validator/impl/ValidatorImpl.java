@@ -3,45 +3,80 @@ package com.teambind.articleserver.utils.validator.impl;
 import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.exceptions.ErrorCode;
 import com.teambind.articleserver.utils.validator.Validator;
+import lombok.extern.slf4j.Slf4j;
 
 import static com.teambind.articleserver.utils.DataInitializer.*;
 
+
+@Slf4j
 public class ValidatorImpl implements Validator {
-	@Override
-	public void boardIdValidator(Long boardId) {
+	
+	void boardIdValidator(Long boardId) {
 		nullCheck(boardId);
 		if (boardMapReverse.get(boardId) == null) {
-			throw new CustomException(ErrorCode.BOARD_ID_NULL);
+			throw new CustomException(ErrorCode.REQUIRED_FIELD_NOT_VALID);
 		}
 		return;
 		
 	}
 	
-	@Override
-	public void boardNameValidator(String boardName) {
+	
+	void boardNameValidator(String boardName) {
 		nullCheck(boardName);
 		if (boardMap.get(boardName) == null) {
-			throw new CustomException(ErrorCode.BOARD_NAME_NULL);
+			throw new CustomException(ErrorCode.REQUIRED_FIELD_NOT_VALID);
 		}
 		
 	}
 	
-	@Override
-	public void keywordIdValidator(Long keywordId) {
+	
+	void keywordIdValidator(Long keywordId) {
 		nullCheck(keywordId);
 		if (keywordMap.get(keywordId) == null) {
-			throw new CustomException(ErrorCode.KEYWORD_ID_NULL);
+			throw new CustomException(ErrorCode.REQUIRED_FIELD_NOT_VALID);
 		}
 		
 	}
 	
-	@Override
-	public void keywordNameValidator(String keywordName) {
+	void keywordNameValidator(String keywordName) {
 		nullCheck(keywordName);
 		
 		if (keywordMapReverse.get(keywordName) == null) {
-			throw new CustomException(ErrorCode.KEYWORD_NAME_NULL);
+			throw new CustomException(ErrorCode.REQUIRED_FIELD_NOT_VALID);
 		}
+	}
+	
+	@Override
+	public void boardValidator(Object board) {
+		if (board == null) {
+			throw new CustomException(ErrorCode.REQUIRED_FIELD_NULL);
+		}
+		if (board instanceof Long) {
+			log.info("Long type board : {}", board);
+			boardIdValidator((Long) board);
+		}
+		if (board instanceof String) {
+			log.info("String type board : {}", board);
+			boardNameValidator((String) board);
+		}
+		throw new CustomException(ErrorCode.REQUIRED_FIELD_NOT_VALID);
+	}
+	
+	@Override
+	public void keywordValidator(Object keyword) {
+		if (keyword == null) {
+			throw new CustomException(ErrorCode.REQUIRED_FIELD_NULL);
+		}
+		if (keyword instanceof Long) {
+			log.info("Long type keyword : {}", keyword);
+			keywordIdValidator((Long) keyword);
+		}
+		if (keyword instanceof String) {
+			log.info("String type keyword : {}", keyword);
+			keywordNameValidator((String) keyword);
+		}
+		throw new CustomException(ErrorCode.REQUIRED_FIELD_NOT_VALID);
+		
 	}
 	
 	private void nullCheck(Object obj) {

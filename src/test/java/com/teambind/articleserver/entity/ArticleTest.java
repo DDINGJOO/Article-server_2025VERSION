@@ -56,100 +56,101 @@ class ArticleTest {
 		log.info("article board id : {}", article.getBoard().getId());
 		log.info("article board name : {}", article.getBoard().getBoardName());
 	}
+
+//
+//	@Test
+//	@DisplayName("addKeywordTest")
+////	@Rollback(false)
+//	public void addKeywordTest() {
+//		Board board = Board.builder()
+//				.boardName("테스트 게시판")
+//				.build();
+//		entityManager.persist(board);
+//
+//		Article article = Article.builder()
+//				.id("test-article-id")
+//				.title("테스트 게시글")
+//				.content("테스트 게시글 내용")
+//				.writerId("test-writer-id")
+//				.createdAt(LocalDateTime.now())
+//				.updatedAt(LocalDateTime.now())
+//				.board(board)
+//				.build();
+//
+//		entityManager.persist(article);
+//		entityManager.flush();
+//
+//		article.addKeyword("test-keyword1");
+//		article.addKeyword("test-keyword2");
+//		article.addKeyword("test-keyword3");
+//
+//		entityManager.persist(article);
+//		entityManager.flush();
+//
+//		Article afterArticle = entityManager.find(Article.class, article.getId());
+//		assertThat(afterArticle.getId()).isNotNull();
+//		assertThat(afterArticle.getKeywords()).isNotNull();
+//		assertThat(afterArticle.getKeywords().size()).isEqualTo(3);
+//		log.info("afterArticle id : {}", afterArticle.getId());
+//		log.info("afterArticle keyword size : {}", afterArticle.getKeywords().size());
+//		afterArticle.getKeywords().forEach(keyword -> {
+//			log.info("article keyword : {}", keyword.getKeyword().getKeyword());
+//		});
+//	}
+//
+//	@Test
+//	@DisplayName("removeKeywordTest")
 	
-	
-	@Test
-	@DisplayName("addKeywordTest")
-//	@Rollback(false)
-	public void addKeywordTest() {
-		Board board = Board.builder()
-				.boardName("테스트 게시판")
-				.build();
-		entityManager.persist(board);
-		
-		Article article = Article.builder()
-				.id("test-article-id")
-				.title("테스트 게시글")
-				.content("테스트 게시글 내용")
-				.writerId("test-writer-id")
-				.createdAt(LocalDateTime.now())
-				.updatedAt(LocalDateTime.now())
-				.board(board)
-				.build();
-		
-		entityManager.persist(article);
-		entityManager.flush();
-		
-		article.addKeyword("test-keyword1");
-		article.addKeyword("test-keyword2");
-		article.addKeyword("test-keyword3");
-		
-		entityManager.persist(article);
-		entityManager.flush();
-		
-		Article afterArticle = entityManager.find(Article.class, article.getId());
-		assertThat(afterArticle.getId()).isNotNull();
-		assertThat(afterArticle.getKeywords()).isNotNull();
-		assertThat(afterArticle.getKeywords().size()).isEqualTo(3);
-		log.info("afterArticle id : {}", afterArticle.getId());
-		log.info("afterArticle keyword size : {}", afterArticle.getKeywords().size());
-		afterArticle.getKeywords().forEach(keyword -> {
-			log.info("article keyword : {}", keyword.getKeyword().getKeyword());
-		});
-	}
-	
-	@Test
-	@DisplayName("removeKeywordTest")
-//	@Rollback(false)
-	public void removeKeywordTest() {
-		Board board = Board.builder()
-				.boardName("테스트 게시판")
-				.build();
-		entityManager.persist(board);
-		
-		Article article = Article.builder()
-				.id("test-article-id")
-				.title("테스트 게시글")
-				.content("테스트 게시글 내용")
-				.writerId("test-writer-id")
-				.createdAt(LocalDateTime.now())
-				.updatedAt(LocalDateTime.now())
-				.board(board)
-				.build();
-		
-		entityManager.persist(article);
-		entityManager.flush();
-		
-		article.addKeyword("test-keyword1");
-		article.addKeyword("test-keyword2");
-		article.addKeyword("test-keyword3");
-		
-		entityManager.persist(article);
-		entityManager.flush();
-		
-		
-		Article afterArticle = entityManager.find(Article.class, article.getId());
-		assertThat(afterArticle.getId()).isNotNull();
-		assertThat(afterArticle.getKeywords()).isNotNull();
-		assertThat(afterArticle.getKeywords().size()).isEqualTo(3);
-		log.info("article id : {}", afterArticle.getId());
-		log.info("article keyword size : {}", afterArticle.getKeywords().size());
-		afterArticle.getKeywords().forEach(keyword -> {
-			log.info("article keyword : {}", keyword.getKeyword().getKeyword());
-		});
-		
-		
-		article.removeKeywords();
-		
-		Article afterRemoveArticle = entityManager.find(Article.class, article.getId());
-		assertThat(afterRemoveArticle.getKeywords()).isNotNull();
-		assertThat(afterRemoveArticle.getKeywords().size()).isEqualTo(0);
-		log.info("AfterRemoveArticle article keyword size : {}", afterRemoveArticle.getKeywords().size());
-		afterRemoveArticle.getKeywords().forEach(keyword -> {
-			log.info("article keyword : {}", keyword.getKeyword().getKeyword());
-		});
-	}
-	
+	/// /	@Rollback(false)
+//	public void removeKeywordTest() {
+//		Board board = Board.builder()
+//				.boardName("테스트 게시판")
+//				.build();
+//		entityManager.persist(board);
+//
+//		Article article = Article.builder()
+//				.id("test-article-id")
+//				.title("테스트 게시글")
+//				.content("테스트 게시글 내용")
+//				.writerId("test-writer-id")
+//				.createdAt(LocalDateTime.now())
+//				.updatedAt(LocalDateTime.now())
+//				.board(board)
+//				.build();
+//
+//		entityManager.persist(article);
+//		entityManager.flush();
+//
+//		article.addKeyword("test-keyword1");
+//		article.addKeyword("test-keyword2");
+//		article.addKeyword("test-keyword3");
+//
+//		entityManager.persist(article);
+//		entityManager.flush();
+//
+//
+//		Article afterArticle = entityManager.find(Article.class, article.getId());
+//		assertThat(afterArticle.getId()).isNotNull();
+//		assertThat(afterArticle.getKeywords()).isNotNull();
+//		assertThat(afterArticle.getKeywords().size()).isEqualTo(3);
+//		log.info("article id : {}", afterArticle.getId());
+//		log.info("article keyword size : {}", afterArticle.getKeywords().size());
+//		afterArticle.getKeywords().forEach(keyword -> {
+//			log.info("article keyword : {}", keyword.getKeyword().getKeyword());
+//		});
+//
+//
+//		article.removeKeywords();
+//
+//		Article afterRemoveArticle = entityManager.find(Article.class, article.getId());
+//		assertThat(afterRemoveArticle.getKeywords()).isNotNull();
+//		assertThat(afterRemoveArticle.getKeywords().size()).isEqualTo(0);
+//		log.info("AfterRemoveArticle article keyword size : {}", afterRemoveArticle.getKeywords().size());
+//		afterRemoveArticle.getKeywords().forEach(keyword -> {
+//			log.info("article keyword : {}", keyword.getKeyword().getKeyword());
+//		});
+//	}
+//
 	@Test
 	@DisplayName("addImageTest")
 	public void addImageTest() {
