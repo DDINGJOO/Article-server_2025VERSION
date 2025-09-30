@@ -4,12 +4,11 @@ package com.teambind.articleserver.utils;
 import com.teambind.articleserver.repository.BoardRepository;
 import com.teambind.articleserver.repository.KeywordRepository;
 import jakarta.annotation.PostConstruct;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
