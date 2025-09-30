@@ -48,6 +48,7 @@ class KeywordMappingTableTest {
 		
 		
 		Keyword keyword = Keyword.builder()
+				.id(1L)
 				.keyword("test-keyword")
 				.build();
 		
@@ -56,7 +57,7 @@ class KeywordMappingTableTest {
 				new KeywordMappingTable(article, keyword)
 		);
 		article.setKeywords(keywordMappingTables);
-		entityManager.persist(keyword);
+		entityManager.persist(article);
 		entityManager.flush();
 		
 		assertEquals(1, keywordMappingTables.size());

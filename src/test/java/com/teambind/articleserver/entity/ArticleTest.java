@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.annotation.Rollback;
 
 import java.time.LocalDateTime;
 
@@ -25,7 +24,7 @@ class ArticleTest {
 	
 	@Test
 	@DisplayName("이미지와 키워드가 없는 게시글 저장")
-	@Rollback(false)
+//	@Rollback(false)
 	public void articleSaveTest() {
 		Board board = Board.builder()
 				.boardName("테스트 게시판")
