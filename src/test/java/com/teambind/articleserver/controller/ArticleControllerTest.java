@@ -67,4 +67,63 @@ class ArticleControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().string("ART-001"));
   }
+
+  @Test
+  @DisplayName("POST /api/articles 오류: Convertor가 REQUIRED_FIELD_NULL 던지면 400과 메시지를 응답한다")
+  void createArticle_error_requiredFieldNull() throws Exception {
+    // given
+    ArticleCreateRequest request = new ArticleCreateRequest();
+    request.setTitle("제목");
+    request.setContent("내용");
+    request.setWriterId("writer-1");
+    request.setBoard(null); // 의도적으로 null
+    request.setKeywords(List.of());
+
+    Mockito.when(convertor.convertKeywords(anyList())).thenReturn(List.of());
+    Mockito.when(convertor.convertBoard(any()))
+        .thenThrow(
+            new com.teambind.articleserver.exceptions.CustomException(
+                com.teambind.articleserver.exceptions.ErrorCode.REQUIRED_FIELD_NULL));
+
+    // when & then
+    mockMvc
+        .perform(
+            post("/api/articles")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            content().string(org.hamcrest.Matchers.containsString("REQUIRED_FIELD_IS_NULL")));
+  }
+
+  @Test
+  @DisplayName("POST /api/articles 오류: Service가 ARTICLE_NOT_FOUND 던지면 404와 메시지를 응답한다")
+  void createArticle_error_articleNotFound() throws Exception {
+    // given
+    ArticleCreateRequest request = new ArticleCreateRequest();
+    request.setTitle("제목");
+    request.setContent("내용");
+    request.setWriterId("writer-1");
+    request.setBoard("공지사항");
+    request.setKeywords(List.of("공지"));
+
+    Mockito.when(convertor.convertKeywords(anyList())).thenReturn(List.of());
+    Mockito.when(convertor.convertBoard(any()))
+        .thenReturn(Board.builder().id(1L).boardName("공지사항").build());
+    Mockito.when(
+            articleCreateService.createArticle(
+                anyString(), anyString(), anyString(), any(Board.class), anyList()))
+        .thenThrow(
+            new com.teambind.articleserver.exceptions.CustomException(
+                com.teambind.articleserver.exceptions.ErrorCode.ARTICLE_NOT_FOUND));
+
+    // when & then
+    mockMvc
+        .perform(
+            post("/api/articles")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+        .andExpect(status().isNotFound())
+        .andExpect(content().string(org.hamcrest.Matchers.containsString("ARTICLE_NOT_FOUND")));
+  }
 }
