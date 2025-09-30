@@ -5,6 +5,9 @@ import com.teambind.articleserver.entity.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Entity
 @Table(name = "articles")
 @AllArgsConstructor
@@ -28,17 +31,33 @@ public class Article {
 	@Version
 	private Long version;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "board_id", nullable = false)
-	private Board board;
-	
 	@Column(name = "status", nullable = false)
 	private Status status;
 	
 	@Column(name = "created_at", nullable = false)
-	private Long createdAt;
+	private LocalDateTime createdAt;
 	@Column(name = "updated_at", nullable = false)
-	private Long updatedAt;
+	private LocalDateTime updatedAt;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "board_id", nullable = false)
+	private Board board;
+	
+	@OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ArticleImage> images;
+	
+	@OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<KeywordMappingTable> keywords;
+	
+	public void addKeywordMapping(KeywordMappingTable km) {
+		keywords.add(km);
+		km.setArticle(this);
+	}
+	
+	public void removeKeywordMapping(KeywordMappingTable km) {
+		keywords.remove(km);
+		km.setArticle(null);
+	}
 	
 	
 }

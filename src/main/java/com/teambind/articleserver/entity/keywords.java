@@ -20,4 +20,7 @@ public class keywords {
 	@Column(name = "keyword_name", nullable = false)
 	private String keyword;
 	
+	@OneToOne(mappedBy = "keyword")
+	private KeywordMappingTable keywordMappingTable;
+	
 }

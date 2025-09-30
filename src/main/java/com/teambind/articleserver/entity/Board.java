@@ -4,6 +4,9 @@ package com.teambind.articleserver.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
+
 @Entity
 @Table(name = "boards")
 @AllArgsConstructor
@@ -19,5 +22,8 @@ public class Board {
 	
 	@Column(name = "board_name", nullable = false)
 	private String boardName;
+	
+	@OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Article> articles;
 	
 }
