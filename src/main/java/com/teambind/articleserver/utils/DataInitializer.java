@@ -17,7 +17,8 @@ import java.util.Map;
 public class DataInitializer {
 	public static Map<Long, String> keywordMap = new HashMap<>();
 	public static Map<String, Long> keywordMapReverse = new HashMap<>();
-	
+	public static Map<String, Long> boardMap = new HashMap<>();
+	public static Map<Long, String> boardMapReverse = new HashMap<>();
 	
 	private final BoardRepository boardRepository;
 	private final KeywordRepository keywordRepository;
@@ -40,6 +41,24 @@ public class DataInitializer {
 		keywordMapReverse.forEach((k, v) -> {
 			log.info("keywordMapReverse keyword : {}, id : {}", k, v);
 		});
+		
+		
+		boardRepository.findAll().forEach(board -> {
+			boardMap.put(board.getBoardName(), board.getId());
+			boardMapReverse.put(board.getId(), board.getBoardName());
+		});
+		
+		log.info("boardMap size : {}", boardMap.size());
+		
+		boardMap.forEach((k, v) -> {
+			log.info("boardMap boardName : {}, id : {}", k, v);
+		});
+		
+		log.info("boardMapReverse size : {}", boardMapReverse.size());
+		boardMapReverse.forEach((k, v) -> {
+			log.info("boardMapReverse boardName : {}, id : {}", v, k);
+		});
+
 		
 		log.info("DataInitializer init Completed");
 	}
