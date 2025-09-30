@@ -1,0 +1,269 @@
+package com.teambind.articleserver.entity;
+
+import jakarta.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.Rollback;
+
+import java.time.LocalDateTime;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
+@Slf4j
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+class ArticleTest {
+	
+	@Autowired
+	EntityManager entityManager;
+	
+	@Test
+	@DisplayName("이미지와 키워드가 없는 게시글 저장")
+	@Rollback(false)
+	public void articleSaveTest() {
+		Board board = Board.builder()
+				.boardName("테스트 게시판")
+				.build();
+		entityManager.persist(board);
+		
+		Article article = Article.builder()
+				.id("test-article-id")
+				.title("테스트 게시글")
+				.content("테스트 게시글 내용")
+				.writerId("test-writer-id")
+				.createdAt(LocalDateTime.now())
+				.updatedAt(LocalDateTime.now())
+				.board(board)
+				.build();
+		
+		entityManager.persist(article);
+		entityManager.flush();
+		
+		assertThat(article.getId()).isNotNull();
+		assertThat(article.getBoard()).isNotNull();
+		assertThat(article.getBoard().getId()).isNotNull();
+		assertTrue(article.getBoard().getId() > 0);
+		assertTrue(entityManager.find(Article.class, article.getId()) != null);
+		assertTrue(entityManager.find(Board.class, article.getBoard().getId()) != null);
+		log.info("article id : {}", article.getId());
+		log.info("article title : {}", article.getTitle());
+		log.info("article content : {}", article.getContent());
+		log.info("article board id : {}", article.getBoard().getId());
+		log.info("article board name : {}", article.getBoard().getBoardName());
+	}
+	
+	
+	@Test
+	@DisplayName("addKeywordTest")
+//	@Rollback(false)
+	public void addKeywordTest() {
+		Board board = Board.builder()
+				.boardName("테스트 게시판")
+				.build();
+		entityManager.persist(board);
+		
+		Article article = Article.builder()
+				.id("test-article-id")
+				.title("테스트 게시글")
+				.content("테스트 게시글 내용")
+				.writerId("test-writer-id")
+				.createdAt(LocalDateTime.now())
+				.updatedAt(LocalDateTime.now())
+				.board(board)
+				.build();
+		
+		entityManager.persist(article);
+		entityManager.flush();
+		
+		article.addKeyword("test-keyword1");
+		article.addKeyword("test-keyword2");
+		article.addKeyword("test-keyword3");
+		
+		entityManager.persist(article);
+		entityManager.flush();
+		
+		Article afterArticle = entityManager.find(Article.class, article.getId());
+		assertThat(afterArticle.getId()).isNotNull();
+		assertThat(afterArticle.getKeywords()).isNotNull();
+		assertThat(afterArticle.getKeywords().size()).isEqualTo(3);
+		log.info("afterArticle id : {}", afterArticle.getId());
+		log.info("afterArticle keyword size : {}", afterArticle.getKeywords().size());
+		afterArticle.getKeywords().forEach(keyword -> {
+			log.info("article keyword : {}", keyword.getKeyword().getKeyword());
+		});
+	}
+	
+	@Test
+	@DisplayName("removeKeywordTest")
+//	@Rollback(false)
+	public void removeKeywordTest() {
+		Board board = Board.builder()
+				.boardName("테스트 게시판")
+				.build();
+		entityManager.persist(board);
+		
+		Article article = Article.builder()
+				.id("test-article-id")
+				.title("테스트 게시글")
+				.content("테스트 게시글 내용")
+				.writerId("test-writer-id")
+				.createdAt(LocalDateTime.now())
+				.updatedAt(LocalDateTime.now())
+				.board(board)
+				.build();
+		
+		entityManager.persist(article);
+		entityManager.flush();
+		
+		article.addKeyword("test-keyword1");
+		article.addKeyword("test-keyword2");
+		article.addKeyword("test-keyword3");
+		
+		entityManager.persist(article);
+		entityManager.flush();
+		
+		
+		Article afterArticle = entityManager.find(Article.class, article.getId());
+		assertThat(afterArticle.getId()).isNotNull();
+		assertThat(afterArticle.getKeywords()).isNotNull();
+		assertThat(afterArticle.getKeywords().size()).isEqualTo(3);
+		log.info("article id : {}", afterArticle.getId());
+		log.info("article keyword size : {}", afterArticle.getKeywords().size());
+		afterArticle.getKeywords().forEach(keyword -> {
+			log.info("article keyword : {}", keyword.getKeyword().getKeyword());
+		});
+		
+		
+		article.removeKeywords();
+		
+		Article afterRemoveArticle = entityManager.find(Article.class, article.getId());
+		assertThat(afterRemoveArticle.getKeywords()).isNotNull();
+		assertThat(afterRemoveArticle.getKeywords().size()).isEqualTo(0);
+		log.info("AfterRemoveArticle article keyword size : {}", afterRemoveArticle.getKeywords().size());
+		afterRemoveArticle.getKeywords().forEach(keyword -> {
+			log.info("article keyword : {}", keyword.getKeyword().getKeyword());
+		});
+	}
+	
+	@Test
+	@DisplayName("addImageTest")
+	public void addImageTest() {
+		Board board = Board.builder()
+				.boardName("테스트 게시판")
+				.build();
+		entityManager.persist(board);
+		
+		Article article = Article.builder()
+				.id("test-article-id")
+				.title("테스트 게시글")
+				.content("테스트 게시글 내용")
+				.writerId("test-writer-id")
+				.createdAt(LocalDateTime.now())
+				.updatedAt(LocalDateTime.now())
+				.board(board)
+				.build();
+		
+		entityManager.persist(article);
+		entityManager.flush();
+		
+		article.addImage("test-image-url");
+		
+		Article afterArticle = entityManager.find(Article.class, article.getId());
+		assertThat(afterArticle.getId()).isNotNull();
+		assertThat(afterArticle.getImages()).isNotNull();
+		assertThat(afterArticle.getImages().size()).isEqualTo(1);
+		log.info("afterArticle id : {}", afterArticle.getId());
+		log.info("afterArticle image size : {}", afterArticle.getImages().size());
+		afterArticle.getImages().forEach(image -> {
+			log.info("article image url : {}", image.getImageUrl());
+		});
+	}
+	
+	@Test
+	@DisplayName("addImagesTest")
+	public void addImagesTest() {
+		Board board = Board.builder()
+				.boardName("테스트 게시판")
+				.build();
+		entityManager.persist(board);
+		
+		Article article = Article.builder()
+				.id("test-article-id")
+				.title("테스트 게시글")
+				.content("테스트 게시글 내용")
+				.writerId("test-writer-id")
+				.createdAt(LocalDateTime.now())
+				.updatedAt(LocalDateTime.now())
+				.board(board)
+				.build();
+		
+		entityManager.persist(article);
+		entityManager.flush();
+		
+		article.addImage("test-image-url-1");
+		article.addImage("test-image-url-2");
+		article.addImage("test-image-url-3");
+		
+		Article afterArticle = entityManager.find(Article.class, article.getId());
+		assertThat(afterArticle.getId()).isNotNull();
+		assertThat(afterArticle.getImages()).isNotNull();
+		assertThat(afterArticle.getImages().size()).isEqualTo(3);
+		log.info("afterArticle id : {}", afterArticle.getId());
+		log.info("afterArticle image size : {}", afterArticle.getImages().size());
+		afterArticle.getImages().forEach(image -> {
+			log.info("article image url : {}", image.getImageUrl());
+		});
+	}
+	
+	
+	@Test
+	@DisplayName("removeImages")
+	public void removeImagesTest() {
+		Board board = Board.builder()
+				.boardName("테스트 게시판")
+				.build();
+		entityManager.persist(board);
+		
+		Article article = Article.builder()
+				.id("test-article-id")
+				.title("테스트 게시글")
+				.content("테스트 게시글 내용")
+				.writerId("test-writer-id")
+				.createdAt(LocalDateTime.now())
+				.updatedAt(LocalDateTime.now())
+				.board(board)
+				.build();
+		
+		entityManager.persist(article);
+		entityManager.flush();
+		
+		article.addImage("test-image-url-1");
+		article.addImage("test-image-url-2");
+		article.addImage("test-image-url-3");
+		
+		Article afterArticle = entityManager.find(Article.class, article.getId());
+		assertThat(afterArticle.getId()).isNotNull();
+		assertThat(afterArticle.getImages()).isNotNull();
+		assertThat(afterArticle.getImages().size()).isEqualTo(3);
+		log.info("afterArticle id : {}", afterArticle.getId());
+		log.info("afterArticle image size : {}", afterArticle.getImages().size());
+		afterArticle.getImages().forEach(image -> {
+			log.info("article image url : {}", image.getImageUrl());
+		});
+		
+		
+		article.removeImages();
+		
+		Article afterRemoveArticle = entityManager.find(Article.class, article.getId());
+		assertThat(afterRemoveArticle.getImages()).isNotNull();
+		assertThat(afterRemoveArticle.getImages().size()).isEqualTo(0);
+		log.info("AfterRemoveArticle article image size : {}", afterRemoveArticle.getImages().size());
+	}
+	
+}
