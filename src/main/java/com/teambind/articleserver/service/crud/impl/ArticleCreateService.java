@@ -1,5 +1,4 @@
-package com.teambind.articleserver.service.impl;
-
+package com.teambind.articleserver.service.crud.impl;
 
 import com.teambind.articleserver.entity.Article;
 import com.teambind.articleserver.entity.Board;
@@ -8,13 +7,12 @@ import com.teambind.articleserver.entity.enums.Status;
 import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.exceptions.ErrorCode;
 import com.teambind.articleserver.repository.ArticleRepository;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
