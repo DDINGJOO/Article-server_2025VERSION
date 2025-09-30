@@ -24,7 +24,7 @@ class ArticleTest {
 	public void articleSaveTest() {
 		Article article = Article.builder()
 				.title("테스트 게시글")
-				.contents("테스트 게시글 내용")
+				.content("테스트 게시글 내용")
 				.build();
 		
 		entityManager.persist(article);

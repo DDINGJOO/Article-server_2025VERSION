@@ -24,7 +24,7 @@ public class Article {
 	private String title;
 	
 	@Column(name = "contents", nullable = false)
-	private String contents;
+	private String content;
 	
 	@Column(name = "writer_id", nullable = false)
 	private String writerId;

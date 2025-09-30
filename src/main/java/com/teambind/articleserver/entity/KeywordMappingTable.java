@@ -20,7 +20,7 @@ public class KeywordMappingTable {
 	@JoinColumn(name = "article_id", insertable = false, updatable = false)
 	private Article article;
 	
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "keyword_id", insertable = false, updatable = false)
 	private keywords keyword;
 }
