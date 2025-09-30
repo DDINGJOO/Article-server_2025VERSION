@@ -29,7 +29,6 @@ public class Keyword {
 	
 	public void addMapping(KeywordMappingTable km) {
 		mappings.add(km);
-		
 		km.setKeyword(this);
 	}
 	
