@@ -88,4 +88,39 @@ class ValidatorImplTest {
 			validator.keywordNameValidator("adhjdlkiawhjdlaiwjdlawij");
 		});
 	}
+	
+	@Test
+	@DisplayName("파라미터의 타입에 따라 해당하는 메서드가 호출된다.")
+	void boardValidator() {
+		ValidatorImpl validator = new ValidatorImpl();
+		
+		assertThrows(CustomException.class, () -> {
+			validator.boardValidator(null);
+		});
+		
+		assertThrows(CustomException.class, () -> {
+			validator.boardValidator("test");
+		});
+		
+		assertThrows(CustomException.class, () -> {
+			validator.boardValidator(999L);
+		});
+	}
+	
+	@Test
+	void keywordValidator() {
+		ValidatorImpl validator = new ValidatorImpl();
+		
+		assertThrows(CustomException.class, () -> {
+			validator.keywordValidator(null);
+		});
+		
+		assertThrows(CustomException.class, () -> {
+			validator.keywordValidator("test");
+		});
+		
+		assertThrows(CustomException.class, () -> {
+			validator.keywordValidator(999L);
+		});
+	}
 }
