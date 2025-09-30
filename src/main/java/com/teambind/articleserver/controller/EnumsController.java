@@ -21,6 +21,7 @@ public class EnumsController {
     return ResponseEntity.ok(boardMapReverse);
   }
 
+  @GetMapping("/keywords")
   public ResponseEntity<Map<Long, String>> getKeywords() {
     return ResponseEntity.ok(keywordMap);
   }
