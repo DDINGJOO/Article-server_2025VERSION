@@ -1,30 +1,30 @@
 -- SQL
 CREATE TABLE boards (
-                        board_id INT NOT NULL,
+                        board_id INT NOT NULL AUTO_INCREMENT,
                         board_name VARCHAR(100) NOT NULL,
                         PRIMARY KEY (board_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE articles (
                           article_id VARCHAR(100) NOT NULL,
-                          contents TEXT,
-                          writer_id VARCHAR(100),
+                          contents   TEXT         NOT NULL,
+                          writer_id  VARCHAR(100) NOT NULL,
                           version INT,
-                          board_id INT,
-                          title VARCHAR(100),
-                          status VARCHAR(100),
-                          created_at DATETIME,
-                          updated_at DATETIME,
+                          board_id   INT          NOT NULL,
+                          title      VARCHAR(100) NOT NULL,
+                          status     VARCHAR(100) NOT NULL,
+                          created_at DATETIME     NOT NULL,
+                          updated_at DATETIME     NOT NULL,
                           PRIMARY KEY (article_id),
                           CONSTRAINT fk_articles_board
                               FOREIGN KEY (board_id) REFERENCES boards (board_id)
-                                  ON DELETE SET NULL
+                                  ON DELETE RESTRICT
                                   ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE article_images (
                                 article_id VARCHAR(100) NOT NULL,
-                                article_image_url VARCHAR(255),
+                                article_image_url VARCHAR(255) NOT NULL,
                                 sequence_no INT NOT NULL,
                                 PRIMARY KEY (article_id, sequence_no),
                                 CONSTRAINT fk_article_images_article

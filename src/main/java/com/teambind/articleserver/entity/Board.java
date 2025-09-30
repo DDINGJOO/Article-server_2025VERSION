@@ -17,7 +17,7 @@ import java.util.List;
 public class Board {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(nullable = false)
+	@Column(name = "board_id", nullable = false)
 	private Long id;
 	
 	@Column(name = "board_name", nullable = false)
