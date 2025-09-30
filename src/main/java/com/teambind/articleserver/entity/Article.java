@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.teambind.articleserver.utils.DataInitializer.keywordMap;
+
 @Entity
 @Table(name = "articles")
 @AllArgsConstructor
@@ -51,15 +53,24 @@ public class Article {
 	
 	// 관계 편의성 메서드
 	public void addKeyword(String keyword) {
-		long index = 0L;
+		long index = keywordMap.size() + 1;
 		if (this.keywords == null) {
 			this.keywords = new ArrayList<KeywordMappingTable>();
-		} else {
-			index = (long) keywords.size() + 1;
 		}
 		keywords.add(
 				new KeywordMappingTable(this, Keyword.builder().id(index).keyword(keyword).build())
 		);
+	}
+	
+	
+	//TODO : // TEST PLZ!!
+	public void addKeywords(List<Keyword> keywords) {
+		if (this.keywords == null) {
+			this.keywords = new ArrayList<KeywordMappingTable>();
+		}
+		keywords.forEach(kw -> this.keywords.add(
+				new KeywordMappingTable(this, kw)
+		));
 	}
 	
 	public void removeKeywords() {
@@ -67,7 +78,7 @@ public class Article {
 		keywords.clear();
 	}
 	
-	public void addImage(String keyword) {
+	public void addImage(String imageUrl) {
 		long index = 0L;
 		if (this.images == null) {
 			this.images = new ArrayList<ArticleImage>();
@@ -75,7 +86,7 @@ public class Article {
 			index = (long) images.size() + 1;
 		}
 		images.add(
-				new ArticleImage(this, index, keyword)
+				new ArticleImage(this, index, imageUrl)
 		);
 	}
 	

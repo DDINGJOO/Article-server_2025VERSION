@@ -3,6 +3,7 @@ package com.teambind.articleserver.service.impl;
 
 import com.teambind.articleserver.entity.Article;
 import com.teambind.articleserver.entity.Board;
+import com.teambind.articleserver.entity.Keyword;
 import com.teambind.articleserver.entity.enums.Status;
 import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.exceptions.ErrorCode;
@@ -24,7 +25,7 @@ public class ArticleCreateService {
 	private final ArticleRepository articleRepository;
 	
 	public Article createArticle(
-			String title, String content, String writerId, Board board, List<String> keywords
+			String title, String content, String writerId, Board board, List<Keyword> keywords
 	) {
 		Article article = Article.builder()
 				.title(title)
@@ -35,15 +36,13 @@ public class ArticleCreateService {
 				.updatedAt(LocalDateTime.now())
 				.status(Status.ACTIVE)
 				.build();
+		article.addKeywords(keywords);
 		
-		for (String keyword : keywords) {
-			article.addKeyword(keyword);
-		}
 		articleRepository.save(article);
 		return article;
 	}
 	
-	public Article updateArticle(String articleId, String title, String content, String writerId, Board board, List<String> keywords) {
+	public Article updateArticle(String articleId, String title, String content, String writerId, Board board, List<Keyword> keywords) {
 		Article article = articleRepository.findById(articleId)
 				.orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 		article.setTitle(title);
@@ -53,9 +52,7 @@ public class ArticleCreateService {
 		article.setUpdatedAt(LocalDateTime.now());
 		article.removeKeywords();
 		article.removeImages();
-		for (String keyword : keywords) {
-			article.addKeyword(keyword);
-		}
+		article.addKeywords(keywords);
 		articleRepository.save(article);
 		return article;
 	}
