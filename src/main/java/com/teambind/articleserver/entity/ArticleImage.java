@@ -17,6 +17,9 @@ public class ArticleImage {
   @Column(name = "article_image_url", nullable = false)
   private String imageUrl;
 
+  @Column(name = "image_id", nullable = false)
+  private String imageId;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @MapsId("articleId")
   @JoinColumn(name = "article_id", nullable = false)
@@ -26,5 +29,12 @@ public class ArticleImage {
     this.id = new ArticleImagesId(article.getId(), index);
     this.imageUrl = imageUrl;
     this.article = article;
+  }
+
+  ArticleImage(Article article, Long index, String imageUrl, String imageId) {
+    this.id = new ArticleImagesId(article.getId(), index);
+    this.imageUrl = imageUrl;
+    this.article = article;
+    this.imageId = imageId;
   }
 }
