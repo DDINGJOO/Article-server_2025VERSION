@@ -10,9 +10,11 @@ import com.teambind.articleserver.utils.convertor.Convertor;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class ConvertorImpl implements Convertor {
   private final KeywordRepository keywordRepository;
@@ -46,8 +48,28 @@ public class ConvertorImpl implements Convertor {
       }
       return convertKeywordsInternalFromIds(longIds);
     } else if (first instanceof String) {
-      @SuppressWarnings("unchecked")
       List<String> names = (List<String>) keywordList;
+      log.info("Board as String: '{}'", names);
+      boolean allNumeric = true;
+      for (String s : names) {
+        if (s == null || !s.matches("\\d+")) {
+          allNumeric = false;
+          break;
+        }
+      }
+      if (allNumeric) {
+        List<Long> longIds = new ArrayList<>(names.size());
+        for (String s : names) {
+          try {
+            longIds.add(Long.parseLong(s));
+          } catch (NumberFormatException e) {
+            log.warn("Failed to parse keyword id from string '{}'", s);
+
+            return convertKeywordsInternalFromNames(names);
+          }
+        }
+        return convertKeywordsInternalFromIds(longIds);
+      }
       return convertKeywordsInternalFromNames(names);
     }
     throw new CustomException(ErrorCode.REQUIRED_FIELD_NOT_VALID);
@@ -58,9 +80,22 @@ public class ConvertorImpl implements Convertor {
     if (board == null) throw new CustomException(ErrorCode.REQUIRED_FIELD_NULL);
     if (board instanceof Number) {
       Long boardId = ((Number) board).longValue();
+      log.info("Board ID: {}", boardId);
       return convertBoardId(boardId);
     } else if (board instanceof String) {
-      return convertBoardName((String) board);
+      String s = (String) board;
+      log.info("Board as String: '{}'", s);
+      if (s.matches("\\d+")) {
+        try {
+          Long boardId = Long.parseLong(s);
+          log.info("Parsed Board ID from String: {}", boardId);
+          return convertBoardId(boardId);
+        } catch (CustomException ex) {
+          // 매우 큰 수 등 파싱 실패 시 이름으로 시도하도록 아래로 떨어뜨립니다.
+          log.warn("Failed to parse board id from string '{}'", s);
+        }
+      }
+      return convertBoardName(s);
     }
     throw new CustomException(ErrorCode.REQUIRED_FIELD_NOT_VALID);
   }
