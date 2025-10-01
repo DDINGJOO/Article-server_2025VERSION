@@ -26,9 +26,6 @@ public class Keyword {
       orphanRemoval = true,
       fetch = FetchType.LAZY)
   @ToString.Exclude
-  
-  
-  
   private List<KeywordMappingTable> mappings = new ArrayList<>();
 
   public Keyword(Long keywordId, String value) {
