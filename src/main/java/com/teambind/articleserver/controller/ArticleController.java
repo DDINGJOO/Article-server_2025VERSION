@@ -72,10 +72,8 @@ public class ArticleController {
   public ResponseEntity<ArticleCursorPageResponse> searchGet(
       @RequestParam(required = false) Integer size,
       @RequestParam(required = false) String cursorId,
-      @RequestParam(required = false) Long boardId,
-      @RequestParam(required = false) String boardName,
-      @RequestParam(required = false) List<Long> keywordIds,
-      @RequestParam(required = false) List<String> keywordNames,
+      @RequestParam(required = false) Object board,
+      @RequestParam(required = false) List<?> keyword,
       @RequestParam(required = false) String title,
       @RequestParam(required = false) String content,
       @RequestParam(required = false, name = "writerIds") List<String> writerIds) {
@@ -84,16 +82,12 @@ public class ArticleController {
     ArticleSearchCriteria.ArticleSearchCriteriaBuilder criteriaBuilder =
         ArticleSearchCriteria.builder();
 
-    if (boardId != null) {
-      criteriaBuilder.board(boardId);
-    } else if (boardName != null && !boardName.isBlank()) {
-      criteriaBuilder.board(boardName);
+    if (board != null) {
+      criteriaBuilder.board(convertor.convertBoard(board));
     }
 
-    if (keywordIds != null && !keywordIds.isEmpty()) {
-      criteriaBuilder.keywords(keywordIds);
-    } else if (keywordNames != null && !keywordNames.isEmpty()) {
-      criteriaBuilder.keywords(keywordNames);
+    if (keyword != null && !keyword.isEmpty()) {
+      criteriaBuilder.keywords(convertor.convertKeywords(keyword));
     }
 
     if (title != null && !title.isBlank()) criteriaBuilder.title(title);
