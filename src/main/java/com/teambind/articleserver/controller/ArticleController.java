@@ -43,23 +43,28 @@ public class ArticleController {
 
     return ResponseEntity.ok(article);
   }
-  
+
   @PutMapping("/{articleId}")
-  public ResponseEntity<Article> updateArticle(@RequestBody ArticleCreateRequest request, @PathVariable String articleId) {
-	  List<Keyword> keywords = null;
-	  if (request.getKeywords() != null) {
-		  keywords = convertor.convertKeywords(request.getKeywords());
-	  }
-	  Board board = convertor.convertBoard(request.getBoard());
-	  
-	  Article article =
-			  articleCreateService.updateArticle(
-					  articleId,
-					  request.getTitle(), request.getContent(), request.getWriterId(), board, keywords);
-	  
-	  log.info("게시글이 성공적으로 저장되었습니다. article id : {}", article.getId());
-	  
-	  return ResponseEntity.ok(article);
+  public ResponseEntity<Article> updateArticle(
+      @RequestBody ArticleCreateRequest request, @PathVariable String articleId) {
+    List<Keyword> keywords = null;
+    if (request.getKeywords() != null) {
+      keywords = convertor.convertKeywords(request.getKeywords());
+    }
+    Board board = convertor.convertBoard(request.getBoard());
+
+    Article article =
+        articleCreateService.updateArticle(
+            articleId,
+            request.getTitle(),
+            request.getContent(),
+            request.getWriterId(),
+            board,
+            keywords);
+
+    log.info("게시글이 성공적으로 저장되었습니다. article id : {}", article.getId());
+
+    return ResponseEntity.ok(article);
   }
   
 
