@@ -75,7 +75,12 @@ public class ArticleController {
 
     return ResponseEntity.ok(ArticleResponse.fromEntity(article));
   }
-  
+
+  @DeleteMapping("/{articleId}")
+  public ResponseEntity<Void> deleteArticle(@PathVariable(name = "articleId") String articleId) {
+    articleCreateService.deleteArticle(articleId);
+    return ResponseEntity.noContent().build();
+  }
 
   @GetMapping("/search")
   public ResponseEntity<ArticleCursorPageResponse> searchGet(
