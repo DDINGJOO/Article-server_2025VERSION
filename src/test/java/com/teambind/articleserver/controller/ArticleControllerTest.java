@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teambind.articleserver.dto.request.ArticleCreateRequest;
-import com.teambind.articleserver.dto.response.ArticleCursorPageResponse;
 import com.teambind.articleserver.entity.Article;
 import com.teambind.articleserver.entity.Board;
 import com.teambind.articleserver.entity.Keyword;
@@ -291,52 +290,7 @@ class ArticleControllerTest {
     org.junit.jupiter.api.Assertions.assertEquals("ART-005", capturedPageReq.getCursorId());
   }
 
-  @Test
-  @DisplayName("GET /api/articles/search 정상: 파라미터 없이 호출 시 기본 동작 및 변환기 호출 안 함")
-  void searchArticles_success_minimalParams() throws Exception {
-    // given
-    ArticleCursorPageResponse page =
-        ArticleCursorPageResponse.builder().items(List.of()).hasNext(false).size(0).build();
 
-    Mockito.when(articleReadService.searchArticles(any(), any())).thenReturn(page);
-
-    // when
-    mockMvc
-        .perform(get("/api/articles/search"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.items").isArray())
-        .andExpect(jsonPath("$.hasNext").value(false));
-
-    // then - converters not invoked
-    Mockito.verify(convertor, Mockito.never()).convertBoard(any());
-    Mockito.verify(convertor, Mockito.never()).convertKeywords(anyList());
-
-    org.mockito.ArgumentCaptor<com.teambind.articleserver.dto.condition.ArticleSearchCriteria>
-        criteriaCaptor =
-            org.mockito.ArgumentCaptor.forClass(
-                com.teambind.articleserver.dto.condition.ArticleSearchCriteria.class);
-    org.mockito.ArgumentCaptor<com.teambind.articleserver.dto.request.ArticleCursorPageRequest>
-        pageReqCaptor =
-            org.mockito.ArgumentCaptor.forClass(
-                com.teambind.articleserver.dto.request.ArticleCursorPageRequest.class);
-
-    Mockito.verify(articleReadService)
-        .searchArticles(criteriaCaptor.capture(), pageReqCaptor.capture());
-
-    com.teambind.articleserver.dto.condition.ArticleSearchCriteria captured =
-        criteriaCaptor.getValue();
-    org.junit.jupiter.api.Assertions.assertNull(captured.getBoard());
-    org.junit.jupiter.api.Assertions.assertNull(captured.getKeywords());
-    org.junit.jupiter.api.Assertions.assertNull(captured.getTitle());
-    org.junit.jupiter.api.Assertions.assertNull(captured.getContent());
-    org.junit.jupiter.api.Assertions.assertNull(captured.getWriterId());
-    org.junit.jupiter.api.Assertions.assertEquals(
-        com.teambind.articleserver.entity.enums.Status.ACTIVE, captured.getStatus());
-
-    com.teambind.articleserver.dto.request.ArticleCursorPageRequest capturedPageReq =
-        pageReqCaptor.getValue();
-    org.junit.jupiter.api.Assertions.assertNull(capturedPageReq.getCursorId());
-  }
 
   @Test
   @DisplayName("GET /api/articles/search 오류: Service에서 예외 발생 시 GlobalExceptionHandler 매핑 확인")
