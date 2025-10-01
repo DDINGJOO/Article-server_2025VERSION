@@ -12,11 +12,9 @@ import com.teambind.articleserver.entity.enums.Status;
 import com.teambind.articleserver.service.crud.impl.ArticleCreateService;
 import com.teambind.articleserver.service.crud.impl.ArticleReadService;
 import com.teambind.articleserver.utils.convertor.Convertor;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,23 +48,7 @@ public class ArticleController {
 
     return ResponseEntity.ok(ArticleResponse.fromEntity(article));
   }
-
-  @PostMapping("/search")
-  public ResponseEntity<ArticleCursorPageResponse> search(
-      @RequestBody ArticleSearchCriteria criteria,
-      @RequestParam(required = false) Integer size,
-      @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-          LocalDateTime cursorUpdatedAt,
-      @RequestParam(required = false) String cursorId) {
-    ArticleCursorPageRequest pageRequest =
-        ArticleCursorPageRequest.builder()
-            .size(size)
-            .cursorUpdatedAt(cursorUpdatedAt)
-            .cursorId(cursorId)
-            .build();
-
-    return ResponseEntity.ok(articleReadService.searchArticles(criteria, pageRequest));
-  }
+  
 
   @GetMapping("/search")
   public ResponseEntity<ArticleCursorPageResponse> searchGet(
@@ -77,8 +59,7 @@ public class ArticleController {
       @RequestParam(required = false) String title,
       @RequestParam(required = false) String content,
       @RequestParam(required = false, name = "writerIds") List<String> writerIds) {
-
-    // Build criteria using only provided params; nulls will be ignored by repository filters
+	  
     ArticleSearchCriteria.ArticleSearchCriteriaBuilder criteriaBuilder =
         ArticleSearchCriteria.builder();
 
