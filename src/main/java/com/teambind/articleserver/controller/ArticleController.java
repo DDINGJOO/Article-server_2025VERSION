@@ -66,11 +66,9 @@ public class ArticleController {
     if (board != null) {
       criteriaBuilder.board(convertor.convertBoard(board));
     }
-
     if (keyword != null && !keyword.isEmpty()) {
       criteriaBuilder.keywords(convertor.convertKeywords(keyword));
     }
-
     if (title != null && !title.isBlank()) criteriaBuilder.title(title);
     if (content != null && !content.isBlank()) criteriaBuilder.content(content);
     if (writerIds != null && !writerIds.isEmpty()) criteriaBuilder.writerId(writerIds);
