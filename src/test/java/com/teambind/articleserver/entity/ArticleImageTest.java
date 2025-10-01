@@ -1,20 +1,18 @@
 package com.teambind.articleserver.entity;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 import com.teambind.articleserver.entity.embeddable_id.ArticleImagesId;
 import jakarta.persistence.EntityManager;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
 
 @Slf4j
 @DataJpaTest
@@ -44,16 +42,9 @@ class ArticleImageTest {
 		
 		entityManager.persist(article);
 		entityManager.flush();
-		
-		
-		List<ArticleImage> images = new ArrayList<>();
-		ArticleImagesId imagesId = new ArticleImagesId("article1", 0L);
-		ArticleImage articleImage = new ArticleImage();
-		articleImage.setId(imagesId);
-		articleImage.setImageUrl("test-url");
-		images.add(articleImage);
-		articleImage.setArticle(article);
-		article.getImages().add(articleImage);
+
+    article.addImage("test-url-1");
+
 		entityManager.flush();
 		
 		

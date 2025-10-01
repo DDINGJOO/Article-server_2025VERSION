@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface ArticleRepository extends JpaRepository<Article, String> {
 
   Article findAllByWriterId(String writerId, Limit limit);
+  
 }

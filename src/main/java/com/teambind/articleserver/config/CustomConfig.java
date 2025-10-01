@@ -1,18 +1,17 @@
 package com.teambind.articleserver.config;
 
-import com.teambind.articleserver.utils.convertor.Convertor;
-import com.teambind.articleserver.utils.convertor.impl.ConvertorImpl;
-import com.teambind.articleserver.utils.validator.Validator;
-import com.teambind.articleserver.utils.validator.impl.ValidatorImpl;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class CustomConfig {
-  public Validator validator() {
-    return new ValidatorImpl();
-  }
+  // Explicit beans for validator/convertor are not annotated to avoid duplications
+  // since their implementations are already annotated with @Component.
 
-  public Convertor convertor() {
-    return new ConvertorImpl();
+  @Bean
+  public JPAQueryFactory jpaQueryFactory(EntityManager entityManager) {
+    return new JPAQueryFactory(entityManager);
   }
 }
