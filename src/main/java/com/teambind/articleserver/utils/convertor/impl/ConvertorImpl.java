@@ -48,8 +48,23 @@ public class ConvertorImpl implements Convertor {
       }
       return convertKeywordsInternalFromIds(longIds);
     } else if (first instanceof String) {
-      List<String> names = (List<String>) keywordList;
-      log.info("Board as String: '{}'", names);
+      // 방어적으로 문자열 리스트 내부의 URL-encoded 항목을 디코드 시도
+      List<String> rawNames = (List<String>) keywordList;
+      List<String> names = new ArrayList<>(rawNames.size());
+      for (String s : rawNames) {
+        String value = s;
+        if (value != null && (value.contains("%") || value.contains("+"))) {
+          try {
+            String decoded =
+                java.net.URLDecoder.decode(value, java.nio.charset.StandardCharsets.UTF_8);
+            if (decoded != null && !decoded.isEmpty()) value = decoded;
+          } catch (IllegalArgumentException e) {
+            log.warn("Failed to URL decode keyword '{}', using original", s);
+          }
+        }
+        names.add(value);
+      }
+      log.info("Keywords as String: '{}'", names);
       boolean allNumeric = true;
       for (String s : names) {
         if (s == null || !s.matches("\\d+")) {
@@ -85,6 +100,18 @@ public class ConvertorImpl implements Convertor {
     } else if (board instanceof String) {
       String s = (String) board;
       log.info("Board as String: '{}'", s);
+      // 방어적 디코딩: URL-encoded 문자열이 들어오는 경우 디코드 시도
+      try {
+        if (s.contains("%") || s.contains("+")) {
+          String decoded = java.net.URLDecoder.decode(s, java.nio.charset.StandardCharsets.UTF_8);
+          if (decoded != null && !decoded.isEmpty()) {
+            s = decoded;
+            log.debug("Decoded board string to '{}'", s);
+          }
+        }
+      } catch (IllegalArgumentException e) {
+        log.warn("Failed to URL decode board string '{}'", s);
+      }
       if (s.matches("\\d+")) {
         try {
           Long boardId = Long.parseLong(s);

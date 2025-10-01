@@ -86,20 +86,42 @@ public class ArticleController {
   public ResponseEntity<ArticleCursorPageResponse> searchGet(
       @RequestParam(required = false) Integer size,
       @RequestParam(required = false) String cursorId,
-      @RequestParam(required = false) Object board,
-      @RequestParam(required = false) List<?> keyword,
+      @RequestParam(required = false) String board,
+      @RequestParam(required = false, name = "keyword") List<String> keyword,
       @RequestParam(required = false) String title,
       @RequestParam(required = false) String content,
       @RequestParam(required = false, name = "writerIds") List<String> writerIds) {
-	  
+
     ArticleSearchCriteria.ArticleSearchCriteriaBuilder criteriaBuilder =
         ArticleSearchCriteria.builder();
 
-    if (board != null) {
-      criteriaBuilder.board(convertor.convertBoard(board));
+    if (board != null && !board.isBlank()) {
+      String safeBoard = board;
+      try {
+        if (safeBoard.contains("%") || safeBoard.contains("+")) {
+          safeBoard =
+              java.net.URLDecoder.decode(safeBoard, java.nio.charset.StandardCharsets.UTF_8);
+        }
+      } catch (IllegalArgumentException e) {
+        log.warn("Failed to URL decode board param '{}', using original", board);
+      }
+      criteriaBuilder.board(convertor.convertBoard(safeBoard));
     }
     if (keyword != null && !keyword.isEmpty()) {
-      criteriaBuilder.keywords(convertor.convertKeywords(keyword));
+      // 방어적으로 각 키워드 항목에 대해 URL 디코딩 시도 (필요 시)
+      List<String> safeKeywords = new java.util.ArrayList<>(keyword.size());
+      for (String k : keyword) {
+        String v = k;
+        if (v != null && (v.contains("%") || v.contains("+"))) {
+          try {
+            v = java.net.URLDecoder.decode(v, java.nio.charset.StandardCharsets.UTF_8);
+          } catch (IllegalArgumentException e) {
+            log.warn("Failed to URL decode keyword '{}', using original", k);
+          }
+        }
+        safeKeywords.add(v);
+      }
+      criteriaBuilder.keywords(convertor.convertKeywords(safeKeywords));
     }
     if (title != null && !title.isBlank()) criteriaBuilder.title(title);
     if (content != null && !content.isBlank()) criteriaBuilder.content(content);
