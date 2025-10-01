@@ -1,27 +1,33 @@
 package com.teambind.articleserver.utils.convertor.impl;
 
-import static com.teambind.articleserver.utils.DataInitializer.*;
-
 import com.teambind.articleserver.entity.Board;
 import com.teambind.articleserver.entity.Keyword;
 import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.exceptions.ErrorCode;
+import com.teambind.articleserver.repository.BoardRepository;
+import com.teambind.articleserver.repository.KeywordRepository;
 import com.teambind.articleserver.utils.convertor.Convertor;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class ConvertorImpl implements Convertor {
+  private final KeywordRepository keywordRepository;
+  private final BoardRepository boardRepository;
 
   private Board convertBoardId(Long boardId) {
-    String name = boardMapReverse.get(boardId);
-    return new Board(boardId, name);
+    return boardRepository
+        .findById(boardId)
+        .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
   }
 
   private Board convertBoardName(String boardName) {
-    Long id = boardMap.get(boardName);
-    return new Board(id, boardName);
+    return boardRepository
+        .findByBoardName(boardName)
+        .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
   }
 
   // Unified methods
@@ -61,20 +67,10 @@ public class ConvertorImpl implements Convertor {
 
   // internal helpers
   private List<Keyword> convertKeywordsInternalFromIds(List<Long> keywordList) {
-    List<Keyword> keywordListConverted = new ArrayList<>();
-    for (Long keywordId : keywordList) {
-      String value = keywordMap.get(keywordId);
-      keywordListConverted.add(new Keyword(keywordId, value));
-    }
-    return keywordListConverted;
+    return keywordRepository.findAllById(keywordList);
   }
 
   private List<Keyword> convertKeywordsInternalFromNames(List<String> keywordList) {
-    List<Keyword> keywordListConverted = new ArrayList<>();
-    for (String keywordName : keywordList) {
-      Long keywordId = keywordMapReverse.get(keywordName);
-      keywordListConverted.add(new Keyword(keywordId, keywordName));
-    }
-    return keywordListConverted;
+    return keywordRepository.findAllByKeywordIn(keywordList);
   }
 }

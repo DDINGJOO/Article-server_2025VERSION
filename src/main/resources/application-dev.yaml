@@ -1,5 +1,5 @@
 server:
-  port: 8000
+  port: 8080
 spring:
   kafka:
     bootstrap-servers: ${KAFKA_URL1},${KAFKA_URL2},${KAFKA_URL3}

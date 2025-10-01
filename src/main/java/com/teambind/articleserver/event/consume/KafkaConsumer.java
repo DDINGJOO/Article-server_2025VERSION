@@ -2,7 +2,6 @@ package com.teambind.articleserver.event.consume;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teambind.articleserver.entity.Article;
 import com.teambind.articleserver.event.events.ArticleImageUpdateRequest;
@@ -35,9 +34,6 @@ public class KafkaConsumer {
       article.removeImages();
       request.forEach(im -> article.addImage(im.getImageUrl(), articleId));
       articleRepository.save(article);
-    } catch (JsonMappingException e) {
-      log.error("Failed to deserialize or process article-image-changed message: {}", message, e);
-      throw new RuntimeException(e);
     } catch (JsonProcessingException e) {
       log.error("Failed to deserialize or process article-image-changed message: {}", message, e);
       throw new RuntimeException(e);
