@@ -57,7 +57,7 @@ class ArticleControllerTest {
         .keywords(new java.util.ArrayList<>())
         .build();
     // 관계 편의 메서드 활용
-    article.addImage("https://img/1.png");
+    article.addImage("https://img/1.png", id);
     article.addKeywords(java.util.List.of(
         com.teambind.articleserver.entity.Keyword.builder().id(5L).keyword("질문").build(),
         com.teambind.articleserver.entity.Keyword.builder().id(7L).keyword("팁").build()
@@ -66,12 +66,15 @@ class ArticleControllerTest {
     Mockito.when(articleReadService.fetchArticleById(id)).thenReturn(article);
 
     // when & then
-    mockMvc.perform(get("/api/articles/" + id))
+    mockMvc
+        .perform(get("/api/articles/" + id))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.articleId").value(id))
         .andExpect(jsonPath("$.title").value("제목"))
-        .andExpect(jsonPath("$.board.boardName").value("자유게시판"))
-        .andExpect(jsonPath("$.imageUrls[0]").value("https://img/1.png"))
+        // board는 id->name 형태의 맵
+        .andExpect(jsonPath("$.board['2']").value("자유게시판"))
+        // imageUrls는 imageId->imageUrl 맵
+        .andExpect(jsonPath("$.imageUrls['" + id + "']").value("https://img/1.png"))
         .andExpect(jsonPath("$.keywords['5']").value("질문"))
         .andExpect(jsonPath("$.keywords['7']").value("팁"));
   }
@@ -92,7 +95,17 @@ class ArticleControllerTest {
             Keyword.builder().id(1L).keyword("공지").build(),
             Keyword.builder().id(9L).keyword("이벤트").build());
     Board board = Board.builder().id(1L).boardName("공지사항").build();
-    Article article = Article.builder().id("ART-001").build();
+    Article article =
+        Article.builder()
+            .id("ART-001")
+            .title("제목")
+            .content("내용")
+            .writerId("writer-1")
+            .board(board)
+            .updatedAt(java.time.LocalDateTime.now())
+            .images(new java.util.ArrayList<>())
+            .keywords(new java.util.ArrayList<>())
+            .build();
 
     Mockito.when(convertor.convertKeywords(anyList())).thenReturn(keywords);
     Mockito.when(convertor.convertBoard(eq("공지사항"))).thenReturn(board);
@@ -108,7 +121,7 @@ class ArticleControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
-        .andExpect(content().string("ART-001"));
+        .andExpect(jsonPath("$.articleId").value("ART-001"));
   }
 
   @Test
@@ -221,9 +234,9 @@ class ArticleControllerTest {
             .title("t")
             .content("c")
             .writerId("writer-9")
-            .board(convertedBoard)
             .LastestUpdateId(now)
-            .imageUrls((java.util.Map<String, String>) List.of())
+            .board(java.util.Map.of(2L, "자유게시판"))
+            .imageUrls(java.util.Map.of())
             .keywords(java.util.Map.of())
             .build();
 
@@ -256,7 +269,7 @@ class ArticleControllerTest {
         .andExpect(jsonPath("$.hasNext").value(true))
         .andExpect(jsonPath("$.nextCursorId").value("ART-010"))
         .andExpect(jsonPath("$.items[0].articleId").value("ART-010"))
-        .andExpect(jsonPath("$.items[0].board.boardName").value("자유게시판"));
+        .andExpect(jsonPath("$.items[0].board['2']").value("자유게시판"));
 
     // then - verify interactions and captured arguments
     org.mockito.ArgumentCaptor<com.teambind.articleserver.dto.condition.ArticleSearchCriteria>

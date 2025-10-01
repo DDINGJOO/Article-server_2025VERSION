@@ -148,7 +148,8 @@ class ArticleCreateServiceTest {
 				.createdAt(LocalDateTime.now())
 				.updatedAt(LocalDateTime.now())
 				.build();
-		
+
+    when(articleRepository.findById(eq("art-2"))).thenReturn(Optional.of(article));
 		when(articleRepository.save(any(Article.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
     // when
@@ -156,6 +157,7 @@ class ArticleCreateServiceTest {
 
 		// then
 		assertThat(article.getStatus()).isEqualTo(Status.DELETED);
+    verify(articleRepository, times(1)).findById("art-2");
 		verify(articleRepository, times(1)).save(article);
 	}
 }
