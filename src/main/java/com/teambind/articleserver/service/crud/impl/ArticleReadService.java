@@ -44,15 +44,14 @@ public class ArticleReadService {
 	  
     int size =
         (pageRequest.getSize() == null || pageRequest.getSize() <= 0) ? 20 : pageRequest.getSize();
-
+	
     LocalDateTime effectiveCursorUpdatedAt = pageRequest.getCursorUpdatedAt();
     String cursorId = pageRequest.getCursorId();
     if (effectiveCursorUpdatedAt == null && cursorId != null && !cursorId.isBlank()) {
       Article cursorArticle = fetchArticleById(cursorId);
       effectiveCursorUpdatedAt = cursorArticle.getUpdatedAt();
     }
-
-    // Do not mutate criteria types; repository expects Board and List<Keyword> as-is
+	
     List<Article> articles =
         articleRepositoryCustom.searchByCursor(
             criteria, effectiveCursorUpdatedAt, cursorId, size + 1);
