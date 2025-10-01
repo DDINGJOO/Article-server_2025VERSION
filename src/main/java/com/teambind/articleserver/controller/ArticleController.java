@@ -29,7 +29,10 @@ public class ArticleController {
 
   @PostMapping()
   public ResponseEntity<String> createArticle(@RequestBody ArticleCreateRequest request) {
-    List<Keyword> keywords = convertor.convertKeywords(request.getKeywords());
+    List<Keyword> keywords = null;
+    if (request.getKeywords() != null) {
+      keywords = convertor.convertKeywords(request.getKeywords());
+    }
     Board board = convertor.convertBoard(request.getBoard());
 
     Article article =
@@ -40,6 +43,7 @@ public class ArticleController {
 
     return ResponseEntity.ok(article.getId());
   }
+  
 
   @GetMapping("/{articleId}")
   public ResponseEntity<ArticleResponse> fetchArticle(

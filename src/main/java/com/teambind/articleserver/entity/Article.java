@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Table(name = "articles")
@@ -15,6 +16,7 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
+@Slf4j
 public class Article {
 	@Id
 	@Column(name = "article_id", nullable = false)
@@ -67,9 +69,17 @@ public class Article {
 		if (this.keywords == null) {
 			this.keywords = new ArrayList<KeywordMappingTable>();
 		}
-		keywords.forEach(kw -> this.keywords.add(
-				new KeywordMappingTable(this, kw)
-		));
+    keywords.forEach(
+        kw -> {
+          this.keywords.add(new KeywordMappingTable(this, kw));
+        });
+    this.getKeywords().forEach(km -> km.setArticle(this));
+    log.info("addKeywords keyword size : {}", this.getKeywords().size());
+    this.getKeywords()
+        .forEach(
+            keyword -> {
+              log.info("addKeywords keyword : {}", keyword.getKeyword().getKeyword());
+            });
 	}
 	
 	public void removeKeywords() {

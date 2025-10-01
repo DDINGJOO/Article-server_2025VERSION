@@ -7,6 +7,7 @@ import java.util.List;
 public interface Convertor {
   // New unified methods
   List<Keyword> convertKeywords(List<?> keywordList);
-
   Board convertBoard(Object board);
+  
+  
 }

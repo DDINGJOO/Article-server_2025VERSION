@@ -8,7 +8,9 @@ import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.exceptions.ErrorCode;
 import com.teambind.articleserver.repository.ArticleRepository;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,19 +23,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class ArticleCreateService {
 	
 	private final ArticleRepository articleRepository;
+
 	
 	public Article createArticle(
 			String title, String content, String writerId, Board board, List<Keyword> keywords
 	) {
-		Article article = Article.builder()
-				.title(title)
-				.content(content)
-				.writerId(writerId)
-				.board(board)
-				.createdAt(LocalDateTime.now())
-				.updatedAt(LocalDateTime.now())
-				.status(Status.ACTIVE)
-				.build();
+    Article article =
+        Article.builder()
+            .id(UUID.randomUUID().toString())
+            .title(title)
+            .content(content)
+            .writerId(writerId)
+            .board(board)
+            .keywords(new ArrayList<>())
+            .createdAt(LocalDateTime.now())
+            .updatedAt(LocalDateTime.now())
+            .status(Status.ACTIVE)
+            .build();
+
 		article.addKeywords(keywords);
 		
 		articleRepository.save(article);
