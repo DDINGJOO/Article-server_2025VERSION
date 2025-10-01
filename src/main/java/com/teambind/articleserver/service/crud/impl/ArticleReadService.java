@@ -9,6 +9,7 @@ import com.teambind.articleserver.entity.enums.Status;
 import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.exceptions.ErrorCode;
 import com.teambind.articleserver.repository.ArticleRepository;
+import com.teambind.articleserver.repository.ArticleRepositoryCustomImpl;
 import com.teambind.articleserver.utils.convertor.Convertor;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ArticleReadService {
   private final ArticleRepository articleRepository;
+  private final ArticleRepositoryCustomImpl articleRepositoryCustom;
   private final Convertor convertor;
 
   public Article fetchArticleById(String articleId) {
@@ -52,7 +54,8 @@ public class ArticleReadService {
 
     // Do not mutate criteria types; repository expects Board and List<Keyword> as-is
     List<Article> articles =
-        articleRepository.searchByCursor(criteria, effectiveCursorUpdatedAt, cursorId, size + 1);
+        articleRepositoryCustom.searchByCursor(
+            criteria, effectiveCursorUpdatedAt, cursorId, size + 1);
 
     boolean hasNext = articles.size() > size;
     if (hasNext) {

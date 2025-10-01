@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teambind.articleserver.dto.request.ArticleCreateRequest;
+import com.teambind.articleserver.dto.response.ArticleCursorPageResponse;
 import com.teambind.articleserver.entity.Article;
 import com.teambind.articleserver.entity.Board;
 import com.teambind.articleserver.entity.Keyword;
@@ -198,6 +199,160 @@ class ArticleControllerTest {
     mockMvc.perform(get("/api/articles/" + id))
         .andExpect(status().isBadRequest())
         .andExpect(content().string(org.hamcrest.Matchers.containsString("ARTICLE_IS_BLOCKED")));
+  }
+
+  @Test
+  @DisplayName("GET /api/articles/search 정상: 모든 파라미터 제공 시 Convertor와 Service가 올바르게 호출되고 응답을 반환")
+  void searchArticles_success_allParams() throws Exception {
+    // given
+    java.util.List<com.teambind.articleserver.entity.Keyword> convertedKeywords =
+        java.util.List.of(
+            com.teambind.articleserver.entity.Keyword.builder().id(10L).keyword("질문").build(),
+            com.teambind.articleserver.entity.Keyword.builder().id(11L).keyword("팁").build());
+    com.teambind.articleserver.entity.Board convertedBoard =
+        com.teambind.articleserver.entity.Board.builder().id(2L).boardName("자유게시판").build();
+
+    Mockito.when(convertor.convertKeywords(anyList())).thenReturn(convertedKeywords);
+    Mockito.when(convertor.convertBoard(eq("자유게시판"))).thenReturn(convertedBoard);
+
+    java.time.LocalDateTime now = java.time.LocalDateTime.now();
+    com.teambind.articleserver.dto.response.ArticleResponse item =
+        com.teambind.articleserver.dto.response.ArticleResponse.builder()
+            .articleId("ART-010")
+            .title("t")
+            .content("c")
+            .writerId("writer-9")
+            .board(convertedBoard)
+            .LastestUpdateId(now)
+            .imageUrls(java.util.List.of())
+            .keywords(java.util.Map.of())
+            .build();
+
+    com.teambind.articleserver.dto.response.ArticleCursorPageResponse page =
+        com.teambind.articleserver.dto.response.ArticleCursorPageResponse.builder()
+            .items(java.util.List.of(item))
+            .nextCursorUpdatedAt(now)
+            .nextCursorId("ART-010")
+            .hasNext(true)
+            .size(10)
+            .build();
+
+    Mockito.when(articleReadService.searchArticles(any(), any())).thenReturn(page);
+
+    // when
+    mockMvc
+        .perform(
+            get("/api/articles/search")
+                .param("size", "10")
+                .param("cursorId", "ART-005")
+                .param("board", "자유게시판")
+                .param("keyword", "질문")
+                .param("keyword", "팁")
+                .param("title", "테스트")
+                .param("content", "내용")
+                .param("writerIds", "writer-1")
+                .param("writerIds", "writer-2"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.size").value(10))
+        .andExpect(jsonPath("$.hasNext").value(true))
+        .andExpect(jsonPath("$.nextCursorId").value("ART-010"))
+        .andExpect(jsonPath("$.items[0].articleId").value("ART-010"))
+        .andExpect(jsonPath("$.items[0].board.boardName").value("자유게시판"));
+
+    // then - verify interactions and captured arguments
+    org.mockito.ArgumentCaptor<com.teambind.articleserver.dto.condition.ArticleSearchCriteria>
+        criteriaCaptor =
+            org.mockito.ArgumentCaptor.forClass(
+                com.teambind.articleserver.dto.condition.ArticleSearchCriteria.class);
+    org.mockito.ArgumentCaptor<com.teambind.articleserver.dto.request.ArticleCursorPageRequest>
+        pageReqCaptor =
+            org.mockito.ArgumentCaptor.forClass(
+                com.teambind.articleserver.dto.request.ArticleCursorPageRequest.class);
+
+    Mockito.verify(convertor, Mockito.times(1)).convertBoard("자유게시판");
+    Mockito.verify(convertor, Mockito.times(1)).convertKeywords(anyList());
+    Mockito.verify(articleReadService)
+        .searchArticles(criteriaCaptor.capture(), pageReqCaptor.capture());
+
+    com.teambind.articleserver.dto.condition.ArticleSearchCriteria captured =
+        criteriaCaptor.getValue();
+    org.junit.jupiter.api.Assertions.assertEquals(convertedBoard, captured.getBoard());
+    org.junit.jupiter.api.Assertions.assertEquals(2, captured.getKeywords().size());
+    org.junit.jupiter.api.Assertions.assertEquals("테스트", captured.getTitle());
+    org.junit.jupiter.api.Assertions.assertEquals("내용", captured.getContent());
+    org.junit.jupiter.api.Assertions.assertEquals(
+        java.util.List.of("writer-1", "writer-2"), captured.getWriterId());
+    org.junit.jupiter.api.Assertions.assertEquals(
+        com.teambind.articleserver.entity.enums.Status.ACTIVE, captured.getStatus());
+
+    com.teambind.articleserver.dto.request.ArticleCursorPageRequest capturedPageReq =
+        pageReqCaptor.getValue();
+    org.junit.jupiter.api.Assertions.assertEquals(10, capturedPageReq.getSize());
+    org.junit.jupiter.api.Assertions.assertEquals("ART-005", capturedPageReq.getCursorId());
+  }
+
+  @Test
+  @DisplayName("GET /api/articles/search 정상: 파라미터 없이 호출 시 기본 동작 및 변환기 호출 안 함")
+  void searchArticles_success_minimalParams() throws Exception {
+    // given
+    ArticleCursorPageResponse page =
+        ArticleCursorPageResponse.builder().items(List.of()).hasNext(false).size(0).build();
+
+    Mockito.when(articleReadService.searchArticles(any(), any())).thenReturn(page);
+
+    // when
+    mockMvc
+        .perform(get("/api/articles/search"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.items").isArray())
+        .andExpect(jsonPath("$.hasNext").value(false));
+
+    // then - converters not invoked
+    Mockito.verify(convertor, Mockito.never()).convertBoard(any());
+    Mockito.verify(convertor, Mockito.never()).convertKeywords(anyList());
+
+    org.mockito.ArgumentCaptor<com.teambind.articleserver.dto.condition.ArticleSearchCriteria>
+        criteriaCaptor =
+            org.mockito.ArgumentCaptor.forClass(
+                com.teambind.articleserver.dto.condition.ArticleSearchCriteria.class);
+    org.mockito.ArgumentCaptor<com.teambind.articleserver.dto.request.ArticleCursorPageRequest>
+        pageReqCaptor =
+            org.mockito.ArgumentCaptor.forClass(
+                com.teambind.articleserver.dto.request.ArticleCursorPageRequest.class);
+
+    Mockito.verify(articleReadService)
+        .searchArticles(criteriaCaptor.capture(), pageReqCaptor.capture());
+
+    com.teambind.articleserver.dto.condition.ArticleSearchCriteria captured =
+        criteriaCaptor.getValue();
+    org.junit.jupiter.api.Assertions.assertNull(captured.getBoard());
+    org.junit.jupiter.api.Assertions.assertNull(captured.getKeywords());
+    org.junit.jupiter.api.Assertions.assertNull(captured.getTitle());
+    org.junit.jupiter.api.Assertions.assertNull(captured.getContent());
+    org.junit.jupiter.api.Assertions.assertNull(captured.getWriterId());
+    org.junit.jupiter.api.Assertions.assertEquals(
+        com.teambind.articleserver.entity.enums.Status.ACTIVE, captured.getStatus());
+
+    com.teambind.articleserver.dto.request.ArticleCursorPageRequest capturedPageReq =
+        pageReqCaptor.getValue();
+    org.junit.jupiter.api.Assertions.assertNull(capturedPageReq.getCursorId());
+  }
+
+  @Test
+  @DisplayName("GET /api/articles/search 오류: Service에서 예외 발생 시 GlobalExceptionHandler 매핑 확인")
+  void searchArticles_error_serviceThrows() throws Exception {
+    // given
+    Mockito.when(articleReadService.searchArticles(any(), any()))
+        .thenThrow(
+            new com.teambind.articleserver.exceptions.CustomException(
+                com.teambind.articleserver.exceptions.ErrorCode.REQUIRED_FIELD_NULL));
+
+    // when & then
+    mockMvc
+        .perform(get("/api/articles/search").param("size", "20"))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            content().string(org.hamcrest.Matchers.containsString("REQUIRED_FIELD_IS_NULL")));
   }
 
   @TestConfiguration

@@ -74,6 +74,7 @@ public class ArticleController {
     if (title != null && !title.isBlank()) criteriaBuilder.title(title);
     if (content != null && !content.isBlank()) criteriaBuilder.content(content);
     if (writerIds != null && !writerIds.isEmpty()) criteriaBuilder.writerId(writerIds);
+    if (size == null || size <= 0) size = 10;
     criteriaBuilder.status(Status.ACTIVE);
 
     ArticleSearchCriteria criteria = criteriaBuilder.build();
