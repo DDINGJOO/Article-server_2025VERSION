@@ -16,6 +16,6 @@ public class ArticleSearchCriteria {
   private Long boardId;
   private String title;
   private String content;
-  private String writerId;
+  private List<String> writerId;
   private Status status;
 }
