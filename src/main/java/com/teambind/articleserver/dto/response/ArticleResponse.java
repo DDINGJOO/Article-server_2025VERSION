@@ -2,10 +2,10 @@ package com.teambind.articleserver.dto.response;
 
 import com.teambind.articleserver.entity.Article;
 import com.teambind.articleserver.entity.ArticleImage;
-import com.teambind.articleserver.entity.Board;
 import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.exceptions.ErrorCode;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.*;
@@ -17,14 +17,14 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ArticleResponse {
-	private String articleId;
-	private String title;
-	private String content;
-	private String writerId;
-	
-	private Board board;
-	
-	private LocalDateTime LastestUpdateId;
+  private String articleId;
+  private String title;
+  private String content;
+  private String writerId;
+
+  private Map<Long, String> board;
+
+  private LocalDateTime LastestUpdateId;
   private Map<String, String> imageUrls;
   private Map<Long, String> keywords;
 
@@ -47,13 +47,15 @@ public class ArticleResponse {
                       keyword -> keyword.getId().getKeywordId(),
                       keyword -> keyword.getKeyword().getKeyword()));
     }
+    Map<Long, String> board = new HashMap<>();
+    board.put(article.getBoard().getId(), article.getBoard().getBoardName());
 
     return ArticleResponse.builder()
         .articleId(article.getId())
         .title(article.getTitle())
         .content(article.getContent())
         .writerId(article.getWriterId())
-        .board(article.getBoard())
+        .board(board)
         .LastestUpdateId(article.getUpdatedAt())
         .imageUrls(imageUrls)
         .keywords(keywords)

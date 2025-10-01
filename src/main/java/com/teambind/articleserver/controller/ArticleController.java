@@ -28,7 +28,7 @@ public class ArticleController {
   private final Convertor convertor;
 
   @PostMapping()
-  public ResponseEntity<Article> createArticle(@RequestBody ArticleCreateRequest request) {
+  public ResponseEntity<ArticleResponse> createArticle(@RequestBody ArticleCreateRequest request) {
     List<Keyword> keywords = null;
     if (request.getKeywords() != null) {
       keywords = convertor.convertKeywords(request.getKeywords());
@@ -41,11 +41,11 @@ public class ArticleController {
 
     log.info("게시글이 성공적으로 저장되었습니다. article id : {}", article.getId());
 
-    return ResponseEntity.ok(article);
+    return ResponseEntity.ok(ArticleResponse.fromEntity(article));
   }
 
   @PutMapping("/{articleId}")
-  public ResponseEntity<Article> updateArticle(
+  public ResponseEntity<ArticleResponse> updateArticle(
       @RequestBody ArticleCreateRequest request, @PathVariable String articleId) {
     List<Keyword> keywords = null;
     if (request.getKeywords() != null) {
@@ -64,7 +64,7 @@ public class ArticleController {
 
     log.info("게시글이 성공적으로 저장되었습니다. article id : {}", article.getId());
 
-    return ResponseEntity.ok(article);
+    return ResponseEntity.ok(ArticleResponse.fromEntity(article));
   }
   
 
