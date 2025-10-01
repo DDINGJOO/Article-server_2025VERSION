@@ -223,7 +223,7 @@ class ArticleControllerTest {
             .writerId("writer-9")
             .board(convertedBoard)
             .LastestUpdateId(now)
-            .imageUrls(java.util.List.of())
+            .imageUrls((java.util.Map<String, String>) List.of())
             .keywords(java.util.Map.of())
             .build();
 

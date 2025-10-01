@@ -3,7 +3,7 @@ services:
     image: nginx:alpine
     container_name: nginx-article
     ports:
-      - "9100:80"
+      - "9300:80"
     command: [
       "sh", "-c",
       "printf 'upstream article_upstream {\n    server article-server-1:8080;\n    server article-server-2:8080;\n    server article-server-3:8080;\n}\n\nserver {\n    listen 80;\n    location / {\n        proxy_pass http://article_upstream;\n        proxy_set_header Host $$host;\n        proxy_set_header X-Real-IP $$remote_addr;\n        proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $$scheme;\n    }\n}\n' > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
