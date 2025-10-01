@@ -5,13 +5,12 @@ import com.teambind.articleserver.dto.request.ArticleCursorPageRequest;
 import com.teambind.articleserver.dto.response.ArticleCursorPageResponse;
 import com.teambind.articleserver.dto.response.ArticleResponse;
 import com.teambind.articleserver.entity.Article;
-import com.teambind.articleserver.entity.Keyword;
 import com.teambind.articleserver.entity.enums.Status;
 import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.exceptions.ErrorCode;
 import com.teambind.articleserver.repository.ArticleRepository;
 import com.teambind.articleserver.utils.convertor.Convertor;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,41 +39,18 @@ public class ArticleReadService {
 
   public ArticleCursorPageResponse searchArticles(
       ArticleSearchCriteria criteria, ArticleCursorPageRequest pageRequest) {
-
-    Article cursor =
-        articleRepository
-            .findById((pageRequest.getCursorId()))
-            .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
-
-    pageRequest.setCursorUpdatedAt(cursor.getUpdatedAt());
-
-    // Normalize board/keywords using Convertor to support id or name input
-    if (criteria != null) {
-      if (criteria.getBoard() != null) {
-        // convert to board id for stable filtering
-        var board = convertor.convertBoard(criteria.getBoard());
-        criteria.setBoard(board.getId());
-      }
-      if (criteria.getKeywords() != null) {
-        List<Keyword> keywords = convertor.convertKeywords(criteria.getKeywords());
-        List<Long> keywordIds = new ArrayList<>();
-        for (Keyword k : keywords) keywordIds.add(k.getId());
-        criteria.setKeywords(keywordIds);
-      }
-    }
-
+	  
     int size =
         (pageRequest.getSize() == null || pageRequest.getSize() <= 0) ? 20 : pageRequest.getSize();
 
-    // Derive cursorUpdatedAt from cursorId when not provided
-    java.time.LocalDateTime effectiveCursorUpdatedAt = pageRequest.getCursorUpdatedAt();
+    LocalDateTime effectiveCursorUpdatedAt = pageRequest.getCursorUpdatedAt();
     String cursorId = pageRequest.getCursorId();
     if (effectiveCursorUpdatedAt == null && cursorId != null && !cursorId.isBlank()) {
-      // Use existing validation path: fetchArticleById enforces visibility rules
       Article cursorArticle = fetchArticleById(cursorId);
       effectiveCursorUpdatedAt = cursorArticle.getUpdatedAt();
     }
 
+    // Do not mutate criteria types; repository expects Board and List<Keyword> as-is
     List<Article> articles =
         articleRepository.searchByCursor(criteria, effectiveCursorUpdatedAt, cursorId, size + 1);
 
