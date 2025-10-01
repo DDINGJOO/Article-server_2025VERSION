@@ -17,6 +17,7 @@ import com.teambind.articleserver.entity.Keyword;
 import com.teambind.articleserver.entity.enums.Status;
 import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.repository.ArticleRepository;
+import com.teambind.articleserver.repository.ArticleRepositoryCustomImpl;
 import com.teambind.articleserver.utils.convertor.Convertor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ArticleReadServiceTest {
 
   @Mock ArticleRepository articleRepository;
+  @Mock ArticleRepositoryCustomImpl articleRepositoryCustom;
   @Mock Convertor convertor; // currently unused in service, but kept for constructor
 
   @InjectMocks ArticleReadService articleReadService;
@@ -137,7 +139,7 @@ class ArticleReadServiceTest {
             .build();
 
     // repository returns fewer than requested to indicate no next page
-    when(articleRepository.searchByCursor(eq(criteria), isNull(), isNull(), eq(21)))
+    when(articleRepositoryCustom.searchByCursor(eq(criteria), isNull(), isNull(), eq(21)))
         .thenReturn(List.of(activeArticle));
 
     // when
@@ -150,7 +152,8 @@ class ArticleReadServiceTest {
         () -> assertThat(resp.getSize()).isEqualTo(20),
         () -> assertThat(resp.getNextCursorId()).isEqualTo("ART-1"));
 
-    verify(articleRepository, times(1)).searchByCursor(eq(criteria), isNull(), isNull(), eq(21));
+    verify(articleRepositoryCustom, times(1))
+        .searchByCursor(eq(criteria), isNull(), isNull(), eq(21));
     // must NOT attempt to read cursor by null id
     verify(articleRepository, never()).findById(isNull());
   }
@@ -173,7 +176,7 @@ class ArticleReadServiceTest {
       fetched.add(
           Article.builder().id("ART-" + (100 - i)).updatedAt(activeArticle.getUpdatedAt()).build());
     }
-    when(articleRepository.searchByCursor(
+    when(articleRepositoryCustom.searchByCursor(
             eq(criteria), eq(activeArticle.getUpdatedAt()), eq("ART-1"), eq(11)))
         .thenReturn(fetched);
 
@@ -189,7 +192,7 @@ class ArticleReadServiceTest {
         () -> assertNotNull(resp.getNextCursorUpdatedAt()));
 
     verify(articleRepository, times(1)).findById("ART-1");
-    verify(articleRepository, times(1))
+    verify(articleRepositoryCustom, times(1))
         .searchByCursor(eq(criteria), eq(activeArticle.getUpdatedAt()), eq("ART-1"), eq(11));
   }
 
@@ -215,7 +218,7 @@ class ArticleReadServiceTest {
 
     ArticleCursorPageRequest pageReq = ArticleCursorPageRequest.builder().size(5).build();
 
-    when(articleRepository.searchByCursor(eq(criteria), isNull(), isNull(), eq(6)))
+    when(articleRepositoryCustom.searchByCursor(eq(criteria), isNull(), isNull(), eq(6)))
         .thenReturn(List.of());
 
     // when
@@ -228,7 +231,8 @@ class ArticleReadServiceTest {
         () -> assertThat(resp.getSize()).isEqualTo(5));
 
     // verify criteria was passed as-is
-    verify(articleRepository, times(1)).searchByCursor(eq(criteria), isNull(), isNull(), eq(6));
+    verify(articleRepositoryCustom, times(1))
+        .searchByCursor(eq(criteria), isNull(), isNull(), eq(6));
   }
 
   @Test
@@ -244,6 +248,6 @@ class ArticleReadServiceTest {
     // when & then
     assertThrows(CustomException.class, () -> articleReadService.searchArticles(criteria, pageReq));
     verify(articleRepository, times(1)).findById("ART-D");
-    verify(articleRepository, never()).searchByCursor(any(), any(), any(), anyInt());
+    verify(articleRepositoryCustom, never()).searchByCursor(any(), any(), any(), anyInt());
   }
 }
