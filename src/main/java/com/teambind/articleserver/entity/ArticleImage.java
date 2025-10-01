@@ -17,6 +17,9 @@ public class ArticleImage {
   @Column(name = "article_image_url", nullable = false)
   private String imageUrl;
 
+  @Column(name = "image_id", nullable = false)
+  private String imageId;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @MapsId("articleId")
   @JoinColumn(name = "article_id", nullable = false)
