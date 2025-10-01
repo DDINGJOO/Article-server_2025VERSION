@@ -61,8 +61,12 @@ public class ArticleCreateService {
 		articleRepository.save(article);
 		return article;
 	}
-	
-	public void deleteArticle(Article article) {
+
+  public void deleteArticle(String articeId) {
+    Article article =
+        articleRepository
+            .findById(articeId)
+            .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 		article.setStatus(Status.DELETED);
 		articleRepository.save(article);
 		log.info("Article deleted : {}", article.getId());

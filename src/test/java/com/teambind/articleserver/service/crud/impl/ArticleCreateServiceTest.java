@@ -150,10 +150,10 @@ class ArticleCreateServiceTest {
 				.build();
 		
 		when(articleRepository.save(any(Article.class))).thenAnswer(invocation -> invocation.getArgument(0));
-		
-		// when
-		articleCreateService.deleteArticle(article);
-		
+
+    // when
+    articleCreateService.deleteArticle("art-2");
+
 		// then
 		assertThat(article.getStatus()).isEqualTo(Status.DELETED);
 		verify(articleRepository, times(1)).save(article);
