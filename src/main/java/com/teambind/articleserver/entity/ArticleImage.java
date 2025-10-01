@@ -30,4 +30,11 @@ public class ArticleImage {
     this.imageUrl = imageUrl;
     this.article = article;
   }
+
+  ArticleImage(Article article, Long index, String imageUrl, String imageId) {
+    this.id = new ArticleImagesId(article.getId(), index);
+    this.imageUrl = imageUrl;
+    this.article = article;
+    this.imageId = imageId;
+  }
 }
