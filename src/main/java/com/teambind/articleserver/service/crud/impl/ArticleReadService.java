@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class ArticleReadService {
   private final ArticleRepository articleRepository;
 
-  Article fetchArticleById(String articleId) {
+  public Article fetchArticleById(String articleId) {
     Article article =
         articleRepository
             .findById(articleId)
