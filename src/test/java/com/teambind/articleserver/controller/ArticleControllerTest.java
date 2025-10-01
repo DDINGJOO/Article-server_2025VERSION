@@ -1,8 +1,10 @@
 package com.teambind.articleserver.controller;
 
 import static org.mockito.ArgumentMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +13,7 @@ import com.teambind.articleserver.entity.Article;
 import com.teambind.articleserver.entity.Board;
 import com.teambind.articleserver.entity.Keyword;
 import com.teambind.articleserver.service.crud.impl.ArticleCreateService;
+import com.teambind.articleserver.service.crud.impl.ArticleReadService;
 import com.teambind.articleserver.utils.convertor.Convertor;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -18,20 +21,60 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = ArticleController.class)
+@Import(ArticleControllerTest.TestConfig.class)
 class ArticleControllerTest {
 
   @Autowired private MockMvc mockMvc;
 
   @Autowired private ObjectMapper objectMapper;
 
-  @MockBean private ArticleCreateService articleCreateService;
+  @Autowired private ArticleCreateService articleCreateService;
 
-  @MockBean private Convertor convertor;
+  @Autowired private Convertor convertor;
+
+  @Autowired private ArticleReadService articleReadService;
+
+  @Test
+  @DisplayName("GET /api/articles/{id} 정상: ArticleResponse 반환")
+  void fetchArticle_success() throws Exception {
+    // given
+    String id = "ART-100";
+    com.teambind.articleserver.entity.Article article = com.teambind.articleserver.entity.Article.builder()
+        .id(id)
+        .title("제목")
+        .content("내용")
+        .writerId("writer-1")
+        .board(com.teambind.articleserver.entity.Board.builder().id(2L).boardName("자유게시판").build())
+        .updatedAt(java.time.LocalDateTime.now())
+        .images(new java.util.ArrayList<>())
+        .keywords(new java.util.ArrayList<>())
+        .build();
+    // 관계 편의 메서드 활용
+    article.addImage("https://img/1.png");
+    article.addKeywords(java.util.List.of(
+        com.teambind.articleserver.entity.Keyword.builder().id(5L).keyword("질문").build(),
+        com.teambind.articleserver.entity.Keyword.builder().id(7L).keyword("팁").build()
+    ));
+
+    Mockito.when(articleReadService.fetchArticleById(id)).thenReturn(article);
+
+    // when & then
+    mockMvc.perform(get("/api/articles/" + id))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.articleId").value(id))
+        .andExpect(jsonPath("$.title").value("제목"))
+        .andExpect(jsonPath("$.board.boardName").value("자유게시판"))
+        .andExpect(jsonPath("$.imageUrls[0]").value("https://img/1.png"))
+        .andExpect(jsonPath("$.keywords['5']").value("질문"))
+        .andExpect(jsonPath("$.keywords['7']").value("팁"));
+  }
 
   @Test
   @DisplayName("POST /api/articles 게시글을 생성하고 아이디를 리턴받는다.")
@@ -125,5 +168,51 @@ class ArticleControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isNotFound())
         .andExpect(content().string(org.hamcrest.Matchers.containsString("ARTICLE_NOT_FOUND")));
+  }
+
+  @Test
+  @DisplayName("GET /api/articles/{id} 오류: ARTICLE_NOT_FOUND → 404")
+  void fetchArticle_error_notFound() throws Exception {
+    // given
+    String id = "NOT-EXIST";
+    Mockito.when(articleReadService.fetchArticleById(id))
+        .thenThrow(new com.teambind.articleserver.exceptions.CustomException(
+            com.teambind.articleserver.exceptions.ErrorCode.ARTICLE_NOT_FOUND));
+
+    // when & then
+    mockMvc.perform(get("/api/articles/" + id))
+        .andExpect(status().isNotFound())
+        .andExpect(content().string(org.hamcrest.Matchers.containsString("ARTICLE_NOT_FOUND")));
+  }
+
+  @Test
+  @DisplayName("GET /api/articles/{id} 오류: ARTICLE_IS_BLOCKED → 400")
+  void fetchArticle_error_blocked() throws Exception {
+    // given
+    String id = "BLOCKED";
+    Mockito.when(articleReadService.fetchArticleById(id))
+        .thenThrow(new com.teambind.articleserver.exceptions.CustomException(
+            com.teambind.articleserver.exceptions.ErrorCode.ARTICLE_IS_BLOCKED));
+
+    // when & then
+    mockMvc.perform(get("/api/articles/" + id))
+        .andExpect(status().isBadRequest())
+        .andExpect(content().string(org.hamcrest.Matchers.containsString("ARTICLE_IS_BLOCKED")));
+  }
+
+  @TestConfiguration
+  static class TestConfig {
+    @Bean
+    ArticleCreateService articleCreateService() {
+      return org.mockito.Mockito.mock(ArticleCreateService.class);
+    }
+    @Bean
+    ArticleReadService articleReadService() {
+      return org.mockito.Mockito.mock(ArticleReadService.class);
+    }
+    @Bean
+    Convertor convertor() {
+      return org.mockito.Mockito.mock(Convertor.class);
+    }
   }
 }
