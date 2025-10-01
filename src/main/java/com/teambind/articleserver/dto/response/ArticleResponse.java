@@ -3,6 +3,8 @@ package com.teambind.articleserver.dto.response;
 import com.teambind.articleserver.entity.Article;
 import com.teambind.articleserver.entity.ArticleImage;
 import com.teambind.articleserver.entity.Board;
+import com.teambind.articleserver.exceptions.CustomException;
+import com.teambind.articleserver.exceptions.ErrorCode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +30,9 @@ public class ArticleResponse {
   private Map<Long, String> keywords;
 
   public static ArticleResponse fromEntity(Article article) {
-
+    if (article == null) {
+      throw new CustomException(ErrorCode.ARTICLE_IS_NULL);
+    }
     return ArticleResponse.builder()
         .articleId(article.getId())
         .title(article.getTitle())
