@@ -1,13 +1,12 @@
 package com.teambind.articleserver.entity;
+import static com.teambind.articleserver.utils.DataInitializer.keywordMap;
+
 import com.teambind.articleserver.entity.enums.Status;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.teambind.articleserver.utils.DataInitializer.keywordMap;
+import lombok.*;
 
 @Entity
 @Table(name = "articles")
@@ -89,7 +88,17 @@ public class Article {
 				new ArticleImage(this, index, imageUrl)
 		);
 	}
-	
+
+  public void addImage(String imageUrl, String articleId) {
+    long index = 0L;
+    if (this.images == null) {
+      this.images = new ArrayList<ArticleImage>();
+    } else {
+      index = (long) images.size() + 1;
+    }
+    images.add(new ArticleImage(this, index, imageUrl, articleId));
+  }
+
 	public void removeImages() {
 		images.forEach(im -> im.setArticle(null));
 		images.clear();

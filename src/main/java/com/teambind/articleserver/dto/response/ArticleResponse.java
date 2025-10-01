@@ -6,7 +6,6 @@ import com.teambind.articleserver.entity.Board;
 import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.exceptions.ErrorCode;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.*;
@@ -26,16 +25,18 @@ public class ArticleResponse {
 	private Board board;
 	
 	private LocalDateTime LastestUpdateId;
-	private List<String> imageUrls;
+  private Map<String, String> imageUrls;
   private Map<Long, String> keywords;
 
   public static ArticleResponse fromEntity(Article article) {
     if (article == null) {
       throw new CustomException(ErrorCode.ARTICLE_IS_NULL);
     }
-    List<String> imageUrls = null;
+    Map<String, String> imageUrls = null;
     if (article.getImages() != null) {
-      imageUrls = article.getImages().stream().map(ArticleImage::getImageUrl).toList();
+      imageUrls =
+          article.getImages().stream()
+              .collect(Collectors.toMap(ArticleImage::getImageId, ArticleImage::getImageUrl));
     }
     Map<Long, String> keywords = null;
     if (article.getKeywords() != null) {
