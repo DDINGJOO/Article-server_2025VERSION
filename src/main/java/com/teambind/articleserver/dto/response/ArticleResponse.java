@@ -48,8 +48,9 @@ public class ArticleResponse {
                       keyword -> keyword.getKeyword().getKeyword()));
     }
     Map<Long, String> board = new HashMap<>();
-    board.put(article.getBoard().getId(), article.getBoard().getBoardName());
-
+    if (article.getBoard() != null) {
+      board.put(article.getBoard().getId(), article.getBoard().getBoardName());
+    }
     return ArticleResponse.builder()
         .articleId(article.getId())
         .title(article.getTitle())
