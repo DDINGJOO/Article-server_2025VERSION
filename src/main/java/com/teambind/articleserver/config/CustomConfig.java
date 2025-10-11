@@ -1,6 +1,8 @@
 package com.teambind.articleserver.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.teambind.articleserver.utils.generator.primay_key.KeyProvider;
+import com.teambind.articleserver.utils.generator.primay_key.Snowflake;
 import jakarta.persistence.EntityManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,5 +15,10 @@ public class CustomConfig {
   @Bean
   public JPAQueryFactory jpaQueryFactory(EntityManager entityManager) {
     return new JPAQueryFactory(entityManager);
+  }
+
+  @Bean
+  public KeyProvider keyGenerator() {
+    return new Snowflake();
   }
 }
