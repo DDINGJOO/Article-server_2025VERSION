@@ -4,7 +4,7 @@ import com.teambind.articleserver.entity.Article;
 import com.teambind.articleserver.entity.Board;
 import com.teambind.articleserver.entity.Keyword;
 import com.teambind.articleserver.entity.enums.Status;
-import com.teambind.articleserver.event.events.ArticleUpdatedEvent;
+import com.teambind.articleserver.event.events.ArticleCreatedEvent;
 import com.teambind.articleserver.event.publish.KafkaPublisher;
 import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.exceptions.ErrorCode;
@@ -47,7 +47,7 @@ public class ArticleCreateService {
 		article.addKeywords(keywords);
 		
 		articleRepository.save(article);
-		publishArticleCreatedEvent(article);
+    publishArticleCreatedEvent(article);
 		return article;
 	}
 	
@@ -63,7 +63,7 @@ public class ArticleCreateService {
 		article.removeImages();
 		article.addKeywords(keywords);
 		articleRepository.save(article);
-		publishArticleCreatedEvent(article);
+    publishArticleCreatedEvent(article);
 		return article;
 	}
 
@@ -77,9 +77,8 @@ public class ArticleCreateService {
 		log.info("Article deleted : {}", article.getId());
 		
 	}
-	
-	
-	private void publishArticleCreatedEvent(Article article) {
-		kafkaPublisher.articleUpdatedEvent(ArticleUpdatedEvent.from(article));
-	}
+
+  private void publishArticleCreatedEvent(Article article) {
+    kafkaPublisher.articleUpdatedEvent(ArticleCreatedEvent.from(article));
+  }
 }
