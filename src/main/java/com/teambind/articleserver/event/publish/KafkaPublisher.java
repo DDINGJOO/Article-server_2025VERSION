@@ -2,7 +2,7 @@ package com.teambind.articleserver.event.publish;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.teambind.articleserver.event.events.ArticleUpdatedEvent;
+import com.teambind.articleserver.event.events.ArticleCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -13,8 +13,8 @@ public class KafkaPublisher {
   private final KafkaTemplate<String, Object> kafkaTemplate;
   private final ObjectMapper objectMapper;
 
-  public void articleUpdatedEvent(ArticleUpdatedEvent event) {
-    String topic = "article-updated";
+  public void articleUpdatedEvent(ArticleCreatedEvent event) {
+    String topic = "article-created";
     publish(topic, event);
   }
 

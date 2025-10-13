@@ -8,14 +8,14 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ArticleUpdatedEvent {
+public class ArticleCreatedEvent {
   private String articleId;
   private String writerId;
   private Long version;
   private String title;
 
-  public static ArticleUpdatedEvent from(Article article) {
-    return ArticleUpdatedEvent.builder()
+  public static ArticleCreatedEvent from(Article article) {
+    return ArticleCreatedEvent.builder()
         .articleId(article.getId())
         .writerId(article.getWriterId())
         .version(article.getVersion())
