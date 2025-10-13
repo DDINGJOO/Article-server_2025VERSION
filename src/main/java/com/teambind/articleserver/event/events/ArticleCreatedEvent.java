@@ -1,6 +1,7 @@
 package com.teambind.articleserver.event.events;
 
 import com.teambind.articleserver.entity.Article;
+import java.time.LocalDateTime;
 import lombok.*;
 
 @Getter
@@ -13,6 +14,7 @@ public class ArticleCreatedEvent {
   private String writerId;
   private Long version;
   private String title;
+  private LocalDateTime createdAt;
 
   public static ArticleCreatedEvent from(Article article) {
     return ArticleCreatedEvent.builder()
@@ -20,6 +22,7 @@ public class ArticleCreatedEvent {
         .writerId(article.getWriterId())
         .version(article.getVersion())
         .title(article.getTitle())
+		    .createdAt(article.getCreatedAt())
         .build();
   }
 }
