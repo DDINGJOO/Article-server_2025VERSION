@@ -115,7 +115,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
                     keywordsFilter(criteria, qKeyword),
                     cursorFilter(article, cursorUpdatedAt, cursorId)))
             .orderBy(
-                new OrderSpecifier<>(Order.DESC, article.updatedAt),
+                new OrderSpecifier<>(Order.DESC, article.createdAt),
                 new OrderSpecifier<>(Order.DESC, article.id))
             .limit(size);
 
