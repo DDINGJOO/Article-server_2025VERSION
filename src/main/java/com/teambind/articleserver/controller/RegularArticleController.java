@@ -5,90 +5,38 @@ import com.teambind.articleserver.dto.request.ArticleCreateRequest;
 import com.teambind.articleserver.dto.request.ArticleCursorPageRequest;
 import com.teambind.articleserver.dto.response.ArticleCursorPageResponse;
 import com.teambind.articleserver.dto.response.ArticleResponse;
-import com.teambind.articleserver.dto.response.EventArticleResponse;
 import com.teambind.articleserver.entity.Article;
 import com.teambind.articleserver.entity.Board;
-import com.teambind.articleserver.entity.EventArticle;
 import com.teambind.articleserver.entity.Keyword;
-import com.teambind.articleserver.entity.NoticeArticle;
 import com.teambind.articleserver.entity.RegularArticle;
 import com.teambind.articleserver.entity.enums.Status;
 import com.teambind.articleserver.service.crud.impl.ArticleCreateService;
 import com.teambind.articleserver.service.crud.impl.ArticleReadService;
 import com.teambind.articleserver.utils.convertor.Convertor;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/articles")
+@RequestMapping("/api/articles/regular")
 @RequiredArgsConstructor
 @Slf4j
-public class ArticleController {
+public class RegularArticleController {
   private final ArticleCreateService articleCreateService;
   private final ArticleReadService articleReadService;
   private final Convertor convertor;
 
   @PostMapping()
-  public ResponseEntity<ArticleResponse> createArticle(@RequestBody ArticleCreateRequest request) {
-    List<Keyword> keywords = null;
-    if (request.getKeywords() != null) {
-      keywords = convertor.convertKeywords(request.getKeywords());
-    }
-    Board board = convertor.convertBoard(request.getBoard());
-
-    Article article =
-        articleCreateService.createArticle(
-            request.getTitle(), request.getContent(), request.getWriterId(),board,  keywords);
-
-    log.info("게시글이 성공적으로 저장되었습니다. article id : {}", article.getId());
-
-    return ResponseEntity.ok(ArticleResponse.fromEntity(article));
-  }
-
-  @PostMapping("/events")
-  public ResponseEntity<EventArticleResponse> createEventArticle(@RequestBody ArticleCreateRequest request) {
-    List<Keyword> keywords = null;
-    if (request.getKeywords() != null) {
-      keywords = convertor.convertKeywords(request.getKeywords());
-    }
-    Board board = convertor.convertBoard(request.getBoard());
-
-    EventArticle article =
-        articleCreateService.createEventArticle(
-            request.getTitle(), request.getContent(), request.getWriterId(),  keywords,
-            request.getEventStartDate(), request.getEventEndDate());
-
-    log.info("이벤트 게시글이 성공적으로 저장되었습니다. article id : {}", article.getId());
-
-    return ResponseEntity.ok(EventArticleResponse.fromEntity(article));
-  }
-
-  @PostMapping("/notices")
-  public ResponseEntity<ArticleResponse> createNoticeArticle(@RequestBody ArticleCreateRequest request) {
-    List<Keyword> keywords = null;
-    if (request.getKeywords() != null) {
-      keywords = convertor.convertKeywords(request.getKeywords());
-    }
-
-    NoticeArticle article =
-        articleCreateService.createNoticeArticle(
-            request.getTitle(), request.getContent(), request.getWriterId(), keywords);
-
-    log.info("공지사항이 성공적으로 저장되었습니다. article id : {}", article.getId());
-
-    return ResponseEntity.ok(ArticleResponse.fromEntity(article));
-  }
-
-  @PostMapping("/regular")
   public ResponseEntity<ArticleResponse> createRegularArticle(@RequestBody ArticleCreateRequest request) {
     List<Keyword> keywords = null;
     if (request.getKeywords() != null) {
       keywords = convertor.convertKeywords(request.getKeywords());
     }
-	Board board = convertor.convertBoard(request.getBoard());
+    Board board = convertor.convertBoard(request.getBoard());
+
     RegularArticle article =
         articleCreateService.createRegularArticle(
             request.getTitle(), request.getContent(), request.getWriterId(), board, keywords);
@@ -99,7 +47,7 @@ public class ArticleController {
   }
 
   @PutMapping("/{articleId}")
-  public ResponseEntity<ArticleResponse> updateArticle(
+  public ResponseEntity<ArticleResponse> updateRegularArticle(
       @RequestBody ArticleCreateRequest request, @PathVariable String articleId) {
     List<Keyword> keywords = null;
     if (request.getKeywords() != null) {
@@ -116,38 +64,13 @@ public class ArticleController {
             board,
             keywords);
 
-    log.info("게시글이 성공적으로 저장되었습니다. article id : {}", article.getId());
+    log.info("일반 게시글이 성공적으로 수정되었습니다. article id : {}", article.getId());
 
     return ResponseEntity.ok(ArticleResponse.fromEntity(article));
   }
 
-  @PutMapping("/events/{articleId}")
-  public ResponseEntity<EventArticleResponse> updateEventArticle(
-      @RequestBody ArticleCreateRequest request, @PathVariable String articleId) {
-    List<Keyword> keywords = null;
-    if (request.getKeywords() != null) {
-      keywords = convertor.convertKeywords(request.getKeywords());
-    }
-    Board board = convertor.convertBoard(request.getBoard());
-
-    EventArticle article =
-        articleCreateService.updateEventArticle(
-            articleId,
-            request.getTitle(),
-            request.getContent(),
-            request.getWriterId(),
-            keywords,
-            request.getEventStartDate(),
-            request.getEventEndDate());
-
-    log.info("이벤트 게시글이 성공적으로 수정되었습니다. article id : {}", article.getId());
-
-    return ResponseEntity.ok(EventArticleResponse.fromEntity(article));
-  }
-  
-
   @GetMapping("/{articleId}")
-  public ResponseEntity<ArticleResponse> fetchArticle(
+  public ResponseEntity<ArticleResponse> fetchRegularArticle(
       @PathVariable(name = "articleId") String articleId) {
     Article article = articleReadService.fetchArticleById(articleId);
 
@@ -155,13 +78,13 @@ public class ArticleController {
   }
 
   @DeleteMapping("/{articleId}")
-  public ResponseEntity<Void> deleteArticle(@PathVariable(name = "articleId") String articleId) {
+  public ResponseEntity<Void> deleteRegularArticle(@PathVariable(name = "articleId") String articleId) {
     articleCreateService.deleteArticle(articleId);
     return ResponseEntity.noContent().build();
   }
 
   @GetMapping("/search")
-  public ResponseEntity<ArticleCursorPageResponse> searchGet(
+  public ResponseEntity<ArticleCursorPageResponse> searchRegularArticles(
       @RequestParam(required = false) Integer size,
       @RequestParam(required = false) String cursorId,
       @RequestParam(required = false) String board,
@@ -186,7 +109,6 @@ public class ArticleController {
       criteriaBuilder.board(convertor.convertBoard(safeBoard));
     }
     if (keyword != null && !keyword.isEmpty()) {
-      // 방어적으로 각 키워드 항목에 대해 URL 디코딩 시도 (필요 시)
       List<String> safeKeywords = new java.util.ArrayList<>(keyword.size());
       for (String k : keyword) {
         String v = k;
