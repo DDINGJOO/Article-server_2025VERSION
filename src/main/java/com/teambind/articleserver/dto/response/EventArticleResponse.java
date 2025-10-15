@@ -1,15 +1,15 @@
 package com.teambind.articleserver.dto.response;
 
-import com.teambind.articleserver.entity.Article;
 import com.teambind.articleserver.entity.ArticleImage;
 import com.teambind.articleserver.entity.EventArticle;
 import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.exceptions.ErrorCode;
+import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.*;
 
 @Data
 @Getter
@@ -17,7 +17,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ArticleResponse {
+public class EventArticleResponse {
   private String articleId;
   private String title;
   private String content;
@@ -29,7 +29,10 @@ public class ArticleResponse {
   private Map<String, String> imageUrls;
   private Map<Long, String> keywords;
 
-  public static ArticleResponse fromEntity(Article article) {
+  private LocalDateTime eventStartDate;
+  private LocalDateTime eventEndDate;
+
+  public static EventArticleResponse fromEntity(EventArticle article) {
     if (article == null) {
       throw new CustomException(ErrorCode.ARTICLE_IS_NULL);
     }
@@ -52,7 +55,7 @@ public class ArticleResponse {
     if (article.getBoard() != null) {
       board.put(article.getBoard().getId(), article.getBoard().getBoardName());
     }
-    return ArticleResponse.builder()
+    return EventArticleResponse.builder()
         .articleId(article.getId())
         .title(article.getTitle())
         .content(article.getContent())
@@ -61,6 +64,8 @@ public class ArticleResponse {
         .LastestUpdateId(article.getUpdatedAt())
         .imageUrls(imageUrls)
         .keywords(keywords)
+        .eventStartDate(article.getEventStartDate())
+        .eventEndDate(article.getEventEndDate())
         .build();
   }
 }
