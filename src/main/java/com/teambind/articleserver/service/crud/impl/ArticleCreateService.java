@@ -10,7 +10,7 @@ import com.teambind.articleserver.repository.ArticleRepository;
 import com.teambind.articleserver.repository.EventArticleRepository;
 import com.teambind.articleserver.repository.NoticeArticleRepository;
 import com.teambind.articleserver.repository.RegularArticleRepository;
-import com.teambind.articleserver.utils.generator.primay_key.KeyProvider;
+import com.teambind.articleserver.utils.generator.primay_key.PrimaryKetGenerator;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,19 +30,20 @@ public class ArticleCreateService {
 	private final EventArticleRepository eventArticleRepository;
 	private final NoticeArticleRepository noticeArticleRepository;
 	private final com.teambind.articleserver.repository.BoardRepository boardRepository;
-  private final KeyProvider keyProvider;
+  private final PrimaryKetGenerator primaryKetGenerator;
   private final KafkaPublisher kafkaPublisher;
 
 	// 일반 게시글 생성
 	public RegularArticle createRegularArticle(
 			String title, String content, String writerId,Board board,  List<Keyword> keywords
 	) {
-    RegularArticle article = RegularArticle.builder()
-            .id(keyProvider.generateKey())
+    RegularArticle article =
+        RegularArticle.builder()
+            .id(primaryKetGenerator.generateKey())
             .title(title)
             .content(content)
             .writerId(writerId)
-		    .board(board)
+            .board(board)
             .keywords(new ArrayList<>())
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
@@ -63,8 +64,9 @@ public class ArticleCreateService {
 	) {
 		Board eventBoard = boardRepository.findByBoardName("이벤트")
 				.orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
-    EventArticle article = EventArticle.builder()
-            .id(keyProvider.generateKey())
+    EventArticle article =
+        EventArticle.builder()
+            .id(primaryKetGenerator.generateKey())
             .title(title)
             .content(content)
             .writerId(writerId)
@@ -91,8 +93,9 @@ public class ArticleCreateService {
 		Board noticeBoard = boardRepository.findByBoardName("공지사항")
 				.orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
-    NoticeArticle article = NoticeArticle.builder()
-            .id(keyProvider.generateKey())
+    NoticeArticle article =
+        NoticeArticle.builder()
+            .id(primaryKetGenerator.generateKey())
             .title(title)
             .content(content)
             .writerId(writerId)
