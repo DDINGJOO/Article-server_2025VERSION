@@ -21,4 +21,15 @@ public class EventArticle extends Article {
 
   @Column(name = "event_end_date", nullable = false)
   private LocalDateTime eventEndDate;
+
+  /**
+   * 이벤트 기간 업데이트
+   *
+   * @param eventStartDate 이벤트 시작일
+   * @param eventEndDate 이벤트 종료일
+   */
+  public void updateEventPeriod(LocalDateTime eventStartDate, LocalDateTime eventEndDate) {
+    this.eventStartDate = eventStartDate;
+    this.eventEndDate = eventEndDate;
+  }
 }

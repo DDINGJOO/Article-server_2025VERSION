@@ -28,11 +28,37 @@ import lombok.extern.slf4j.Slf4j;
 @Table(
     name = "articles",
     indexes = {
+      // 단일 인덱스 (기존 유지 - 다른 쿼리에서 사용될 수 있음)
       @Index(name = "idx_article_board", columnList = "board_id"),
       @Index(name = "idx_article_writer", columnList = "writer_id"),
-      @Index(name = "idx_article_status", columnList = "status"),
-      @Index(name = "idx_article_created", columnList = "created_at"),
-      @Index(name = "idx_article_type", columnList = "article_type")
+
+      // 복합 인덱스 (성능 최적화)
+      // 1. 상태별 최신순 조회 (가장 자주 사용)
+      @Index(name = "idx_status_created_id", columnList = "status, created_at, article_id"),
+
+      // 2. 커서 페이징용 (updated_at 기준)
+      @Index(name = "idx_status_updated_id", columnList = "status, updated_at, article_id"),
+
+      // 3. 게시판별 상태 및 최신순 조회
+      @Index(name = "idx_board_status_created", columnList = "board_id, status, created_at"),
+
+      // 4. 작성자별 상태 및 최신순 조회
+      @Index(name = "idx_writer_status_created", columnList = "writer_id, status, created_at"),
+
+      // 5. 타입별 조회 (Single Table Inheritance)
+      @Index(name = "idx_type_status_created", columnList = "article_type, status, created_at"),
+
+      // 6. EventArticle 전용 인덱스
+      // 진행중 이벤트 조회: WHERE status = ? AND now BETWEEN start AND end
+      @Index(
+          name = "idx_event_status_dates",
+          columnList = "article_type, status, event_start_date, event_end_date"),
+
+      // 종료된 이벤트 조회: WHERE status = ? AND end < now
+      @Index(name = "idx_event_status_end", columnList = "article_type, status, event_end_date"),
+
+      // 예정 이벤트 조회: WHERE status = ? AND start > now
+      @Index(name = "idx_event_status_start", columnList = "article_type, status, event_start_date")
     })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "article_type", discriminatorType = DiscriminatorType.STRING)
@@ -91,6 +117,7 @@ public abstract class Article {
       cascade = CascadeType.ALL,
       orphanRemoval = true,
       fetch = FetchType.LAZY)
+  @org.hibernate.annotations.BatchSize(size = 100)
   @ToString.Exclude
   @Builder.Default
   private List<ArticleImage> images = new ArrayList<>();
@@ -101,6 +128,7 @@ public abstract class Article {
       cascade = CascadeType.ALL,
       orphanRemoval = true,
       fetch = FetchType.LAZY)
+  @org.hibernate.annotations.BatchSize(size = 100)
   @ToString.Exclude
   @Builder.Default
   private List<KeywordMappingTable> keywordMappings = new ArrayList<>();

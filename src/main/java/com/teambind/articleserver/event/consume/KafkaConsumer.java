@@ -2,7 +2,7 @@ package com.teambind.articleserver.event.consume;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.teambind.articleserver.entity.Article;
+import com.teambind.articleserver.entity.article.Article;
 import com.teambind.articleserver.event.events.ImageChangeEvent;
 import com.teambind.articleserver.event.events.ImagesChangeEventWrapper;
 import com.teambind.articleserver.exceptions.CustomException;

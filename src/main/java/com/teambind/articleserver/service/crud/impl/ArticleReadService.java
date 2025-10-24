@@ -1,30 +1,33 @@
 package com.teambind.articleserver.service.crud.impl;
 
+import com.teambind.articleserver.aop.LogTrace;
 import com.teambind.articleserver.dto.condition.ArticleSearchCriteria;
 import com.teambind.articleserver.dto.request.ArticleCursorPageRequest;
 import com.teambind.articleserver.dto.response.ArticleCursorPageResponse;
 import com.teambind.articleserver.dto.response.ArticleResponse;
-import com.teambind.articleserver.entity.Article;
+import com.teambind.articleserver.dto.response.article.ArticleBaseResponse;
+import com.teambind.articleserver.entity.article.Article;
 import com.teambind.articleserver.entity.enums.Status;
 import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.exceptions.ErrorCode;
 import com.teambind.articleserver.repository.ArticleRepository;
 import com.teambind.articleserver.repository.ArticleRepositoryCustomImpl;
-import com.teambind.articleserver.utils.convertor.Convertor;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class ArticleReadService {
   private final ArticleRepository articleRepository;
   private final ArticleRepositoryCustomImpl articleRepositoryCustom;
-  private final Convertor convertor;
 
+  @LogTrace(value = "게시글 단건 조회", logParameters = true)
   public Article fetchArticleById(String articleId) {
     Article article =
         articleRepository
@@ -39,9 +42,10 @@ public class ArticleReadService {
     return article;
   }
 
+  @LogTrace(value = "게시글 검색", logParameters = false, logResult = false)
   public ArticleCursorPageResponse searchArticles(
       ArticleSearchCriteria criteria, ArticleCursorPageRequest pageRequest) {
-	  
+
     int size =
         (pageRequest.getSize() == null || pageRequest.getSize() <= 0) ? 20 : pageRequest.getSize();
 	
@@ -61,7 +65,7 @@ public class ArticleReadService {
       articles = articles.subList(0, size);
     }
 
-    List<ArticleResponse> items = articles.stream().map(ArticleResponse::fromEntity).toList();
+    List<ArticleBaseResponse> items = articles.stream().map(ArticleResponse::fromEntity).toList();
 
     String nextCursorId = null;
     java.time.LocalDateTime nextCursorUpdatedAt = null;

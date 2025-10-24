@@ -1,6 +1,6 @@
 package com.teambind.articleserver.repository;
 
-import com.teambind.articleserver.entity.Article;
+import com.teambind.articleserver.entity.article.Article;
 import com.teambind.articleserver.repository.projection.ArticleSimpleView;
 import java.util.Collection;
 import java.util.List;
