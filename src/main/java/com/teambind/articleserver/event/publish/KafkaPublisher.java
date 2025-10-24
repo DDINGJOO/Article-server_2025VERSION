@@ -18,6 +18,11 @@ public class KafkaPublisher {
     publish(topic, event);
   }
 
+  public void articleDeletedEvent(ArticleCreatedEvent event) {
+    String topic = "article-deleted";
+    publish(topic, event);
+  }
+
   private void publish(String topic, Object message) {
     try {
       String json = objectMapper.writeValueAsString(message);

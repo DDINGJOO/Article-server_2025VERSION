@@ -1,6 +1,6 @@
 package com.teambind.articleserver.repository;
 
-import com.teambind.articleserver.entity.NoticeArticle;
+import com.teambind.articleserver.entity.articleType.NoticeArticle;
 import com.teambind.articleserver.entity.enums.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

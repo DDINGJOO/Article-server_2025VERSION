@@ -1,11 +1,22 @@
 package com.teambind.articleserver.repository;
 
-import com.teambind.articleserver.entity.Keyword;
+import com.teambind.articleserver.entity.keyword.Keyword;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface KeywordRepository extends JpaRepository<Keyword, Long> {
-  List<Keyword> findAllByKeywordIn(List<String> keywordList);
+
+  // 메서드명이 실제 필드명과 다름 (keyword -> name) - 수정 필요
+  @Query("SELECT k FROM Keyword k WHERE k.name IN :keywordNames")
+  List<Keyword> findAllByKeywordIn(@Param("keywordNames") List<String> keywordNames);
+
+  // 올바른 메서드명
+  List<Keyword> findAllByNameIn(List<String> names);
+
+  // ID 리스트로 존재 개수 확인 (Validation용)
+  long countByIdIn(List<Long> ids);
 }
