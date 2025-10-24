@@ -131,7 +131,8 @@ public class Board {
   /** 모든 게시글 제거 */
   public void clearArticles() {
     if (articles != null) {
-      articles.forEach(article -> article.setBoard(null));
+      // ConcurrentModificationException 방지를 위해 복사본 생성
+      new ArrayList<>(articles).forEach(article -> article.setBoard(null));
       articles.clear();
     }
   }
@@ -182,7 +183,8 @@ public class Board {
   /** 모든 키워드 제거 */
   public void clearKeywords() {
     if (keywords != null) {
-      keywords.forEach(Keyword::detachFromBoard);
+      // ConcurrentModificationException 방지를 위해 복사본 생성
+      new ArrayList<>(keywords).forEach(Keyword::detachFromBoard);
       keywords.clear();
     }
   }
