@@ -1,18 +1,18 @@
 package com.teambind.articleserver.validation;
 
-import com.teambind.articleserver.repository.KeywordRepository;
+import com.teambind.articleserver.utils.DataInitializer;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-/** ValidKeywordIds 어노테이션의 실제 검증 로직 */
+/**
+ * ValidKeywordIds 어노테이션의 실제 검증 로직
+ *
+ * <p>DataInitializer의 캐시된 keywordMap을 사용하여 DB 조회 없이 빠른 검증
+ */
 @Component
-@RequiredArgsConstructor
 public class ValidKeywordIdsValidator implements ConstraintValidator<ValidKeywordIds, List<Long>> {
-
-  private final KeywordRepository keywordRepository;
 
   @Override
   public boolean isValid(List<Long> keywordIds, ConstraintValidatorContext context) {
@@ -21,8 +21,7 @@ public class ValidKeywordIdsValidator implements ConstraintValidator<ValidKeywor
       return true;
     }
 
-    // 모든 ID가 존재하는지 확인
-    long existingCount = keywordRepository.countByIdIn(keywordIds);
-    return existingCount == keywordIds.size();
+    // DataInitializer의 캐시된 맵에서 모든 ID 존재 여부 확인 (DB 조회 없음!)
+    return keywordIds.stream().allMatch(DataInitializer.keywordMap::containsKey);
   }
 }

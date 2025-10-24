@@ -3,27 +3,22 @@ package com.teambind.articleserver.controller;
 import com.teambind.articleserver.dto.request.ArticleCreateRequest;
 import com.teambind.articleserver.dto.response.article.EventArticleResponse;
 import com.teambind.articleserver.entity.articleType.EventArticle;
-import com.teambind.articleserver.entity.enums.Status;
-import com.teambind.articleserver.repository.EventArticleRepository;
 import com.teambind.articleserver.service.crud.impl.ArticleCreateService;
 import com.teambind.articleserver.service.crud.impl.ArticleReadService;
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/articles/events")
+@RequestMapping("/api/events")
 @RequiredArgsConstructor
 @Slf4j
 public class EventArticleController {
   private final ArticleCreateService articleCreateService;
   private final ArticleReadService articleReadService;
-  private final EventArticleRepository eventArticleRepository;
 
   @PostMapping()
   public ResponseEntity<EventArticleResponse> createEventArticle(
@@ -60,28 +55,6 @@ public class EventArticleController {
       @RequestParam(required = false, defaultValue = "all") String status,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
-
-    Page<EventArticle> events;
-    LocalDateTime now = LocalDateTime.now();
-
-    events =
-        switch (status.toLowerCase()) {
-          case "ongoing" ->
-              eventArticleRepository.findOngoingEvents(
-                  Status.ACTIVE, now, PageRequest.of(page, size));
-          case "ended" ->
-              eventArticleRepository.findEndedEvents(
-                  Status.ACTIVE, now, PageRequest.of(page, size));
-          case "upcoming" ->
-              eventArticleRepository.findUpcomingEvents(
-                  Status.ACTIVE, now, PageRequest.of(page, size));
-          default ->
-              eventArticleRepository.findByStatusOrderByCreatedAtDesc(
-                  Status.ACTIVE, PageRequest.of(page, size));
-        };
-
-    Page<EventArticleResponse> response = events.map(EventArticleResponse::fromEntity);
-
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(articleReadService.getEventArticles(status, page, size));
   }
 }
