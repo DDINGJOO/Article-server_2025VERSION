@@ -107,17 +107,15 @@ public abstract class Article {
 		);
 	}
 
-  public void addImage(String imageUrl, String articleId) {
+  public void addImage(String imageId, String imageUrl) {
     long index = 0L;
     if (this.images == null) {
       this.images = new ArrayList<ArticleImage>();
     } else {
       index = (long) images.size() + 1;
     }
-    images.add(new ArticleImage(this, index, imageUrl, articleId));
-    if (firstImageUrl == null) {
-      firstImageUrl = imageUrl;
-    }
+    images.add(new ArticleImage(this, index, imageUrl, imageId));
+    // firstImageUrl은 KafkaConsumer에서 명시적으로 설정하므로 여기서는 설정하지 않음
   }
 
 	public void removeImages() {
