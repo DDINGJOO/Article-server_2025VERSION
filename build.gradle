@@ -51,6 +51,9 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.projectlombok:lombok:1.18.32'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
+
+    // H2 Database for integration tests
+    testRuntimeOnly 'com.h2database:h2'
 }
 
 // Add generated QueryDSL sources to the main source set
