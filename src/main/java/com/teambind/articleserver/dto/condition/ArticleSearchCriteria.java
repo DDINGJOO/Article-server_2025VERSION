@@ -1,8 +1,8 @@
 package com.teambind.articleserver.dto.condition;
 
-import com.teambind.articleserver.entity.Board;
-import com.teambind.articleserver.entity.Keyword;
+import com.teambind.articleserver.entity.board.Board;
 import com.teambind.articleserver.entity.enums.Status;
+import com.teambind.articleserver.entity.keyword.Keyword;
 import java.util.List;
 import lombok.*;
 
@@ -18,6 +18,6 @@ public class ArticleSearchCriteria {
   private Board board;
   private String title;
   private String content;
-  private List<String> writerId;
+  private String writerId; // 단일 값으로 변경
   private Status status;
 }

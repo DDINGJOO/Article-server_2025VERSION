@@ -5,8 +5,14 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.teambind.articleserver.dto.condition.ArticleSearchCriteria;
-import com.teambind.articleserver.entity.*;
+import com.teambind.articleserver.entity.article.Article;
+import com.teambind.articleserver.entity.article.QArticle;
+import com.teambind.articleserver.entity.board.Board;
+import com.teambind.articleserver.entity.board.QBoard;
 import com.teambind.articleserver.entity.enums.Status;
+import com.teambind.articleserver.entity.keyword.Keyword;
+import com.teambind.articleserver.entity.keyword.QKeyword;
+import com.teambind.articleserver.entity.keyword.QKeywordMappingTable;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -18,66 +24,57 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 
   private final JPAQueryFactory queryFactory;
 
+  // static 상수로 선언하여 객체 생성 최소화
+  private static final QArticle ARTICLE = QArticle.article;
+  private static final QBoard BOARD = QBoard.board;
+
   private static BooleanExpression statusFilter(ArticleSearchCriteria criteria) {
-    QArticle article = QArticle.article;
-    if (criteria == null) return notDeletedOrBlocked(article);
+    if (criteria == null) return notDeletedOrBlocked();
     Status status = criteria.getStatus();
     if (status == null) {
-      return notDeletedOrBlocked(article);
+      return notDeletedOrBlocked();
     }
-    return article.status.eq(status);
+    return ARTICLE.status.eq(status);
   }
 
-  private static BooleanExpression notDeletedOrBlocked(QArticle article) {
-    return article.status.ne(Status.DELETED).and(article.status.ne(Status.BLOCKED));
+  private static BooleanExpression notDeletedOrBlocked() {
+    return ARTICLE.status.ne(Status.DELETED).and(ARTICLE.status.ne(Status.BLOCKED));
   }
 
   private static BooleanExpression boardFilter(ArticleSearchCriteria criteria) {
     if (criteria == null || criteria.getBoard() == null) return null;
-    QArticle article = QArticle.article;
     Board board = criteria.getBoard();
-    return article.board.boardName.eq(board.getBoardName());
+    return ARTICLE.board.name.eq(board.getName());
   }
 
   private static BooleanExpression titleFilter(ArticleSearchCriteria criteria) {
     if (criteria == null) return null;
     String title = criteria.getTitle();
     if (title == null || title.isBlank()) return null;
-    return QArticle.article.title.containsIgnoreCase(title);
+    return ARTICLE.title.containsIgnoreCase(title);
   }
 
   private static BooleanExpression contentFilter(ArticleSearchCriteria criteria) {
     if (criteria == null) return null;
     String content = criteria.getContent();
     if (content == null || content.isBlank()) return null;
-    return QArticle.article.content.containsIgnoreCase(content);
+    return ARTICLE.content.containsIgnoreCase(content);
   }
 
   private static BooleanExpression writerFilter(ArticleSearchCriteria criteria) {
     if (criteria == null) return null;
-    List<String> writerIds = criteria.getWriterId();
-    if (writerIds == null || writerIds.isEmpty()) return null;
-    return QArticle.article.writerId.in(writerIds);
+    String writerId = criteria.getWriterId();
+    if (writerId == null || writerId.isBlank()) return null;
+    return ARTICLE.writerId.eq(writerId);
   }
 
-  @SuppressWarnings("unchecked")
-  private static BooleanExpression keywordsFilter(
-      ArticleSearchCriteria criteria, QKeyword keyword) {
-    if (criteria == null) return null;
-    List<Keyword> keywords = criteria.getKeywords();
-    if (keywords == null || keywords.isEmpty()) return null;
-
-    return keyword.id.in(keywords.stream().map(Keyword::getId).toList());
-  }
-
-  private static BooleanExpression cursorFilter(
-      QArticle article, LocalDateTime cursorUpdatedAt, String cursorId) {
+  private static BooleanExpression cursorFilter(LocalDateTime cursorUpdatedAt, String cursorId) {
     if (cursorUpdatedAt == null && (cursorId == null || cursorId.isBlank())) return null;
 
-    BooleanExpression byUpdatedAt = article.updatedAt.lt(cursorUpdatedAt);
+    BooleanExpression byUpdatedAt = ARTICLE.updatedAt.lt(cursorUpdatedAt);
     if (cursorId == null || cursorId.isBlank()) return byUpdatedAt;
 
-    return byUpdatedAt.or(article.updatedAt.eq(cursorUpdatedAt).and(article.id.lt(cursorId)));
+    return byUpdatedAt.or(ARTICLE.updatedAt.eq(cursorUpdatedAt).and(ARTICLE.id.lt(cursorId)));
   }
 
   private static BooleanExpression and(BooleanExpression... predicates) {
@@ -93,18 +90,31 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
   public List<Article> searchByCursor(
       ArticleSearchCriteria criteria, LocalDateTime cursorUpdatedAt, String cursorId, int size) {
 
-    QArticle article = QArticle.article;
-    QBoard board = QBoard.board;
-    QKeywordMappingTable kmt = QKeywordMappingTable.keywordMappingTable;
-    QKeyword qKeyword = new QKeyword("keyword");
+    // 키워드 필터링이 필요한 경우, 서브쿼리로 처리
+    BooleanExpression keywordCondition = null;
+    if (criteria != null && criteria.getKeywords() != null && !criteria.getKeywords().isEmpty()) {
+      QKeywordMappingTable kmt = QKeywordMappingTable.keywordMappingTable;
+      QKeyword qKeyword = QKeyword.keyword;
+
+      List<Long> keywordIds = criteria.getKeywords().stream().map(Keyword::getId).toList();
+
+      // 서브쿼리: 해당 키워드를 가진 게시글 ID만 조회
+      keywordCondition =
+          ARTICLE.id.in(
+              queryFactory
+                  .select(kmt.article.id)
+                  .from(kmt)
+                  .join(kmt.keyword, qKeyword)
+                  .where(qKeyword.id.in(keywordIds))
+                  .fetch());
+    }
 
     var query =
         queryFactory
-            .selectFrom(article)
-            .leftJoin(article.board, board)
+            .selectFrom(ARTICLE)
+            .leftJoin(ARTICLE.board, BOARD)
             .fetchJoin()
-            .leftJoin(article.keywords, kmt)
-            .leftJoin(kmt.keyword, qKeyword)
+            // 키워드 Join 제거 - BatchSize로 자동 로딩됨
             .where(
                 and(
                     statusFilter(criteria),
@@ -112,14 +122,14 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
                     titleFilter(criteria),
                     contentFilter(criteria),
                     writerFilter(criteria),
-                    keywordsFilter(criteria, qKeyword),
-                    cursorFilter(article, cursorUpdatedAt, cursorId)))
+                    keywordCondition,
+                    cursorFilter(cursorUpdatedAt, cursorId)))
             .orderBy(
-                new OrderSpecifier<>(Order.DESC, article.createdAt),
-                new OrderSpecifier<>(Order.DESC, article.id))
+                new OrderSpecifier<>(Order.DESC, ARTICLE.createdAt),
+                new OrderSpecifier<>(Order.DESC, ARTICLE.id))
             .limit(size);
 
-    // Use distinct to avoid duplicates when joining keywords
-    return query.distinct().fetch();
+    // distinct() 제거 - 더 이상 중복 행이 없음
+    return query.fetch();
   }
 }
