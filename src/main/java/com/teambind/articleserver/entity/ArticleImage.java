@@ -19,6 +19,8 @@ public class ArticleImage {
 
   @Column(name = "image_id", nullable = false)
   private String imageId;
+  
+  
 
   @ManyToOne(fetch = FetchType.LAZY)
   @MapsId("articleId")
