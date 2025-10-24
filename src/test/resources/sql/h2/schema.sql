@@ -27,11 +27,12 @@ CREATE INDEX idx_board_active ON boards (is_active);
 -- ==========================================
 CREATE TABLE IF NOT EXISTS keywords
 (
-    keyword_id   BIGINT      NOT NULL AUTO_INCREMENT COMMENT '키워드 ID',
-    keyword_name VARCHAR(50) NOT NULL COMMENT '키워드 이름',
-    board_id     BIGINT      NULL COMMENT '게시판 ID (NULL인 경우 공통 키워드)',
-    usage_count  INT         NOT NULL DEFAULT 0 COMMENT '사용 빈도',
-    is_active    BOOLEAN     NOT NULL DEFAULT TRUE COMMENT '키워드 활성화 여부',
+    keyword_id         BIGINT      NOT NULL AUTO_INCREMENT COMMENT '키워드 ID',
+    keyword_name       VARCHAR(50) NOT NULL COMMENT '키워드 이름',
+    board_id           BIGINT      NULL COMMENT '게시판 ID (NULL인 경우 공통 키워드)',
+    usage_count        INT         NOT NULL DEFAULT 0 COMMENT '사용 빈도',
+    is_active          BOOLEAN     NOT NULL DEFAULT TRUE COMMENT '키워드 활성화 여부',
+    board_id_coalesced BIGINT GENERATED ALWAYS AS (COALESCE(board_id, -1)) COMMENT 'NULL-safe board_id for unique constraint',
     PRIMARY KEY (keyword_id),
     CONSTRAINT fk_keyword_board
         FOREIGN KEY (board_id)
@@ -40,7 +41,9 @@ CREATE TABLE IF NOT EXISTS keywords
             ON DELETE SET NULL
 );
 
-CREATE UNIQUE INDEX uk_keyword_board ON keywords (keyword_name, board_id);
+-- 키워드 유니크 제약: (keyword_name, board_id_coalesced) 조합이 유일해야 함
+-- board_id_coalesced는 NULL을 -1로 변환하므로 공통 키워드도 중복 방지됨
+CREATE UNIQUE INDEX uk_keyword_board ON keywords (keyword_name, board_id_coalesced);
 CREATE INDEX idx_keyword_board ON keywords (board_id);
 CREATE INDEX idx_keyword_name ON keywords (keyword_name);
 

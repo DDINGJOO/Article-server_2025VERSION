@@ -474,6 +474,21 @@ public abstract class Article {
     updatedAt = LocalDateTime.now();
   }
 
+  // === ID 설정 (테스트용) ===
+
+  /**
+   * ID 설정
+   *
+   * <p>프로덕션에서는 Snowflake ID 생성기가 자동으로 ID를 생성하지만, 테스트 환경에서는 수동으로 ID를 설정해야 합니다.
+   *
+   * <p><strong>주의:</strong> 이 메서드는 테스트 환경에서만 사용해야 합니다. 프로덕션 코드에서 호출하지 마세요.
+   *
+   * @param id 설정할 ID
+   */
+  public void setId(String id) {
+    this.id = id;
+  }
+
   // === equals & hashCode ===
 
   @Override
