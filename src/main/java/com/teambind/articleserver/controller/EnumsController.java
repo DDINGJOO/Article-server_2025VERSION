@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/enums")
+@RequestMapping("/api/v1/enums")
 @Slf4j
 public class EnumsController {
 

@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/notices")
+@RequestMapping("/api/v1/notices")
 @RequiredArgsConstructor
 @Slf4j
 public class NoticeArticleController {
