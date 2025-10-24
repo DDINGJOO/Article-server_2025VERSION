@@ -64,16 +64,16 @@ public class ArticleController {
       @RequestParam(required = false, name = "keyword") List<Long> keywordIds,
       @RequestParam(required = false) String title,
       @RequestParam(required = false) String content,
-      @RequestParam(required = false, name = "writerIds") List<String> writerIds) {
+      @RequestParam(required = false) String writerId) {
 
     ArticleSearchCriteria.ArticleSearchCriteriaBuilder criteriaBuilder =
         ArticleSearchCriteria.builder();
     if (boardIds != null) criteriaBuilder.board(boardMap.get(boardIds));
     if (keywordIds != null)
-      criteriaBuilder.keywords(keywordIds.stream().map(id -> keywordMap.get(id)).toList());
+      criteriaBuilder.keywords(keywordIds.stream().map(keywordMap::get).toList());
     if (title != null && !title.isBlank()) criteriaBuilder.title(title);
     if (content != null && !content.isBlank()) criteriaBuilder.content(content);
-    if (writerIds != null && !writerIds.isEmpty()) criteriaBuilder.writerId(writerIds);
+    if (writerId != null && !writerId.isBlank()) criteriaBuilder.writerId(writerId);
     if (size == null || size <= 0) size = 10;
     criteriaBuilder.status(Status.ACTIVE);
 

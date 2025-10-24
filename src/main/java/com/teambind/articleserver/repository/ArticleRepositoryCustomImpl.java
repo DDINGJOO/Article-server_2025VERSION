@@ -63,9 +63,9 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 
   private static BooleanExpression writerFilter(ArticleSearchCriteria criteria) {
     if (criteria == null) return null;
-    List<String> writerIds = criteria.getWriterId();
-    if (writerIds == null || writerIds.isEmpty()) return null;
-    return ARTICLE.writerId.in(writerIds);
+    String writerId = criteria.getWriterId();
+    if (writerId == null || writerId.isBlank()) return null;
+    return ARTICLE.writerId.eq(writerId);
   }
 
   private static BooleanExpression cursorFilter(LocalDateTime cursorUpdatedAt, String cursorId) {

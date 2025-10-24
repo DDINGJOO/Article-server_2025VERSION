@@ -1,17 +1,18 @@
 package com.teambind.articleserver.validation;
 
-import com.teambind.articleserver.repository.BoardRepository;
+import com.teambind.articleserver.utils.DataInitializer;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-/** ValidBoardId 어노테이션의 실제 검증 로직 */
+/**
+ * ValidBoardId 어노테이션의 실제 검증 로직
+ *
+ * <p>DataInitializer의 캐시된 boardMap을 사용하여 DB 조회 없이 빠른 검증
+ */
 @Component
-@RequiredArgsConstructor
 public class ValidBoardIdValidator implements ConstraintValidator<ValidBoardId, Long> {
 
-  private final BoardRepository boardRepository;
   private boolean nullable;
 
   @Override
@@ -26,7 +27,7 @@ public class ValidBoardIdValidator implements ConstraintValidator<ValidBoardId, 
       return nullable;
     }
 
-    // Board 존재 여부 확인
-    return boardRepository.existsById(boardId);
+    // DataInitializer의 캐시된 맵에서 존재 여부 확인 (DB 조회 없음!)
+    return DataInitializer.boardMap.containsKey(boardId);
   }
 }

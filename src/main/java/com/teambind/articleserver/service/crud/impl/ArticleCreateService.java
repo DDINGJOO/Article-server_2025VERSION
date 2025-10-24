@@ -13,10 +13,7 @@ import com.teambind.articleserver.event.events.ArticleCreatedEvent;
 import com.teambind.articleserver.event.publish.KafkaPublisher;
 import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.exceptions.ErrorCode;
-import com.teambind.articleserver.repository.ArticleRepository;
-import com.teambind.articleserver.repository.EventArticleRepository;
-import com.teambind.articleserver.repository.NoticeArticleRepository;
-import com.teambind.articleserver.repository.RegularArticleRepository;
+import com.teambind.articleserver.repository.*;
 import com.teambind.articleserver.utils.generator.primay_key.PrimaryKetGenerator;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +32,8 @@ public class ArticleCreateService {
 	private final RegularArticleRepository regularArticleRepository;
 	private final EventArticleRepository eventArticleRepository;
 	private final NoticeArticleRepository noticeArticleRepository;
-	private final com.teambind.articleserver.repository.BoardRepository boardRepository;
-  private final com.teambind.articleserver.repository.KeywordRepository keywordRepository;
+  private final BoardRepository boardRepository;
+  private final KeywordRepository keywordRepository;
   private final PrimaryKetGenerator primaryKetGenerator;
   private final KafkaPublisher kafkaPublisher;
 
@@ -230,14 +227,19 @@ public class ArticleCreateService {
         articleRepository
             .findById(articleId)
             .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
-
+    // TODO : 이벤트 발행 시점 수정 필요 // 다른 브렌치에서 수정 예정
+    publishArticleDeletedEvent(article);
     article.delete();
     // JPA Dirty Checking으로 자동 저장
-
     log.info("Deleted article: id={}", article.getId());
   }
 
   private void publishArticleCreatedEvent(Article article) {
     kafkaPublisher.articleUpdatedEvent(ArticleCreatedEvent.from(article));
+  }
+
+  // 명시적 구분을 위해 메소드 이름만 바꿈
+  private void publishArticleDeletedEvent(Article article) {
+    kafkaPublisher.articleDeletedEvent(ArticleCreatedEvent.from(article));
   }
 }

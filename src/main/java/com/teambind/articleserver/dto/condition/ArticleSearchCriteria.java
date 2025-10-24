@@ -18,6 +18,6 @@ public class ArticleSearchCriteria {
   private Board board;
   private String title;
   private String content;
-  private List<String> writerId;
+  private String writerId; // 단일 값으로 변경
   private Status status;
 }
