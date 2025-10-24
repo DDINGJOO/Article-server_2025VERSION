@@ -1,5 +1,6 @@
 package com.teambind.articleserver.event.events;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ArticleImageUpdateRequest {
-  private String imageId;
-  private String imageUrl;
-  private String referenceId;
+  List<ImageChangeEvent> imageChangeEvents;
 }
