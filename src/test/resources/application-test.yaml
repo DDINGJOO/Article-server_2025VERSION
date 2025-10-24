@@ -20,7 +20,6 @@ spring:
     init:
       mode: always
       schema-locations: classpath:sql/h2/schema.sql
-      data-locations: classpath:sql/h2/data.sql
       encoding: UTF-8
 
   h2:
