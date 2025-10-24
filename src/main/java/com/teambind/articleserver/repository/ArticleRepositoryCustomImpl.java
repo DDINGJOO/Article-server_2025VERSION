@@ -7,6 +7,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.teambind.articleserver.dto.condition.ArticleSearchCriteria;
 import com.teambind.articleserver.entity.*;
 import com.teambind.articleserver.entity.enums.Status;
+import com.teambind.articleserver.entity.keyword.Keyword;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

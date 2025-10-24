@@ -1,7 +1,12 @@
 package com.teambind.articleserver.service.crud.impl;
 
 import com.teambind.articleserver.entity.*;
+import com.teambind.articleserver.entity.articleType.EventArticle;
+import com.teambind.articleserver.entity.articleType.NoticeArticle;
+import com.teambind.articleserver.entity.articleType.RegularArticle;
+import com.teambind.articleserver.entity.board.Board;
 import com.teambind.articleserver.entity.enums.Status;
+import com.teambind.articleserver.entity.keyword.Keyword;
 import com.teambind.articleserver.event.events.ArticleCreatedEvent;
 import com.teambind.articleserver.event.publish.KafkaPublisher;
 import com.teambind.articleserver.exceptions.CustomException;
@@ -33,10 +38,9 @@ public class ArticleCreateService {
   private final PrimaryKetGenerator primaryKetGenerator;
   private final KafkaPublisher kafkaPublisher;
 
-	// 일반 게시글 생성
-	public RegularArticle createRegularArticle(
-			String title, String content, String writerId,Board board,  List<Keyword> keywords
-	) {
+  // 일반 게시글 생성
+  public RegularArticle createRegularArticle(
+      String title, String content, String writerId, Board board, List<Keyword> keywords) {
     RegularArticle article =
         RegularArticle.builder()
             .id(primaryKetGenerator.generateKey())

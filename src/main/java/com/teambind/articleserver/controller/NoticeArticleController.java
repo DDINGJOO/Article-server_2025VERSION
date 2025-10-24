@@ -3,21 +3,20 @@ package com.teambind.articleserver.controller;
 import com.teambind.articleserver.dto.request.ArticleCreateRequest;
 import com.teambind.articleserver.dto.response.ArticleResponse;
 import com.teambind.articleserver.entity.Article;
-import com.teambind.articleserver.entity.Keyword;
-import com.teambind.articleserver.entity.NoticeArticle;
+import com.teambind.articleserver.entity.articleType.NoticeArticle;
 import com.teambind.articleserver.entity.enums.Status;
+import com.teambind.articleserver.entity.keyword.Keyword;
 import com.teambind.articleserver.repository.NoticeArticleRepository;
 import com.teambind.articleserver.service.crud.impl.ArticleCreateService;
 import com.teambind.articleserver.service.crud.impl.ArticleReadService;
 import com.teambind.articleserver.utils.convertor.Convertor;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/articles/notices")

@@ -1,7 +1,7 @@
 package com.teambind.articleserver.repository;
 
-import com.teambind.articleserver.entity.KeywordMappingTable;
 import com.teambind.articleserver.entity.embeddable_id.KeywordMappingTableId;
+import com.teambind.articleserver.entity.keyword.KeywordMappingTable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

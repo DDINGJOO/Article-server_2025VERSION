@@ -1,7 +1,7 @@
 package com.teambind.articleserver.utils.convertor.impl;
 
 import com.teambind.articleserver.entity.Board;
-import com.teambind.articleserver.entity.Keyword;
+import com.teambind.articleserver.entity.keyword.Keyword;
 import com.teambind.articleserver.exceptions.CustomException;
 import com.teambind.articleserver.exceptions.ErrorCode;
 import com.teambind.articleserver.repository.BoardRepository;

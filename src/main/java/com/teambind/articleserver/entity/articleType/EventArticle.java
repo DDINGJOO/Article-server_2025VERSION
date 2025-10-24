@@ -1,12 +1,12 @@
-package com.teambind.articleserver.entity;
+package com.teambind.articleserver.entity.articleType;
 
+import com.teambind.articleserver.entity.article.Article;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import java.time.LocalDateTime;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.time.LocalDateTime;
 
 @Entity
 @DiscriminatorValue("EVENT")

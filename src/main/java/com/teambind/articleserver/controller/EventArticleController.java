@@ -2,22 +2,21 @@ package com.teambind.articleserver.controller;
 
 import com.teambind.articleserver.dto.request.ArticleCreateRequest;
 import com.teambind.articleserver.dto.response.EventArticleResponse;
-import com.teambind.articleserver.entity.EventArticle;
-import com.teambind.articleserver.entity.Keyword;
+import com.teambind.articleserver.entity.articleType.EventArticle;
 import com.teambind.articleserver.entity.enums.Status;
+import com.teambind.articleserver.entity.keyword.Keyword;
 import com.teambind.articleserver.repository.EventArticleRepository;
 import com.teambind.articleserver.service.crud.impl.ArticleCreateService;
 import com.teambind.articleserver.service.crud.impl.ArticleReadService;
 import com.teambind.articleserver.utils.convertor.Convertor;
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/articles/events")
