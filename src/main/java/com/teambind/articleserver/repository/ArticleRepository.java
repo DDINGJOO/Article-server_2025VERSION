@@ -1,6 +1,7 @@
 package com.teambind.articleserver.repository;
 
 import com.teambind.articleserver.entity.article.Article;
+import com.teambind.articleserver.entity.enums.Status;
 import com.teambind.articleserver.repository.projection.ArticleSimpleView;
 import java.util.Collection;
 import java.util.List;
@@ -18,4 +19,6 @@ public interface ArticleRepository extends JpaRepository<Article, String> {
   @Query(
       "select a.id as id, a.title as title, a.writerId as writerId, a.version as version, a.createdAt as createdAt from Article a where a.id in :ids and a.status <> com.teambind.articleserver.entity.enums.Status.DELETED and a.status <> com.teambind.articleserver.entity.enums.Status.BLOCKED")
   List<ArticleSimpleView> findSimpleByIdIn(@Param("ids") Collection<String> ids);
+
+  void deleteByStatus(Status status);
 }
