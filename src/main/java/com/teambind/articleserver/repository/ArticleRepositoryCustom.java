@@ -1,7 +1,7 @@
 package com.teambind.articleserver.repository;
 
 import com.teambind.articleserver.dto.condition.ArticleSearchCriteria;
-import com.teambind.articleserver.entity.Article;
+import com.teambind.articleserver.entity.article.Article;
 import java.time.LocalDateTime;
 import java.util.List;
 

@@ -48,7 +48,6 @@ public class BulkReadService {
                 .articleId(v.getId())
                 .title(v.getTitle())
                 .writerId(v.getWriterId())
-                .version(v.getVersion())
                 .createdAt(v.getCreatedAt())
                 .build());
       }

@@ -1,5 +1,6 @@
 package com.teambind.articleserver.dto.response;
 
+import com.teambind.articleserver.dto.response.article.ArticleBaseResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 public class ArticleCursorPageResponse {
-  private List<ArticleResponse> items;
+  private List<ArticleBaseResponse> items;
   // 다음 페이지 요청 시 사용할 수정일시 (updated_at)
   private LocalDateTime nextCursorUpdatedAt;
   private String nextCursorId;

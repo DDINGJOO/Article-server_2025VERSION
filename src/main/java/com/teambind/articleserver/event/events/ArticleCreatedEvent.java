@@ -1,6 +1,6 @@
 package com.teambind.articleserver.event.events;
 
-import com.teambind.articleserver.entity.Article;
+import com.teambind.articleserver.entity.article.Article;
 import java.time.LocalDateTime;
 import lombok.*;
 
