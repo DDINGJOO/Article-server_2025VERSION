@@ -1,6 +1,6 @@
 package com.teambind.articleserver.repository;
 
-import com.teambind.articleserver.entity.Keyword;
+import com.teambind.articleserver.entity.keyword.Keyword;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

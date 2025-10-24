@@ -7,18 +7,17 @@ import com.teambind.articleserver.dto.response.ArticleCursorPageResponse;
 import com.teambind.articleserver.dto.response.ArticleResponse;
 import com.teambind.articleserver.entity.Article;
 import com.teambind.articleserver.entity.Board;
-import com.teambind.articleserver.entity.Keyword;
-import com.teambind.articleserver.entity.RegularArticle;
+import com.teambind.articleserver.entity.articleType.RegularArticle;
 import com.teambind.articleserver.entity.enums.Status;
+import com.teambind.articleserver.entity.keyword.Keyword;
 import com.teambind.articleserver.service.crud.impl.ArticleCreateService;
 import com.teambind.articleserver.service.crud.impl.ArticleReadService;
 import com.teambind.articleserver.utils.convertor.Convertor;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/articles/regular")
