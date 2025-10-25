@@ -1,7 +1,8 @@
 -- Article Server Schema for MariaDB
--- Version: 1.0
+-- Version: 1.2
 -- Description: 게시글 관리 시스템 스키마 정의
 -- Created: 2025-10-25
+-- Updated: 2025-10-25 - MariaDB 버전 호환성 개선 (DEFAULT CURRENT_TIMESTAMP 제거)
 
 -- ==========================================
 -- 1. Board Table (게시판)
@@ -13,11 +14,10 @@ CREATE TABLE IF NOT EXISTS `boards`
     `description`   VARCHAR(200) NULL COMMENT '게시판 설명',
     `is_active`     BOOLEAN      NOT NULL DEFAULT TRUE COMMENT '게시판 활성화 여부',
     `display_order` INT          NULL COMMENT '게시판 표시 순서',
-    `created_at`    DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일시',
-    `updated_at`    DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '수정일시',
+    `created_at` DATETIME(6) NOT NULL COMMENT '생성일시',
+    `updated_at` DATETIME(6) NOT NULL COMMENT '수정일시',
     PRIMARY KEY (`board_id`),
     UNIQUE KEY `uk_board_name` (`board_name`),
-    INDEX `idx_board_name` (`board_name`),
     INDEX `idx_board_active` (`is_active`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -64,8 +64,8 @@ CREATE TABLE IF NOT EXISTS `articles`
     `first_image_url`  VARCHAR(500) NULL COMMENT '대표 이미지 URL',
     `event_start_date` DATETIME(6)  NULL COMMENT '이벤트 시작일 (EventArticle 전용)',
     `event_end_date`   DATETIME(6)  NULL COMMENT '이벤트 종료일 (EventArticle 전용)',
-    `created_at`       DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일시',
-    `updated_at`       DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '수정일시',
+    `created_at` DATETIME(6) NOT NULL COMMENT '생성일시',
+    `updated_at` DATETIME(6) NOT NULL COMMENT '수정일시',
     PRIMARY KEY (`article_id`),
 
     -- Foreign Keys
@@ -114,10 +114,10 @@ CREATE TABLE IF NOT EXISTS `articles`
 CREATE TABLE IF NOT EXISTS `article_images`
 (
     `article_id`        VARCHAR(50)  NOT NULL COMMENT '게시글 ID',
-    `sequence_num`      BIGINT       NOT NULL COMMENT '이미지 순서',
+    `sequence_no` BIGINT NOT NULL COMMENT '이미지 순서',
     `article_image_url` VARCHAR(500) NOT NULL COMMENT '이미지 URL',
     `image_id`          VARCHAR(100) NOT NULL COMMENT 'Image Server의 이미지 ID',
-    PRIMARY KEY (`article_id`, `sequence_num`),
+    PRIMARY KEY (`article_id`, `sequence_no`),
 
     -- Foreign Keys
     CONSTRAINT `fk_article_images_article`
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS `article_images`
             ON DELETE CASCADE,
 
     -- Indexes
-    INDEX `idx_article_image_article` (`article_id`),
+    -- article_id는 PRIMARY KEY의 첫 컬럼이므로 별도 인덱스 불필요
     INDEX `idx_article_image_id` (`image_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS `keyword_mapping_table`
 (
     `keyword_id` BIGINT      NOT NULL COMMENT '키워드 ID',
     `article_id` VARCHAR(50) NOT NULL COMMENT '게시글 ID',
-    `created_at` DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '매핑 생성일시',
+    `created_at` DATETIME(6) NOT NULL COMMENT '매핑 생성일시',
     PRIMARY KEY (`keyword_id`, `article_id`),
 
     -- Foreign Keys
@@ -157,8 +157,8 @@ CREATE TABLE IF NOT EXISTS `keyword_mapping_table`
             ON DELETE CASCADE,
 
     -- Indexes
+    -- keyword_id는 PRIMARY KEY의 첫 컬럼이므로 별도 인덱스 불필요
     INDEX `idx_mapping_article` (`article_id`),
-    INDEX `idx_mapping_keyword` (`keyword_id`),
     INDEX `idx_mapping_created` (`created_at`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4

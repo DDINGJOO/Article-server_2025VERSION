@@ -22,7 +22,7 @@ public class ArticleCreatedEvent {
         .writerId(article.getWriterId())
         .version(article.getVersion())
         .title(article.getTitle())
-		    .createdAt(article.getCreatedAt())
+        .createdAt(article.getCreatedAt())
         .build();
   }
 }

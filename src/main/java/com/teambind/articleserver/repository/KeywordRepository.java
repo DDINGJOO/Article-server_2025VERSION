@@ -19,4 +19,8 @@ public interface KeywordRepository extends JpaRepository<Keyword, Long> {
 
   // ID 리스트로 존재 개수 확인 (Validation용)
   long countByIdIn(List<Long> ids);
+
+  // board를 fetch join하여 모든 키워드 조회 (LazyInitializationException 방지)
+  @Query("SELECT k FROM Keyword k LEFT JOIN FETCH k.board")
+  List<Keyword> findAllWithBoard();
 }

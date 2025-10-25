@@ -43,7 +43,8 @@ public class EventArticleController {
   }
 
   @DeleteMapping("/{articleId}")
-  public ResponseEntity<Void> deleteEventArticle(@PathVariable(name = "articleId") String articleId) {
+  public ResponseEntity<Void> deleteEventArticle(
+      @PathVariable(name = "articleId") String articleId) {
     articleCreateService.deleteArticle(articleId);
     return ResponseEntity.noContent().build();
   }

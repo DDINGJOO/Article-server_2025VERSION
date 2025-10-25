@@ -22,11 +22,10 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
 
-  private final JPAQueryFactory queryFactory;
-
   // static 상수로 선언하여 객체 생성 최소화
   private static final QArticle ARTICLE = QArticle.article;
   private static final QBoard BOARD = QBoard.board;
+  private final JPAQueryFactory queryFactory;
 
   private static BooleanExpression statusFilter(ArticleSearchCriteria criteria) {
     if (criteria == null) return notDeletedOrBlocked();
