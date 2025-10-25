@@ -28,10 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class ArticleCreateService {
 
-	private final ArticleRepository articleRepository;
-	private final RegularArticleRepository regularArticleRepository;
-	private final EventArticleRepository eventArticleRepository;
-	private final NoticeArticleRepository noticeArticleRepository;
+  private final ArticleRepository articleRepository;
+  private final RegularArticleRepository regularArticleRepository;
+  private final EventArticleRepository eventArticleRepository;
+  private final NoticeArticleRepository noticeArticleRepository;
   private final BoardRepository boardRepository;
   private final KeywordRepository keywordRepository;
   private final PrimaryKetGenerator primaryKetGenerator;
@@ -156,7 +156,7 @@ public class ArticleCreateService {
   // 하위 호환성을 위한 기존 메서드 (일반 게시글로 처리)
   public Article createArticle(ArticleCreateRequest request) {
     return createRegularArticle(request);
-	}
+  }
 
   @LogTrace(value = "게시글 수정", logParameters = true)
   public Article updateArticle(String articleId, ArticleCreateRequest request) {

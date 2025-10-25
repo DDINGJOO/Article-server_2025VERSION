@@ -3,12 +3,11 @@ package com.teambind.articleserver.entity.embeddable_id;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import java.io.Serializable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.io.Serializable;
 
 @Embeddable
 @EqualsAndHashCode

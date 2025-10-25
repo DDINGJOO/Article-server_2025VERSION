@@ -76,7 +76,7 @@ public class Keyword {
     this.isActive = true;
     this.mappings = new ArrayList<>();
   }
-  
+
   // === 연관관계 편의 메서드 ===
 
   /**

@@ -45,7 +45,8 @@ public class NoticeArticleController {
   }
 
   @DeleteMapping("/{articleId}")
-  public ResponseEntity<Void> deleteNoticeArticle(@PathVariable(name = "articleId") String articleId) {
+  public ResponseEntity<Void> deleteNoticeArticle(
+      @PathVariable(name = "articleId") String articleId) {
     articleCreateService.deleteArticle(articleId);
     return ResponseEntity.noContent().build();
   }

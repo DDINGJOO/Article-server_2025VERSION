@@ -23,9 +23,10 @@ Authorization: Bearer {access_token}
 1. [게시글 API](#게시글-api)
 2. [이벤트 API](#이벤트-api)
 3. [공지사항 API](#공지사항-api)
-4. [Enums API](#enums-api)
-5. [공통 응답 형식](#공통-응답-형식)
-6. [에러 코드](#에러-코드)
+4. [대량 조회 API](#대량-조회-api)
+5. [Enums API](#enums-api)
+6. [공통 응답 형식](#공통-응답-형식)
+7. [에러 코드](#에러-코드)
 
 ---
 
@@ -52,9 +53,7 @@ Authorization: Bearer {token}
   "keywordIds": [
     1,
     2
-  ],
-  "eventStartDate": "2025-01-01T00:00:00",
-  "eventEndDate": "2025-12-31T23:59:59"
+  ]
 }
 ```
 
@@ -81,32 +80,37 @@ Authorization: Bearer {token}
 
 ```json
 {
-  "id": "ART_20251025_001",
+  "articleId": "ART_20251025_001",
   "title": "게시글 제목",
   "content": "게시글 내용입니다.",
   "writerId": "user123",
-  "status": "ACTIVE",
-  "version": 0,
   "board": {
-    "id": 1,
-    "name": "자유게시판"
+    "boardId": 1,
+    "boardName": "자유게시판",
+    "description": "자유롭게 이야기하는 게시판"
   },
-  "keywords": [
-    {
-      "id": 1,
-      "name": "Java"
-    },
-    {
-      "id": 2,
-      "name": "Spring"
-    }
-  ],
-  "images": [],
+  "status": "ACTIVE",
+  "viewCount": 0,
   "firstImageUrl": null,
   "createdAt": "2025-10-25T10:30:00",
   "updatedAt": "2025-10-25T10:30:00",
-  "eventStartDate": "2025-01-01T00:00:00",
-  "eventEndDate": "2025-12-31T23:59:59"
+  "images": [],
+  "keywords": [
+    {
+      "keywordId": 1,
+      "keywordName": "Java",
+      "isCommon": true,
+      "boardId": null,
+      "boardName": null
+    },
+    {
+      "keywordId": 2,
+      "keywordName": "Spring",
+      "isCommon": true,
+      "boardId": null,
+      "boardName": null
+    }
+  ]
 }
 ```
 
@@ -129,32 +133,48 @@ Authorization: Bearer {token}
 
 ```json
 {
-  "id": "ART_20251025_001",
+  "articleId": "ART_20251025_001",
   "title": "게시글 제목",
   "content": "게시글 내용입니다.",
   "writerId": "user123",
-  "status": "ACTIVE",
-  "version": 0,
   "board": {
-    "id": 1,
-    "name": "자유게시판"
+    "boardId": 1,
+    "boardName": "자유게시판",
+    "description": "자유롭게 이야기하는 게시판"
   },
-  "keywords": [
-    {
-      "id": 1,
-      "name": "Java"
-    }
-  ],
-  "images": [
-    {
-      "imageUrl": "https://cdn.teambind.com/images/img1.webp",
-      "sequenceNo": 0,
-      "imageId": "IMG_001"
-    }
-  ],
+  "status": "ACTIVE",
+  "viewCount": 15,
   "firstImageUrl": "https://cdn.teambind.com/images/img1.webp",
   "createdAt": "2025-10-25T10:30:00",
-  "updatedAt": "2025-10-25T10:30:00"
+  "updatedAt": "2025-10-25T10:30:00",
+  "images": [
+    {
+      "imageId": "IMG_001",
+      "imageUrl": "https://cdn.teambind.com/images/img1.webp",
+      "sequence": 1
+    },
+    {
+      "imageId": "IMG_002",
+      "imageUrl": "https://cdn.teambind.com/images/img2.webp",
+      "sequence": 2
+    }
+  ],
+  "keywords": [
+    {
+      "keywordId": 1,
+      "keywordName": "Java",
+      "isCommon": true,
+      "boardId": null,
+      "boardName": null
+    },
+    {
+      "keywordId": 3,
+      "keywordName": "질문",
+      "isCommon": false,
+      "boardId": 1,
+      "boardName": "자유게시판"
+    }
+  ]
 }
 ```
 
@@ -243,29 +263,37 @@ GET /api/v1/articles/search?boardIds=1&keyword=1&keyword=2&title=Spring&size=20
 {
   "items": [
     {
-      "id": "ART_20251025_001",
+      "articleId": "ART_20251025_001",
       "title": "Spring Boot 튜토리얼",
       "content": "Spring Boot를 시작하는 방법...",
       "writerId": "user123",
-      "status": "ACTIVE",
       "board": {
-        "id": 1,
-        "name": "자유게시판"
+        "boardId": 1,
+        "boardName": "자유게시판",
+        "description": "자유롭게 이야기하는 게시판"
       },
-      "keywords": [
-        {
-          "id": 1,
-          "name": "Java"
-        },
-        {
-          "id": 2,
-          "name": "Spring"
-        }
-      ],
-      "images": [],
+      "status": "ACTIVE",
+      "viewCount": 20,
       "firstImageUrl": null,
       "createdAt": "2025-10-25T10:30:00",
-      "updatedAt": "2025-10-25T10:30:00"
+      "updatedAt": "2025-10-25T10:30:00",
+      "images": [],
+      "keywords": [
+        {
+          "keywordId": 1,
+          "keywordName": "Java",
+          "isCommon": true,
+          "boardId": null,
+          "boardName": null
+        },
+        {
+          "keywordId": 2,
+          "keywordName": "Spring",
+          "isCommon": true,
+          "boardId": null,
+          "boardName": null
+        }
+      ]
     }
   ],
   "nextCursorId": "ART_20251025_010",
@@ -285,7 +313,123 @@ GET /api/v1/articles/search?boardIds=1&keyword=1&keyword=2&title=Spring&size=20
 
 ## 이벤트 API
 
-### 1. 이벤트 목록 조회
+### 1. 이벤트 생성
+
+```http
+POST /api/v1/events
+Content-Type: application/json
+Authorization: Bearer {token}
+```
+
+#### Request Body
+
+```json
+{
+  "title": "크리스마스 이벤트",
+  "content": "크리스마스 특별 이벤트입니다.",
+  "writerId": "admin",
+  "boardIds": 3,
+  "keywordIds": [
+    4,
+    5
+  ],
+  "eventStartDate": "2025-12-24T00:00:00",
+  "eventEndDate": "2025-12-25T23:59:59"
+}
+```
+
+#### Response (200 OK)
+
+```json
+{
+  "articleId": "ART_20251225_001",
+  "title": "크리스마스 이벤트",
+  "content": "크리스마스 특별 이벤트입니다.",
+  "writerId": "admin",
+  "board": {
+    "boardId": 3,
+    "boardName": "이벤트",
+    "description": "이벤트 게시판"
+  },
+  "status": "ACTIVE",
+  "viewCount": 0,
+  "firstImageUrl": null,
+  "createdAt": "2025-12-01T00:00:00",
+  "updatedAt": "2025-12-01T00:00:00",
+  "images": [],
+  "keywords": [
+    {
+      "keywordId": 4,
+      "keywordName": "이벤트",
+      "isCommon": true,
+      "boardId": null,
+      "boardName": null
+    }
+  ],
+  "eventStartDate": "2025-12-24T00:00:00",
+  "eventEndDate": "2025-12-25T23:59:59"
+}
+```
+
+---
+
+### 2. 이벤트 수정
+
+```http
+PUT /api/v1/events/{articleId}
+Content-Type: application/json
+Authorization: Bearer {token}
+```
+
+#### Request Body
+
+```json
+{
+  "title": "수정된 이벤트 제목",
+  "content": "수정된 이벤트 내용",
+  "writerId": "admin",
+  "boardIds": 3,
+  "keywordIds": [
+    4
+  ],
+  "eventStartDate": "2025-12-24T00:00:00",
+  "eventEndDate": "2025-12-26T23:59:59"
+}
+```
+
+#### Response (200 OK)
+
+이벤트 생성과 동일한 응답 형식
+
+---
+
+### 3. 이벤트 단건 조회
+
+```http
+GET /api/v1/events/{articleId}
+Authorization: Bearer {token}
+```
+
+#### Response (200 OK)
+
+이벤트 생성과 동일한 응답 형식
+
+---
+
+### 4. 이벤트 삭제
+
+```http
+DELETE /api/v1/events/{articleId}
+Authorization: Bearer {token}
+```
+
+#### Response (204 No Content)
+
+Body 없음
+
+---
+
+### 5. 이벤트 목록 조회
 
 이벤트 상태별 필터링을 지원합니다.
 
@@ -321,22 +465,30 @@ GET /api/v1/events?status=ongoing&page=0&size=10
 {
   "content": [
     {
-      "id": "ART_20251225_001",
+      "articleId": "ART_20251225_001",
       "title": "크리스마스 이벤트",
       "content": "크리스마스 특별 이벤트입니다.",
       "writerId": "admin",
-      "status": "ACTIVE",
       "board": {
-        "id": 3,
-        "name": "이벤트"
+        "boardId": 3,
+        "boardName": "이벤트",
+        "description": "이벤트 게시판"
       },
-      "keywords": [],
-      "images": [],
+      "status": "ACTIVE",
+      "viewCount": 150,
       "firstImageUrl": "https://cdn.teambind.com/events/christmas.webp",
-      "eventStartDate": "2025-12-24T00:00:00",
-      "eventEndDate": "2025-12-25T23:59:59",
       "createdAt": "2025-12-01T00:00:00",
-      "updatedAt": "2025-12-01T00:00:00"
+      "updatedAt": "2025-12-01T00:00:00",
+      "images": [
+        {
+          "imageId": "IMG_EVENT_001",
+          "imageUrl": "https://cdn.teambind.com/events/christmas.webp",
+          "sequence": 1
+        }
+      ],
+      "keywords": [],
+      "eventStartDate": "2025-12-24T00:00:00",
+      "eventEndDate": "2025-12-25T23:59:59"
     }
   ],
   "pageable": {
@@ -369,10 +521,12 @@ GET /api/v1/events?status=ongoing&page=0&size=10
 
 ---
 
-### 2. 이벤트 생성
+## 공지사항 API
+
+### 1. 공지사항 생성
 
 ```http
-POST /api/v1/events
+POST /api/v1/notices
 Content-Type: application/json
 Authorization: Bearer {token}
 ```
@@ -381,16 +535,13 @@ Authorization: Bearer {token}
 
 ```json
 {
-  "title": "크리스마스 이벤트",
-  "content": "크리스마스 특별 이벤트입니다.",
+  "title": "시스템 점검 안내",
+  "content": "2025년 1월 1일 시스템 점검 예정입니다.",
   "writerId": "admin",
-  "boardIds": 3,
+  "boardIds": 2,
   "keywordIds": [
-    4,
-    5
-  ],
-  "eventStartDate": "2025-12-24T00:00:00",
-  "eventEndDate": "2025-12-25T23:59:59"
+    1
+  ]
 }
 ```
 
@@ -398,47 +549,90 @@ Authorization: Bearer {token}
 
 ```json
 {
-  "id": "ART_20251225_001",
-  "title": "크리스마스 이벤트",
-  "eventStartDate": "2025-12-24T00:00:00",
-  "eventEndDate": "2025-12-25T23:59:59",
-  ...
+  "articleId": "ART_20251101_001",
+  "title": "시스템 점검 안내",
+  "content": "2025년 1월 1일 시스템 점검 예정입니다.",
+  "writerId": "admin",
+  "board": {
+    "boardId": 2,
+    "boardName": "공지사항",
+    "description": "중요 공지사항 게시판"
+  },
+  "status": "ACTIVE",
+  "viewCount": 0,
+  "firstImageUrl": null,
+  "createdAt": "2025-11-01T10:00:00",
+  "updatedAt": "2025-11-01T10:00:00",
+  "images": [],
+  "keywords": [
+    {
+      "keywordId": 1,
+      "keywordName": "공지",
+      "isCommon": true,
+      "boardId": null,
+      "boardName": null
+    }
+  ]
 }
 ```
 
 ---
 
-### 3. 이벤트 단건 조회
+### 2. 공지사항 수정
 
 ```http
-GET /api/v1/events/{articleId}
-Authorization: Bearer {token}
-```
-
----
-
-### 4. 이벤트 수정
-
-```http
-PUT /api/v1/events/{articleId}
+PUT /api/v1/notices/{articleId}
 Content-Type: application/json
 Authorization: Bearer {token}
 ```
 
+#### Request Body
+
+```json
+{
+  "title": "수정된 공지사항",
+  "content": "수정된 내용입니다.",
+  "writerId": "admin",
+  "boardIds": 2,
+  "keywordIds": [
+    1
+  ]
+}
+```
+
+#### Response (200 OK)
+
+공지사항 생성과 동일한 응답 형식
+
 ---
 
-### 5. 이벤트 삭제
+### 3. 공지사항 단건 조회
 
 ```http
-DELETE /api/v1/events/{articleId}
+GET /api/v1/notices/{articleId}
 Authorization: Bearer {token}
 ```
 
+#### Response (200 OK)
+
+공지사항 생성과 동일한 응답 형식
+
 ---
 
-## 공지사항 API
+### 4. 공지사항 삭제
 
-### 1. 공지사항 목록 조회
+```http
+DELETE /api/v1/notices/{articleId}
+Authorization: Bearer {token}
+```
+
+#### Response (204 No Content)
+
+Body 없음
+
+---
+
+### 5. 공지사항 목록 조회
 
 ```http
 GET /api/v1/notices
@@ -458,51 +652,73 @@ Spring Data JPA Page 형식 (이벤트 API와 동일)
 
 ---
 
-### 2. 공지사항 생성
+## 대량 조회 API
+
+### 1. 게시글 대량 조회
+
+여러 게시글을 ID 리스트로 한 번에 조회합니다.
 
 ```http
-POST /api/v1/notices
-Content-Type: application/json
+GET /api/v1/bulk/articles?ids={id1}&ids={id2}&ids={id3}
 Authorization: Bearer {token}
 ```
 
-#### Request Body
+#### Query Parameters
+
+| Parameter | Type         | Required | Description |
+|-----------|--------------|----------|-------------|
+| ids       | List<String> | Yes      | 게시글 ID 리스트  |
+
+#### Example Request
+
+```http
+GET /api/v1/bulk/articles?ids=ART_001&ids=ART_002&ids=ART_003
+```
+
+#### Response (200 OK)
 
 ```json
-{
-  "title": "시스템 점검 안내",
-  "content": "2025년 1월 1일 시스템 점검 예정입니다.",
-  "writerId": "admin",
-  "boardIds": 2
-}
-```
-
----
-
-### 3. 공지사항 단건 조회
-
-```http
-GET /api/v1/notices/{articleId}
-Authorization: Bearer {token}
-```
-
----
-
-### 4. 공지사항 수정
-
-```http
-PUT /api/v1/notices/{articleId}
-Content-Type: application/json
-Authorization: Bearer {token}
-```
-
----
-
-### 5. 공지사항 삭제
-
-```http
-DELETE /api/v1/notices/{articleId}
-Authorization: Bearer {token}
+[
+  {
+    "articleId": "ART_001",
+    "title": "게시글 제목 1",
+    "writerId": "user123",
+    "boardId": 1,
+    "boardName": "자유게시판",
+    "articleType": "REGULAR",
+    "status": "ACTIVE",
+    "viewCount": 10,
+    "firstImageUrl": "https://cdn.teambind.com/images/img1.webp",
+    "createdAt": "2025-10-25T10:30:00",
+    "updatedAt": "2025-10-25T10:30:00"
+  },
+  {
+    "articleId": "ART_002",
+    "title": "이벤트 제목",
+    "writerId": "admin",
+    "boardId": 3,
+    "boardName": "이벤트",
+    "articleType": "EVENT",
+    "status": "ACTIVE",
+    "viewCount": 50,
+    "firstImageUrl": null,
+    "createdAt": "2025-10-25T11:00:00",
+    "updatedAt": "2025-10-25T11:00:00"
+  },
+  {
+    "articleId": "ART_003",
+    "title": "공지사항 제목",
+    "writerId": "admin",
+    "boardId": 2,
+    "boardName": "공지사항",
+    "articleType": "NOTICE",
+    "status": "ACTIVE",
+    "viewCount": 100,
+    "firstImageUrl": null,
+    "createdAt": "2025-10-25T09:00:00",
+    "updatedAt": "2025-10-25T09:00:00"
+  }
+]
 ```
 
 ---
@@ -520,16 +736,19 @@ GET /api/v1/enums/boards
 ```json
 {
   "1": {
-    "id": 1,
-    "name": "자유게시판"
+    "boardId": 1,
+    "boardName": "자유게시판",
+    "description": "자유롭게 이야기하는 게시판"
   },
   "2": {
-    "id": 2,
-    "name": "공지사항"
+    "boardId": 2,
+    "boardName": "공지사항",
+    "description": "중요 공지사항 게시판"
   },
   "3": {
-    "id": 3,
-    "name": "이벤트"
+    "boardId": 3,
+    "boardName": "이벤트",
+    "description": "이벤트 게시판"
   }
 }
 ```
@@ -547,16 +766,32 @@ GET /api/v1/enums/keywords
 ```json
 {
   "1": {
-    "id": 1,
-    "name": "Java"
+    "keywordId": 1,
+    "keywordName": "공지",
+    "isCommon": true,
+    "boardId": null,
+    "boardName": null
   },
   "2": {
-    "id": 2,
-    "name": "Spring"
+    "keywordId": 2,
+    "keywordName": "이벤트",
+    "isCommon": true,
+    "boardId": null,
+    "boardName": null
   },
   "3": {
-    "id": 3,
-    "name": "React"
+    "keywordId": 3,
+    "keywordName": "질문",
+    "isCommon": false,
+    "boardId": 1,
+    "boardName": "자유게시판"
+  },
+  "4": {
+    "keywordId": 4,
+    "keywordName": "Java",
+    "isCommon": true,
+    "boardId": null,
+    "boardName": null
   }
 }
 ```
@@ -571,32 +806,36 @@ GET /api/v1/enums/keywords
 
 ```json
 {
-  "id": "ART_20251025_001",
+  "articleId": "ART_20251025_001",
   "title": "게시글 제목",
   "content": "게시글 내용",
   "writerId": "user123",
-  "status": "ACTIVE",
-  "version": 0,
   "board": {
-    "id": 1,
-    "name": "자유게시판"
+    "boardId": 1,
+    "boardName": "자유게시판",
+    "description": "자유롭게 이야기하는 게시판"
   },
-  "keywords": [
-    {
-      "id": 1,
-      "name": "Java"
-    }
-  ],
-  "images": [
-    {
-      "imageUrl": "https://cdn.teambind.com/images/img1.webp",
-      "sequenceNo": 0,
-      "imageId": "IMG_001"
-    }
-  ],
+  "status": "ACTIVE",
+  "viewCount": 15,
   "firstImageUrl": "https://cdn.teambind.com/images/img1.webp",
   "createdAt": "2025-10-25T10:30:00",
-  "updatedAt": "2025-10-25T10:30:00"
+  "updatedAt": "2025-10-25T10:30:00",
+  "images": [
+    {
+      "imageId": "IMG_001",
+      "imageUrl": "https://cdn.teambind.com/images/img1.webp",
+      "sequence": 1
+    }
+  ],
+  "keywords": [
+    {
+      "keywordId": 1,
+      "keywordName": "Java",
+      "isCommon": true,
+      "boardId": null,
+      "boardName": null
+    }
+  ]
 }
 ```
 
@@ -606,10 +845,94 @@ GET /api/v1/enums/keywords
 
 ```json
 {
-  ...ArticleBaseResponse
-  필드들,
+  "articleId": "ART_20251225_001",
+  "title": "크리스마스 이벤트",
+  "content": "이벤트 내용",
+  "writerId": "admin",
+  "board": {
+    "boardId": 3,
+    "boardName": "이벤트",
+    "description": "이벤트 게시판"
+  },
+  "status": "ACTIVE",
+  "viewCount": 100,
+  "firstImageUrl": null,
+  "createdAt": "2025-12-01T00:00:00",
+  "updatedAt": "2025-12-01T00:00:00",
+  "images": [],
+  "keywords": [],
   "eventStartDate": "2025-12-24T00:00:00",
   "eventEndDate": "2025-12-25T23:59:59"
+}
+```
+
+### ArticleSimpleResponse
+
+게시글 간단 응답 (대량 조회용)
+
+```json
+{
+  "articleId": "ART_001",
+  "title": "게시글 제목",
+  "writerId": "user123",
+  "boardId": 1,
+  "boardName": "자유게시판",
+  "articleType": "REGULAR",
+  "status": "ACTIVE",
+  "viewCount": 10,
+  "firstImageUrl": "https://cdn.teambind.com/images/img1.webp",
+  "createdAt": "2025-10-25T10:30:00",
+  "updatedAt": "2025-10-25T10:30:00"
+}
+```
+
+### BoardInfo
+
+게시판 정보
+
+```json
+{
+  "boardId": 1,
+  "boardName": "자유게시판",
+  "description": "자유롭게 이야기하는 게시판"
+}
+```
+
+### KeywordInfo
+
+키워드 정보
+
+```json
+{
+  "keywordId": 1,
+  "keywordName": "Java",
+  "isCommon": true,
+  "boardId": null,
+  "boardName": null
+}
+```
+
+보드 전용 키워드인 경우:
+
+```json
+{
+  "keywordId": 3,
+  "keywordName": "질문",
+  "isCommon": false,
+  "boardId": 1,
+  "boardName": "자유게시판"
+}
+```
+
+### ImageInfo
+
+이미지 정보
+
+```json
+{
+  "imageId": "IMG_001",
+  "imageUrl": "https://cdn.teambind.com/images/img1.webp",
+  "sequence": 1
 }
 ```
 
@@ -620,9 +943,13 @@ GET /api/v1/enums/keywords
 ```json
 {
   "items": [
-    ...
+    {
+      "articleId": "ART_001",
+      "title": "게시글 제목",
+      ...
+    }
   ],
-  "nextCursorId": "ART_20251025_010",
+  "nextCursorId": "ART_010",
   "nextCursorUpdatedAt": "2025-10-25T10:00:00",
   "hasNext": true,
   "size": 20

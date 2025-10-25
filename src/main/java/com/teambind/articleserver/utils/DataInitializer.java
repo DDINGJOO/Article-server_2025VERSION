@@ -23,19 +23,18 @@ public class DataInitializer {
   public static final Map<Long, Keyword> keywordMap = new ConcurrentHashMap<>() {};
   public static final Map<Long, Board> boardMap = new ConcurrentHashMap<>();
 
-	private final BoardRepository boardRepository;
-	private final KeywordRepository keywordRepository;
-	
-	
-	@PostConstruct
-	public void init() {
-		log.info("DataInitializer init Started");
+  private final BoardRepository boardRepository;
+  private final KeywordRepository keywordRepository;
+
+  @PostConstruct
+  public void init() {
+    log.info("DataInitializer init Started");
     getKeywordMap();
     getBoardMap();
     log.info("DataInitializer init keywordMap size: {}", keywordMap.size());
     log.info("DataInitializer init boardMap size: {}", boardMap.size());
-		log.info("DataInitializer init Completed");
-	}
+    log.info("DataInitializer init Completed");
+  }
 
   @Scheduled(cron = "0 0 0 * * *")
   public void refresh() {
@@ -51,7 +50,7 @@ public class DataInitializer {
     synchronized (keywordMap) {
       keywordMap.clear();
       keywordRepository
-          .findAll()
+          .findAllWithBoard() // board를 fetch join하여 LazyInitializationException 방지
           .forEach(
               keyword -> {
                 keywordMap.put(keyword.getId(), keyword);

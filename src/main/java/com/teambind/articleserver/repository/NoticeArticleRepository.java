@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface NoticeArticleRepository extends JpaRepository<NoticeArticle, String> {
-	Page<NoticeArticle> findByStatusOrderByCreatedAtDesc(Status status, Pageable pageable);
+  Page<NoticeArticle> findByStatusOrderByCreatedAtDesc(Status status, Pageable pageable);
 }

@@ -33,7 +33,7 @@ public class ArticleCreateRequest {
 
   // 이벤트 기간 (이벤트 게시글만 해당)
   private LocalDateTime eventStartDate;
-	private LocalDateTime eventEndDate;
+  private LocalDateTime eventEndDate;
 
   // 키워드 ID 리스트 (선택)
   @ValidKeywordIds private List<Long> keywordIds;
