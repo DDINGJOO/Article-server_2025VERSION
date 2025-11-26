@@ -1,33 +1,35 @@
-# 개발 환경용 설정 (Docker 컨테이너 연결)
+# Docker 환경용 설정
+# docker-compose로 실행된 컨테이너들과 연결하기 위한 설정
+
 server:
   port: 8080
 
 spring:
-  # Kafka 설정 (호스트에서 Docker 컨테이너 접속)
+  # Kafka 설정 (Docker 내부 네트워크 사용)
   kafka:
-    bootstrap-servers: ${KAFKA_URL1:localhost:19092}
+    bootstrap-servers: ${KAFKA_URL_DOCKER:article-kafka:9092}
     producer:
       retries: 3
       batch-size: 16384
       buffer-memory: 33554432
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
-      acks: all
+      acks: all  # 프로덕션 환경 권장 설정
 
     consumer:
-      group-id: article-consumer-group-dev
+      group-id: article-consumer-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      enable-auto-commit: false
+      enable-auto-commit: false  # 수동 커밋
 
     listener:
       ack-mode: manual_immediate
-      concurrency: 3
+      concurrency: 3  # 컨슈머 스레드 수
 
-  # 데이터베이스 설정 (Docker 컨테이너 연결)
+  # 데이터베이스 설정 (Docker 내부 네트워크 사용)
   datasource:
-    url: jdbc:mariadb://${DATABASE_HOST:localhost}:${DATABASE_PORT:13306}/${DATABASE_NAME:article_db}?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mariadb://${DATABASE_HOST_DOCKER:article-mariadb}:${DATABASE_PORT_DOCKER:3306}/${DATABASE_NAME:article_db}?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: ${DATABASE_USER_NAME:article_user}
     password: ${DATABASE_PASSWORD:articlepass123}
     driver-class-name: org.mariadb.jdbc.Driver
@@ -42,15 +44,16 @@ spring:
       validation-timeout: 5000
       connection-test-query: SELECT 1
 
+  # JPA 설정
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: validate  # Docker DB는 init script로 스키마 생성
-
+      ddl-auto: validate  # Docker 환경에서는 validate 사용
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MariaDBDialect
+        # N+1 문제 해결을 위한 배치 설정
         default_batch_fetch_size: 100
         jdbc:
           batch_size: 25
@@ -59,19 +62,20 @@ spring:
         order_updates: true
         query:
           in_clause_parameter_padding: true
+        # 통계 활성화 (개발 환경)
         generate_statistics: true
         session:
           events:
             log:
               LOG_QUERIES_SLOWER_THAN_MS: 100
 
-  # Redis 설정 (Docker 컨테이너 연결)
+  # Redis 설정 (Docker 내부 네트워크 사용)
   data:
     redis:
       repositories:
         enabled: false
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:16379}
+      host: ${REDIS_HOST_DOCKER:article-redis}
+      port: ${REDIS_PORT_DOCKER:6379}
       timeout: 2000
       lettuce:
         pool:
@@ -85,17 +89,17 @@ spring:
   cache:
     type: redis
     redis:
-      time-to-live: 600000  # 10분
+      time-to-live: 600000  # 10분 (밀리초)
       cache-null-values: false
       use-key-prefix: true
       key-prefix:
-        article:dev:
+        article:
 
   sql:
     init:
-      mode: never  # Docker DB는 init script로 초기화
+      mode: never  # Docker 환경에서는 초기화 스크립트 사용
 
-# Actuator 설정
+# Actuator 설정 (모니터링)
 management:
   endpoints:
     web:
@@ -123,12 +127,12 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   file:
-    name: logs/article-server-dev.log
+    name: logs/article-server-docker.log
     max-size: 10MB
     max-history: 30
 
 # 애플리케이션 설정
 article:
   server:
-    environment: development
+    environment: docker
     version: ${project.version:2025.0.1}
