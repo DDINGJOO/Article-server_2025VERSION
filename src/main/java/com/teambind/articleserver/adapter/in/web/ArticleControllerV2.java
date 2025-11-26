@@ -1,16 +1,19 @@
 package com.teambind.articleserver.adapter.in.web;
 
-import com.teambind.articleserver.application.port.in.CreateArticleUseCase;
-import com.teambind.articleserver.application.port.in.CreateArticleUseCase.ArticleInfo;
-import com.teambind.articleserver.application.port.in.CreateArticleUseCase.CreateArticleCommand;
-import com.teambind.articleserver.application.port.in.ReadArticleUseCase;
-import com.teambind.articleserver.application.port.in.ReadArticleUseCase.ArticleDetailInfo;
-import com.teambind.articleserver.application.port.in.ReadArticleUseCase.ArticlePageInfo;
-import com.teambind.articleserver.application.port.in.ReadArticleUseCase.SearchArticleQuery;
+import static com.teambind.articleserver.utils.DataInitializer.boardMap;
+import static com.teambind.articleserver.utils.DataInitializer.keywordMap;
+
+import com.teambind.articleserver.dto.condition.ArticleSearchCriteria;
+import com.teambind.articleserver.dto.request.ArticleCreateRequest;
+import com.teambind.articleserver.dto.request.ArticleCursorPageRequest;
+import com.teambind.articleserver.dto.response.ArticleCursorPageResponse;
+import com.teambind.articleserver.dto.response.ArticleResponse;
+import com.teambind.articleserver.dto.response.article.ArticleBaseResponse;
+import com.teambind.articleserver.entity.article.Article;
+import com.teambind.articleserver.entity.enums.Status;
+import com.teambind.articleserver.service.crud.impl.ArticleCreateService;
+import com.teambind.articleserver.service.crud.impl.ArticleReadService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +23,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * 게시글 REST Controller V2
  *
- * Hexagonal Architecture의 Inbound Adapter입니다.
- * REST API를 통해 들어오는 요청을 Use Case로 전달합니다.
+ * <p>v1과 완전히 동일한 요청/응답 구조를 제공합니다. URL 경로만 v1에서 v2로 변경되었습니다.
  */
 @RestController
 @RequestMapping("/api/v2/articles")
@@ -29,82 +31,109 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class ArticleControllerV2 {
 
-    private final CreateArticleUseCase createArticleUseCase;
-    private final ReadArticleUseCase readArticleUseCase;
+  private final ArticleCreateService articleCreateService;
+  private final ArticleReadService articleReadService;
 
-    /**
-     * 게시글 생성
-     */
-    @PostMapping
-    public ResponseEntity<ArticleInfo> createArticle(@Valid @RequestBody CreateArticleRequest request) {
-        log.info("Creating article: title={}", request.title());
+  /** 게시글 생성 POST /api/v2/articles */
+  @PostMapping
+  public ResponseEntity<ArticleBaseResponse> createArticle(
+      @Valid @RequestBody ArticleCreateRequest request) {
+    log.info("Creating article v2: title={}", request.getTitle());
 
-        CreateArticleCommand command = new CreateArticleCommand(
-            request.title(),
-            request.content(),
-            request.writerId(),
-            request.boardId(),
-            request.keywordIds(),
-            request.eventStartDate(),
-            request.eventEndDate()
-        );
+    Article article = articleCreateService.createArticle(request);
+    return ResponseEntity.ok(ArticleResponse.fromEntity(article));
+  }
 
-        ArticleInfo articleInfo = createArticleUseCase.createArticle(command);
-        return ResponseEntity.ok(articleInfo);
+  /** 게시글 수정 PUT /api/v2/articles/{articleId} */
+  @PutMapping("/{articleId}")
+  public ResponseEntity<ArticleBaseResponse> updateArticle(
+      @PathVariable String articleId, @Valid @RequestBody ArticleCreateRequest request) {
+    log.info("Updating article v2: id={}", articleId);
+
+    Article article = articleCreateService.updateArticle(articleId, request);
+    return ResponseEntity.ok(ArticleResponse.fromEntity(article));
     }
 
-    /**
-     * 게시글 조회
-     */
-    @GetMapping("/{articleId}")
-    public ResponseEntity<ArticleDetailInfo> getArticle(@PathVariable String articleId) {
-        log.info("Getting article: id={}", articleId);
+  /** 게시글 조회 GET /api/v2/articles/{articleId} */
+  @GetMapping("/{articleId}")
+  public ResponseEntity<ArticleBaseResponse> fetchArticle(
+      @PathVariable(name = "articleId") String articleId) {
+    log.info("Fetching article v2: id={}", articleId);
 
-        return readArticleUseCase.getArticle(articleId)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+    Article article = articleReadService.fetchArticleById(articleId);
+    return ResponseEntity.ok(ArticleResponse.fromEntity(article));
+  }
+
+  /** 게시글 삭제 (Soft Delete) DELETE /api/v2/articles/{articleId} */
+  @DeleteMapping("/{articleId}")
+  public ResponseEntity<Void> deleteArticle(@PathVariable(name = "articleId") String articleId) {
+    log.info("Deleting article v2: id={}", articleId);
+
+    articleCreateService.deleteArticle(articleId);
+    return ResponseEntity.noContent().build();
     }
 
-    /**
-     * 게시글 검색
-     */
-    @GetMapping("/search")
-    public ResponseEntity<ArticlePageInfo> searchArticles(
-            @RequestParam(required = false) Long boardId,
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String content,
-            @RequestParam(required = false) String writerId,
-            @RequestParam(required = false) List<Long> keywordIds,
-            @RequestParam(defaultValue = "ACTIVE") String status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+  /**
+   * 게시글 검색 GET /api/v2/articles/search
+   *
+   * <p>v1과 동일한 파라미터 및 응답 구조를 제공합니다.
+   */
+  @GetMapping("/search")
+  public ResponseEntity<ArticleCursorPageResponse> searchArticles(
+      @RequestParam(required = false) Integer size,
+      @RequestParam(required = false) String cursorId,
+      @RequestParam(required = false) Long boardIds,
+      @RequestParam(required = false, name = "keyword") List<Long> keywordIds,
+      @RequestParam(required = false) String title,
+      @RequestParam(required = false) String content,
+      @RequestParam(required = false) String writerId) {
 
-        SearchArticleQuery query = new SearchArticleQuery(
-            boardId, title, content, writerId, keywordIds, status, page, size
-        );
+    log.debug(
+        "Searching articles v2 with params: boardIds={}, keywordIds={}, title={}, writerId={}",
+        boardIds,
+        keywordIds,
+        title,
+        writerId);
 
-        ArticlePageInfo pageInfo = readArticleUseCase.searchArticles(query);
-        return ResponseEntity.ok(pageInfo);
+    // 검색 조건 구성
+    ArticleSearchCriteria.ArticleSearchCriteriaBuilder criteriaBuilder =
+        ArticleSearchCriteria.builder();
+
+    if (boardIds != null) {
+      criteriaBuilder.board(boardMap.get(boardIds));
     }
 
-    /**
-     * 게시글 생성 요청 DTO
-     */
-    public record CreateArticleRequest(
-        @NotBlank(message = "제목은 필수입니다")
-        String title,
+    if (keywordIds != null) {
+      criteriaBuilder.keywords(keywordIds.stream().map(keywordMap::get).toList());
+    }
 
-        @NotBlank(message = "내용은 필수입니다")
-        String content,
+    if (title != null && !title.isBlank()) {
+      criteriaBuilder.title(title);
+    }
 
-        @NotBlank(message = "작성자 ID는 필수입니다")
-        String writerId,
+    if (content != null && !content.isBlank()) {
+      criteriaBuilder.content(content);
+    }
 
-        @NotNull(message = "게시판 ID는 필수입니다")
-        Long boardId,
+    if (writerId != null && !writerId.isBlank()) {
+      criteriaBuilder.writerId(writerId);
+    }
 
-        List<Long> keywordIds,
-        LocalDateTime eventStartDate,
-        LocalDateTime eventEndDate
-    ) {}
+    // 기본값 설정
+    if (size == null || size <= 0) {
+      size = 10;
+    }
+
+    criteriaBuilder.status(Status.ACTIVE);
+
+    ArticleSearchCriteria criteria = criteriaBuilder.build();
+
+    // 페이지 요청 구성
+    ArticleCursorPageRequest pageRequest =
+        ArticleCursorPageRequest.builder().size(size).cursorId(cursorId).build();
+
+    ArticleCursorPageResponse response = articleReadService.searchArticles(criteria, pageRequest);
+
+    return ResponseEntity.ok(response);
+  }
 }
