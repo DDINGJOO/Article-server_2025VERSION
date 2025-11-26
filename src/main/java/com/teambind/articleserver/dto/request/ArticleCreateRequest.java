@@ -42,4 +42,7 @@ public class ArticleCreateRequest {
   @NotNull(message = "Board ID는 필수입니다")
   @ValidBoardId(nullable = false)
   private Long boardIds;
+
+  // 내부적으로 사용할 보드 이름 (타입 결정용)
+  private transient String boardName;
 }
