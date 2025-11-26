@@ -1,11 +1,11 @@
 package com.teambind.articleserver.factory;
 
-import com.teambind.articleserver.exceptions.CustomException;
-import com.teambind.articleserver.exceptions.ErrorCode;
+import com.teambind.articleserver.common.exception.CustomException;
+import com.teambind.articleserver.common.exception.ErrorCode;
+import jakarta.annotation.PostConstruct;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

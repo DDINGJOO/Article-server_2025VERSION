@@ -1,6 +1,6 @@
 package com.teambind.articleserver.application.port.out;
 
-import com.teambind.articleserver.entity.article.Article;
+import com.teambind.articleserver.adapter.out.persistence.entity.article.Article;
 import java.util.Optional;
 
 /**

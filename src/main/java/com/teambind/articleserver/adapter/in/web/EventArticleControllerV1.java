@@ -1,8 +1,8 @@
 package com.teambind.articleserver.adapter.in.web;
 
-import com.teambind.articleserver.dto.request.ArticleCreateRequest;
-import com.teambind.articleserver.dto.response.article.EventArticleResponse;
-import com.teambind.articleserver.entity.articleType.EventArticle;
+import com.teambind.articleserver.adapter.in.web.dto.request.ArticleCreateRequest;
+import com.teambind.articleserver.adapter.in.web.dto.response.article.EventArticleResponse;
+import com.teambind.articleserver.adapter.out.persistence.entity.articleType.EventArticle;
 import com.teambind.articleserver.service.crud.impl.ArticleCreateService;
 import com.teambind.articleserver.service.crud.impl.ArticleReadService;
 import jakarta.validation.Valid;

@@ -1,8 +1,8 @@
 package com.teambind.articleserver.domain.repository;
 
-import com.teambind.articleserver.domain.aggregate.ArticleAggregate;
-import com.teambind.articleserver.domain.vo.ArticleId;
-import com.teambind.articleserver.domain.vo.WriterId;
+import com.teambind.articleserver.domain.model.article.ArticleAggregate;
+import com.teambind.articleserver.domain.valueobject.ArticleId;
+import com.teambind.articleserver.domain.valueobject.WriterId;
 import java.util.List;
 import java.util.Optional;
 

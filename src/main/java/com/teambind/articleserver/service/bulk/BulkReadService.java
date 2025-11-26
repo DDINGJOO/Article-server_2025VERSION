@@ -1,8 +1,8 @@
 package com.teambind.articleserver.service.bulk;
 
-import com.teambind.articleserver.dto.response.ArticleSimpleResponse;
-import com.teambind.articleserver.repository.ArticleRepository;
-import com.teambind.articleserver.repository.projection.ArticleSimpleView;
+import com.teambind.articleserver.adapter.in.web.dto.response.ArticleSimpleResponse;
+import com.teambind.articleserver.adapter.out.persistence.projection.ArticleSimpleView;
+import com.teambind.articleserver.adapter.out.persistence.repository.ArticleRepository;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;

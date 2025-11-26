@@ -1,9 +1,9 @@
 package com.teambind.articleserver.domain.event;
 
-import com.teambind.articleserver.domain.vo.ArticleId;
-import com.teambind.articleserver.domain.vo.Content;
-import com.teambind.articleserver.domain.vo.Title;
-import com.teambind.articleserver.domain.vo.WriterId;
+import com.teambind.articleserver.domain.valueobject.ArticleId;
+import com.teambind.articleserver.domain.valueobject.Content;
+import com.teambind.articleserver.domain.valueobject.Title;
+import com.teambind.articleserver.domain.valueobject.WriterId;
 import lombok.Getter;
 
 /**

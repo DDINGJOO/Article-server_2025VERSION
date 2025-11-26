@@ -1,16 +1,16 @@
 package com.teambind.articleserver.adapter.in.web;
 
-import static com.teambind.articleserver.utils.DataInitializer.boardMap;
-import static com.teambind.articleserver.utils.DataInitializer.keywordMap;
+import static com.teambind.articleserver.common.util.DataInitializer.boardMap;
+import static com.teambind.articleserver.common.util.DataInitializer.keywordMap;
 
-import com.teambind.articleserver.dto.condition.ArticleSearchCriteria;
-import com.teambind.articleserver.dto.request.ArticleCreateRequest;
-import com.teambind.articleserver.dto.request.ArticleCursorPageRequest;
-import com.teambind.articleserver.dto.response.ArticleCursorPageResponse;
-import com.teambind.articleserver.dto.response.ArticleResponse;
-import com.teambind.articleserver.dto.response.article.ArticleBaseResponse;
-import com.teambind.articleserver.entity.article.Article;
-import com.teambind.articleserver.entity.enums.Status;
+import com.teambind.articleserver.adapter.in.web.dto.condition.ArticleSearchCriteria;
+import com.teambind.articleserver.adapter.in.web.dto.request.ArticleCreateRequest;
+import com.teambind.articleserver.adapter.in.web.dto.request.ArticleCursorPageRequest;
+import com.teambind.articleserver.adapter.in.web.dto.response.ArticleCursorPageResponse;
+import com.teambind.articleserver.adapter.in.web.dto.response.ArticleResponse;
+import com.teambind.articleserver.adapter.in.web.dto.response.article.ArticleBaseResponse;
+import com.teambind.articleserver.adapter.out.persistence.entity.article.Article;
+import com.teambind.articleserver.adapter.out.persistence.entity.enums.Status;
 import com.teambind.articleserver.service.crud.impl.ArticleCreateService;
 import com.teambind.articleserver.service.crud.impl.ArticleReadService;
 import jakarta.validation.Valid;

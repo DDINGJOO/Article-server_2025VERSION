@@ -1,6 +1,6 @@
 package com.teambind.articleserver.validation;
 
-import com.teambind.articleserver.utils.DataInitializer;
+import com.teambind.articleserver.common.util.DataInitializer;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.List;
