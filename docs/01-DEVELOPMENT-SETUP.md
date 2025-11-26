@@ -93,16 +93,13 @@ DATABASE_PORT=3306
 DATABASE_NAME=article_db
 DATABASE_USER_NAME=article_user
 DATABASE_PASSWORD=your_secure_password
-
 # Redis
 REDIS_HOST=localhost
 REDIS_PORT=6379
-
 # Kafka
 KAFKA_URL1=localhost:9092
 KAFKA_URL2=localhost:9093
 KAFKA_URL3=localhost:9094
-
 # Application
 SPRING_PROFILES_ACTIVE=dev
 ```
@@ -156,7 +153,8 @@ sudo mysql_secure_installation
 
 ```sql
 -- Connect to MariaDB
-mysql -u root -p
+mysql
+-u root -p
 
 -- Create database
 CREATE DATABASE article_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -466,13 +464,15 @@ services:
 
 ```json
 {
-  "configurations": [{
-    "type": "java",
-    "name": "Spring Boot-ArticleServerApplication",
-    "request": "launch",
-    "mainClass": "com.teambind.articleserver.ArticleServerApplication",
-    "envFile": "${workspaceFolder}/.env"
-  }]
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-ArticleServerApplication",
+      "request": "launch",
+      "mainClass": "com.teambind.articleserver.ArticleServerApplication",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
 }
 ```
 

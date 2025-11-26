@@ -17,29 +17,29 @@ Article Server의 현재 아키텍처는 전통적인 Layered Architecture를 �
 // AS-IS: 비즈니스 로직과 인프라가 강하게 결합
 @Service
 public class ArticleService {
-    @Autowired
-    private ArticleRepository repository;  // JPA 의존
-    @Autowired
-    private KafkaTemplate kafka;          // Kafka 의존
-    @Autowired
-    private RedisTemplate redis;          // Redis 의존
-
-    public Article createArticle(ArticleDto dto) {
-        // 비즈니스 로직과 인프라 코드가 혼재
-        Article article = new Article();
-        article.setTitle(dto.getTitle());
-
-        // DB 저장
-        article = repository.save(article);
-
-        // 캐시 저장
-        redis.opsForValue().set(article.getId(), article);
-
-        // 이벤트 발행
-        kafka.send("article.created", article);
-
-        return article;
-    }
+	@Autowired
+	private ArticleRepository repository;  // JPA 의존
+	@Autowired
+	private KafkaTemplate kafka;          // Kafka 의존
+	@Autowired
+	private RedisTemplate redis;          // Redis 의존
+	
+	public Article createArticle(ArticleDto dto) {
+		// 비즈니스 로직과 인프라 코드가 혼재
+		Article article = new Article();
+		article.setTitle(dto.getTitle());
+		
+		// DB 저장
+		article = repository.save(article);
+		
+		// 캐시 저장
+		redis.opsForValue().set(article.getId(), article);
+		
+		// 이벤트 발행
+		kafka.send("article.created", article);
+		
+		return article;
+	}
 }
 ```
 
@@ -148,30 +148,34 @@ article-server/
 package com.teambind.articleserver.application.port.in;
 
 public interface CreateArticleUseCase {
-
-    ArticleInfo createArticle(CreateArticleCommand command);
-
-    @Value
-    @Builder
-    class CreateArticleCommand {
-        @NotNull String title;
-        @NotNull String content;
-        @NotNull String writerId;
-        @NotNull Long boardId;
-        List<Long> keywordIds;
-        LocalDateTime eventStartDate;
-        LocalDateTime eventEndDate;
-    }
-
-    @Value
-    @Builder
-    class ArticleInfo {
-        String articleId;
-        String title;
-        String boardName;
-        String status;
-        LocalDateTime createdAt;
-    }
+	
+	ArticleInfo createArticle(CreateArticleCommand command);
+	
+	@Value
+	@Builder
+	class CreateArticleCommand {
+		@NotNull
+		String title;
+		@NotNull
+		String content;
+		@NotNull
+		String writerId;
+		@NotNull
+		Long boardId;
+		List<Long> keywordIds;
+		LocalDateTime eventStartDate;
+		LocalDateTime eventEndDate;
+	}
+	
+	@Value
+	@Builder
+	class ArticleInfo {
+		String articleId;
+		String title;
+		String boardName;
+		String status;
+		LocalDateTime createdAt;
+	}
 }
 ```
 
@@ -184,39 +188,39 @@ package com.teambind.articleserver.application.service;
 @RequiredArgsConstructor
 @Transactional
 public class CreateArticleService implements CreateArticleUseCase {
-
-    private final SaveArticlePort saveArticlePort;
-    private final PublishEventPort publishEventPort;
-    private final ArticleFactory articleFactory;
-
-    @Override
-    public ArticleInfo createArticle(CreateArticleCommand command) {
-        // 1. Domain logic - Article 생성
-        Article article = articleFactory.create(
-            Title.of(command.getTitle()),
-            Content.of(command.getContent()),
-            WriterId.of(command.getWriterId())
-        );
-
-        // 2. Port를 통한 저장 (어떻게 저장되는지는 모름)
-        Article savedArticle = saveArticlePort.save(article);
-
-        // 3. Domain Event 발행 (어떻게 발행되는지는 모름)
-        ArticleCreatedEvent event = new ArticleCreatedEvent(
-            savedArticle.getId(),
-            savedArticle.getTitle()
-        );
-        publishEventPort.publish(event);
-
-        // 4. Response 변환
-        return ArticleInfo.builder()
-            .articleId(savedArticle.getId().getValue())
-            .title(savedArticle.getTitle().getValue())
-            .boardName(savedArticle.getBoard().getName())
-            .status(savedArticle.getStatus().name())
-            .createdAt(savedArticle.getCreatedAt())
-            .build();
-    }
+	
+	private final SaveArticlePort saveArticlePort;
+	private final PublishEventPort publishEventPort;
+	private final ArticleFactory articleFactory;
+	
+	@Override
+	public ArticleInfo createArticle(CreateArticleCommand command) {
+		// 1. Domain logic - Article 생성
+		Article article = articleFactory.create(
+				Title.of(command.getTitle()),
+				Content.of(command.getContent()),
+				WriterId.of(command.getWriterId())
+		);
+		
+		// 2. Port를 통한 저장 (어떻게 저장되는지는 모름)
+		Article savedArticle = saveArticlePort.save(article);
+		
+		// 3. Domain Event 발행 (어떻게 발행되는지는 모름)
+		ArticleCreatedEvent event = new ArticleCreatedEvent(
+				savedArticle.getId(),
+				savedArticle.getTitle()
+		);
+		publishEventPort.publish(event);
+		
+		// 4. Response 변환
+		return ArticleInfo.builder()
+				.articleId(savedArticle.getId().getValue())
+				.title(savedArticle.getTitle().getValue())
+				.boardName(savedArticle.getBoard().getName())
+				.status(savedArticle.getStatus().name())
+				.createdAt(savedArticle.getCreatedAt())
+				.build();
+	}
 }
 ```
 
@@ -226,17 +230,19 @@ public class CreateArticleService implements CreateArticleUseCase {
 package com.teambind.articleserver.application.port.out;
 
 public interface SaveArticlePort {
-    Article save(Article article);
+	Article save(Article article);
 }
 
 public interface LoadArticlePort {
-    Optional<Article> loadById(ArticleId id);
-    List<Article> loadByWriter(WriterId writerId);
-    Optional<Article> loadActiveArticle(ArticleId id);
+	Optional<Article> loadById(ArticleId id);
+	
+	List<Article> loadByWriter(WriterId writerId);
+	
+	Optional<Article> loadActiveArticle(ArticleId id);
 }
 
 public interface PublishEventPort {
-    void publish(DomainEvent event);
+	void publish(DomainEvent event);
 }
 ```
 
@@ -249,36 +255,36 @@ package com.teambind.articleserver.adapter.in.web;
 @RequestMapping("/api/v2/articles")
 @RequiredArgsConstructor
 public class ArticleController {
-
-    private final CreateArticleUseCase createArticleUseCase;
-    private final ReadArticleUseCase readArticleUseCase;
-
-    @PostMapping
-    public ResponseEntity<ArticleResponse> createArticle(
-            @Valid @RequestBody CreateArticleRequest request) {
-
-        CreateArticleCommand command = CreateArticleCommand.builder()
-            .title(request.getTitle())
-            .content(request.getContent())
-            .writerId(request.getWriterId())
-            .boardId(request.getBoardId())
-            .keywordIds(request.getKeywordIds())
-            .build();
-
-        ArticleInfo articleInfo = createArticleUseCase.createArticle(command);
-
-        return ResponseEntity.ok(ArticleResponse.from(articleInfo));
-    }
-
-    @GetMapping("/{articleId}")
-    public ResponseEntity<ArticleDetailResponse> getArticle(
-            @PathVariable String articleId) {
-
-        return readArticleUseCase.getArticle(articleId)
-            .map(ArticleDetailResponse::from)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
-    }
+	
+	private final CreateArticleUseCase createArticleUseCase;
+	private final ReadArticleUseCase readArticleUseCase;
+	
+	@PostMapping
+	public ResponseEntity<ArticleResponse> createArticle(
+			@Valid @RequestBody CreateArticleRequest request) {
+		
+		CreateArticleCommand command = CreateArticleCommand.builder()
+				.title(request.getTitle())
+				.content(request.getContent())
+				.writerId(request.getWriterId())
+				.boardId(request.getBoardId())
+				.keywordIds(request.getKeywordIds())
+				.build();
+		
+		ArticleInfo articleInfo = createArticleUseCase.createArticle(command);
+		
+		return ResponseEntity.ok(ArticleResponse.from(articleInfo));
+	}
+	
+	@GetMapping("/{articleId}")
+	public ResponseEntity<ArticleDetailResponse> getArticle(
+			@PathVariable String articleId) {
+		
+		return readArticleUseCase.getArticle(articleId)
+				.map(ArticleDetailResponse::from)
+				.map(ResponseEntity::ok)
+				.orElse(ResponseEntity.notFound().build());
+	}
 }
 ```
 
@@ -290,37 +296,37 @@ package com.teambind.articleserver.adapter.out.persistence;
 @Component
 @RequiredArgsConstructor
 public class ArticlePersistenceAdapter implements SaveArticlePort, LoadArticlePort {
-
-    private final ArticleJpaRepository articleJpaRepository;
-    private final ArticleMapper articleMapper;
-
-    @Override
-    public Article save(Article article) {
-        ArticleJpaEntity entity = articleMapper.toJpaEntity(article);
-        ArticleJpaEntity savedEntity = articleJpaRepository.save(entity);
-        return articleMapper.toDomainModel(savedEntity);
-    }
-
-    @Override
-    public Optional<Article> loadById(ArticleId id) {
-        return articleJpaRepository.findById(id.getValue())
-            .map(articleMapper::toDomainModel);
-    }
-
-    @Override
-    public List<Article> loadByWriter(WriterId writerId) {
-        return articleJpaRepository.findByWriterId(writerId.getValue())
-            .stream()
-            .map(articleMapper::toDomainModel)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public Optional<Article> loadActiveArticle(ArticleId id) {
-        return articleJpaRepository.findByIdAndStatus(
-                id.getValue(), Status.ACTIVE)
-            .map(articleMapper::toDomainModel);
-    }
+	
+	private final ArticleJpaRepository articleJpaRepository;
+	private final ArticleMapper articleMapper;
+	
+	@Override
+	public Article save(Article article) {
+		ArticleJpaEntity entity = articleMapper.toJpaEntity(article);
+		ArticleJpaEntity savedEntity = articleJpaRepository.save(entity);
+		return articleMapper.toDomainModel(savedEntity);
+	}
+	
+	@Override
+	public Optional<Article> loadById(ArticleId id) {
+		return articleJpaRepository.findById(id.getValue())
+				.map(articleMapper::toDomainModel);
+	}
+	
+	@Override
+	public List<Article> loadByWriter(WriterId writerId) {
+		return articleJpaRepository.findByWriterId(writerId.getValue())
+				.stream()
+				.map(articleMapper::toDomainModel)
+				.collect(Collectors.toList());
+	}
+	
+	@Override
+	public Optional<Article> loadActiveArticle(ArticleId id) {
+		return articleJpaRepository.findByIdAndStatus(
+						id.getValue(), Status.ACTIVE)
+				.map(articleMapper::toDomainModel);
+	}
 }
 ```
 
@@ -332,34 +338,34 @@ package com.teambind.articleserver.adapter.out.messaging;
 @Component
 @RequiredArgsConstructor
 public class EventPublisherAdapter implements PublishEventPort {
-
-    private final KafkaTemplate<String, String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
-
-    @Override
-    public void publish(DomainEvent event) {
-        try {
-            String eventJson = objectMapper.writeValueAsString(event);
-            String topic = resolveTopicName(event);
-
-            kafkaTemplate.send(topic, event.getAggregateId(), eventJson)
-                .addCallback(
-                    result -> log.info("Event published: {}", event.getEventId()),
-                    ex -> log.error("Failed to publish event", ex)
-                );
-        } catch (JsonProcessingException e) {
-            throw new EventPublishException("Failed to serialize event", e);
-        }
-    }
-
-    private String resolveTopicName(DomainEvent event) {
-        if (event instanceof ArticleCreatedEvent) {
-            return "article.created";
-        } else if (event instanceof ArticleDeletedEvent) {
-            return "article.deleted";
-        }
-        return "article.events";
-    }
+	
+	private final KafkaTemplate<String, String> kafkaTemplate;
+	private final ObjectMapper objectMapper;
+	
+	@Override
+	public void publish(DomainEvent event) {
+		try {
+			String eventJson = objectMapper.writeValueAsString(event);
+			String topic = resolveTopicName(event);
+			
+			kafkaTemplate.send(topic, event.getAggregateId(), eventJson)
+					.addCallback(
+							result -> log.info("Event published: {}", event.getEventId()),
+							ex -> log.error("Failed to publish event", ex)
+					);
+		} catch (JsonProcessingException e) {
+			throw new EventPublishException("Failed to serialize event", e);
+		}
+	}
+	
+	private String resolveTopicName(DomainEvent event) {
+		if (event instanceof ArticleCreatedEvent) {
+			return "article.created";
+		} else if (event instanceof ArticleDeletedEvent) {
+			return "article.deleted";
+		}
+		return "article.events";
+	}
 }
 ```
 
@@ -368,87 +374,89 @@ public class EventPublisherAdapter implements PublishEventPort {
 #### Unit Test (No Infrastructure)
 
 ```java
+
 @ExtendWith(MockitoExtension.class)
 class CreateArticleServiceTest {
-
-    @Mock
-    private SaveArticlePort saveArticlePort;
-
-    @Mock
-    private PublishEventPort publishEventPort;
-
-    @InjectMocks
-    private CreateArticleService service;
-
-    @Test
-    void createArticle_Success() {
-        // Given
-        CreateArticleCommand command = CreateArticleCommand.builder()
-            .title("Test Title")
-            .content("Test Content")
-            .writerId("user123")
-            .boardId(1L)
-            .build();
-
-        Article savedArticle = Article.create(
-            ArticleId.of("ART123"),
-            Title.of("Test Title"),
-            Content.of("Test Content"),
-            WriterId.of("user123")
-        );
-
-        when(saveArticlePort.save(any(Article.class)))
-            .thenReturn(savedArticle);
-
-        // When
-        ArticleInfo result = service.createArticle(command);
-
-        // Then
-        assertThat(result.getArticleId()).isEqualTo("ART123");
-        assertThat(result.getTitle()).isEqualTo("Test Title");
-
-        verify(saveArticlePort).save(any(Article.class));
-        verify(publishEventPort).publish(any(ArticleCreatedEvent.class));
-    }
+	
+	@Mock
+	private SaveArticlePort saveArticlePort;
+	
+	@Mock
+	private PublishEventPort publishEventPort;
+	
+	@InjectMocks
+	private CreateArticleService service;
+	
+	@Test
+	void createArticle_Success() {
+		// Given
+		CreateArticleCommand command = CreateArticleCommand.builder()
+				.title("Test Title")
+				.content("Test Content")
+				.writerId("user123")
+				.boardId(1L)
+				.build();
+		
+		Article savedArticle = Article.create(
+				ArticleId.of("ART123"),
+				Title.of("Test Title"),
+				Content.of("Test Content"),
+				WriterId.of("user123")
+		);
+		
+		when(saveArticlePort.save(any(Article.class)))
+				.thenReturn(savedArticle);
+		
+		// When
+		ArticleInfo result = service.createArticle(command);
+		
+		// Then
+		assertThat(result.getArticleId()).isEqualTo("ART123");
+		assertThat(result.getTitle()).isEqualTo("Test Title");
+		
+		verify(saveArticlePort).save(any(Article.class));
+		verify(publishEventPort).publish(any(ArticleCreatedEvent.class));
+	}
 }
 ```
 
 #### Integration Test
 
 ```java
+
 @SpringBootTest
 @AutoConfigureMockMvc
 class ArticleIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private PublishEventPort publishEventPort;
-
-    @Test
-    void createArticle_Integration() throws Exception {
-        // Given
-        String requestBody = """
-            {
-                "title": "Integration Test",
-                "content": "Test Content",
-                "writerId": "user123",
-                "boardId": 1,
-                "keywordIds": [1, 2]
-            }
-            """;
-
-        // When & Then
-        mockMvc.perform(post("/api/v2/articles")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.articleId").exists())
-            .andExpect(jsonPath("$.title").value("Integration Test"));
-
-        verify(publishEventPort).publish(any(ArticleCreatedEvent.class));
-    }
+	
+	@Autowired
+	private MockMvc mockMvc;
+	
+	@MockBean
+	private PublishEventPort publishEventPort;
+	
+	@Test
+	void createArticle_Integration() throws Exception {
+		// Given
+		String requestBody = """
+				{
+				    "title": "Integration Test",
+				    "content": "Test Content",
+				    "writerId": "user123",
+				    "boardId": 1,
+				    "keywordIds": [1, 2]
+				}
+				""";
+		
+		// When & Then
+		mockMvc.perform(post("/api/v2/articles")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(requestBody))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.articleId").exists())
+				.andExpect(jsonPath("$.title").value("Integration Test"));
+		
+		verify(publishEventPort).publish(any(ArticleCreatedEvent.class));
+	}
 }
 ```
 

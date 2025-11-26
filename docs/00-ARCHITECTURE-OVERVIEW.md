@@ -44,14 +44,14 @@ Article Server는 **MSA(Microservice Architecture)** 환경에서 게시글 관�
 ```java
 // Aggregate Root
 public abstract class ArticleAggregate extends AggregateRoot {
-    @EmbeddedId
-    private ArticleId id;           // Value Object
-    @Embedded
-    private Title title;            // Value Object
-    @Embedded
-    private Content content;        // Value Object
-    @Embedded
-    private WriterId writerId;      // Value Object
+	@EmbeddedId
+	private ArticleId id;           // Value Object
+	@Embedded
+	private Title title;            // Value Object
+	@Embedded
+	private Content content;        // Value Object
+	@Embedded
+	private WriterId writerId;      // Value Object
 }
 ```
 
@@ -73,8 +73,9 @@ public abstract class ArticleAggregate extends AggregateRoot {
 
 ```java
 public interface ArticleFactory {
-    Article create(ArticleCreateRequest request);
-    ArticleType getSupportedType();
+	Article create(ArticleCreateRequest request);
+	
+	ArticleType getSupportedType();
 }
 ```
 
@@ -121,27 +122,30 @@ article-server/
 ### Entity Hierarchy
 
 ```java
+
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "article_type")
 public abstract class Article {
-    // Core fields with optimized indexes
+	// Core fields with optimized indexes
 }
 
 @Entity
 @DiscriminatorValue("REGULAR")
-public class RegularArticle extends Article { }
+public class RegularArticle extends Article {
+}
 
 @Entity
 @DiscriminatorValue("EVENT")
 public class EventArticle extends Article {
-    private LocalDateTime eventStartDate;
-    private LocalDateTime eventEndDate;
+	private LocalDateTime eventStartDate;
+	private LocalDateTime eventEndDate;
 }
 
 @Entity
 @DiscriminatorValue("NOTICE")
-public class NoticeArticle extends Article { }
+public class NoticeArticle extends Article {
+}
 ```
 
 ### Value Objects
@@ -157,10 +161,13 @@ public class NoticeArticle extends Article { }
 
 ```java
 public interface DomainEvent {
-    String getEventId();
-    LocalDateTime getOccurredAt();
-    String getEventType();
-    String getAggregateId();
+	String getEventId();
+	
+	LocalDateTime getOccurredAt();
+	
+	String getEventType();
+	
+	String getAggregateId();
 }
 ```
 
@@ -249,9 +256,9 @@ services:
 
 ```sql
 -- Performance-critical indexes
-CREATE INDEX idx_article_board ON articles(board_id);
-CREATE INDEX idx_status_created_id ON articles(status, created_at, article_id);
-CREATE INDEX idx_event_status_dates ON articles(article_type, status, event_start_date, event_end_date);
+CREATE INDEX idx_article_board ON articles (board_id);
+CREATE INDEX idx_status_created_id ON articles (status, created_at, article_id);
+CREATE INDEX idx_event_status_dates ON articles (article_type, status, event_start_date, event_end_date);
 ```
 
 ### Health Checks

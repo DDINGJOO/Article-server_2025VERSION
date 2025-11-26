@@ -33,227 +33,205 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @DisplayName("ArticleFactory 테스트")
 class ArticleFactoryTest {
 
-    @Mock
-    private BoardRepository boardRepository;
+  @Mock private BoardRepository boardRepository;
 
-    @Mock
-    private KeywordRepository keywordRepository;
+  @Mock private KeywordRepository keywordRepository;
 
-    @Mock
-    private PrimaryKetGenerator primaryKetGenerator;
+  @Mock private PrimaryKetGenerator primaryKetGenerator;
 
-    @InjectMocks
-    private RegularArticleFactory regularArticleFactory;
+  @InjectMocks private RegularArticleFactory regularArticleFactory;
 
-    @InjectMocks
-    private EventArticleFactory eventArticleFactory;
+  @InjectMocks private EventArticleFactory eventArticleFactory;
 
-    @InjectMocks
-    private NoticeArticleFactory noticeArticleFactory;
+  @InjectMocks private NoticeArticleFactory noticeArticleFactory;
 
-    private ArticleFactoryRegistry registry;
+  private ArticleFactoryRegistry registry;
 
-    @BeforeEach
-    void setUp() {
-        // Registry 설정
-        registry = new ArticleFactoryRegistry(
-            List.of(regularArticleFactory, eventArticleFactory, noticeArticleFactory)
-        );
-        registry.init();
+  @BeforeEach
+  void setUp() {
+    // Registry 설정
+    registry =
+        new ArticleFactoryRegistry(
+            List.of(regularArticleFactory, eventArticleFactory, noticeArticleFactory));
+    registry.init();
+  }
+
+  @Nested
+  @DisplayName("RegularArticleFactory 테스트")
+  class RegularArticleFactoryTest {
+
+    @Test
+    @DisplayName("정상: 일반 게시글을 생성할 수 있다")
+    void createRegularArticle_Success() {
+      // given
+      ArticleCreateRequest request =
+          ArticleCreateRequest.builder()
+              .title("테스트 제목")
+              .content("테스트 내용")
+              .writerId("user123")
+              .boardIds(1L)
+              .build();
+
+      Board board = Board.builder().id(1L).name("자유게시판").build();
+
+      when(boardRepository.findById(1L)).thenReturn(Optional.of(board));
+      when(primaryKetGenerator.generateKey()).thenReturn("article-001");
+
+      // when
+      Article article = regularArticleFactory.create(request);
+
+      // then
+      assertThat(article).isInstanceOf(RegularArticle.class);
+      assertThat(article.getId()).isEqualTo("article-001");
+      assertThat(article.getTitle()).isEqualTo("테스트 제목");
+      assertThat(article.getContent()).isEqualTo("테스트 내용");
+      assertThat(article.getBoard()).isEqualTo(board);
     }
 
-    @Nested
-    @DisplayName("RegularArticleFactory 테스트")
-    class RegularArticleFactoryTest {
+    @Test
+    @DisplayName("예외: Board가 존재하지 않으면 예외 발생")
+    void createRegularArticle_BoardNotFound_ThrowsException() {
+      // given
+      ArticleCreateRequest request =
+          ArticleCreateRequest.builder()
+              .title("테스트 제목")
+              .content("테스트 내용")
+              .writerId("user123")
+              .boardIds(999L)
+              .build();
 
-        @Test
-        @DisplayName("정상: 일반 게시글을 생성할 수 있다")
-        void createRegularArticle_Success() {
-            // given
-            ArticleCreateRequest request = ArticleCreateRequest.builder()
-                .title("테스트 제목")
-                .content("테스트 내용")
-                .writerId("user123")
-                .boardIds(1L)
-                .build();
+      when(boardRepository.findById(999L)).thenReturn(Optional.empty());
 
-            Board board = Board.builder()
-                .id(1L)
-                .name("자유게시판")
-                .build();
+      // when & then
+      assertThatThrownBy(() -> regularArticleFactory.create(request))
+          .isInstanceOf(CustomException.class);
+    }
+  }
 
-            when(boardRepository.findById(1L)).thenReturn(Optional.of(board));
-            when(primaryKetGenerator.generateKey()).thenReturn("article-001");
+  @Nested
+  @DisplayName("EventArticleFactory 테스트")
+  class EventArticleFactoryTest {
 
-            // when
-            Article article = regularArticleFactory.create(request);
+    @Test
+    @DisplayName("정상: 이벤트 게시글을 생성할 수 있다")
+    void createEventArticle_Success() {
+      // given
+      LocalDateTime startDate = LocalDateTime.now();
+      LocalDateTime endDate = startDate.plusDays(7);
 
-            // then
-            assertThat(article).isInstanceOf(RegularArticle.class);
-            assertThat(article.getId()).isEqualTo("article-001");
-            assertThat(article.getTitle()).isEqualTo("테스트 제목");
-            assertThat(article.getContent()).isEqualTo("테스트 내용");
-            assertThat(article.getBoard()).isEqualTo(board);
-        }
+      ArticleCreateRequest request =
+          ArticleCreateRequest.builder()
+              .title("이벤트 제목")
+              .content("이벤트 내용")
+              .writerId("admin")
+              .eventStartDate(startDate)
+              .eventEndDate(endDate)
+              .build();
 
-        @Test
-        @DisplayName("예외: Board가 존재하지 않으면 예외 발생")
-        void createRegularArticle_BoardNotFound_ThrowsException() {
-            // given
-            ArticleCreateRequest request = ArticleCreateRequest.builder()
-                .title("테스트 제목")
-                .content("테스트 내용")
-                .writerId("user123")
-                .boardIds(999L)
-                .build();
+      Board eventBoard = Board.builder().id(2L).name("이벤트").build();
 
-            when(boardRepository.findById(999L)).thenReturn(Optional.empty());
+      when(boardRepository.findByName("이벤트")).thenReturn(Optional.of(eventBoard));
+      when(primaryKetGenerator.generateKey()).thenReturn("event-001");
 
-            // when & then
-            assertThatThrownBy(() -> regularArticleFactory.create(request))
-                .isInstanceOf(CustomException.class);
-        }
+      // when
+      Article article = eventArticleFactory.create(request);
+
+      // then
+      assertThat(article).isInstanceOf(EventArticle.class);
+      EventArticle eventArticle = (EventArticle) article;
+      assertThat(eventArticle.getEventStartDate()).isEqualTo(startDate);
+      assertThat(eventArticle.getEventEndDate()).isEqualTo(endDate);
+      assertThat(eventArticle.getBoard().getName()).isEqualTo("이벤트");
+    }
+  }
+
+  @Nested
+  @DisplayName("NoticeArticleFactory 테스트")
+  class NoticeArticleFactoryTest {
+
+    @Test
+    @DisplayName("정상: 공지사항을 생성할 수 있다")
+    void createNoticeArticle_Success() {
+      // given
+      ArticleCreateRequest request =
+          ArticleCreateRequest.builder()
+              .title("공지사항 제목")
+              .content("공지사항 내용")
+              .writerId("admin")
+              .build();
+
+      Board noticeBoard = Board.builder().id(3L).name("공지사항").build();
+
+      when(boardRepository.findByName("공지사항")).thenReturn(Optional.of(noticeBoard));
+      when(primaryKetGenerator.generateKey()).thenReturn("notice-001");
+
+      // when
+      Article article = noticeArticleFactory.create(request);
+
+      // then
+      assertThat(article).isInstanceOf(NoticeArticle.class);
+      assertThat(article.getBoard().getName()).isEqualTo("공지사항");
+    }
+  }
+
+  @Nested
+  @DisplayName("ArticleFactoryRegistry 테스트")
+  class ArticleFactoryRegistryTest {
+
+    @Test
+    @DisplayName("정상: 타입별로 적절한 팩토리를 반환한다")
+    void getFactory_Success() {
+      // when & then
+      assertThat(registry.getFactory(ArticleType.REGULAR))
+          .isInstanceOf(RegularArticleFactory.class);
+      assertThat(registry.getFactory(ArticleType.EVENT)).isInstanceOf(EventArticleFactory.class);
+      assertThat(registry.getFactory(ArticleType.NOTICE)).isInstanceOf(NoticeArticleFactory.class);
     }
 
-    @Nested
-    @DisplayName("EventArticleFactory 테스트")
-    class EventArticleFactoryTest {
+    @Test
+    @DisplayName("정상: 지원되는 모든 타입을 반환한다")
+    void getSupportedTypes_Success() {
+      // when
+      ArticleType[] types = registry.getSupportedTypes();
 
-        @Test
-        @DisplayName("정상: 이벤트 게시글을 생성할 수 있다")
-        void createEventArticle_Success() {
-            // given
-            LocalDateTime startDate = LocalDateTime.now();
-            LocalDateTime endDate = startDate.plusDays(7);
+      // then
+      assertThat(types)
+          .containsExactlyInAnyOrder(ArticleType.REGULAR, ArticleType.EVENT, ArticleType.NOTICE);
+    }
+  }
 
-            ArticleCreateRequest request = ArticleCreateRequest.builder()
-                .title("이벤트 제목")
-                .content("이벤트 내용")
-                .writerId("admin")
-                .eventStartDate(startDate)
-                .eventEndDate(endDate)
-                .build();
+  @Nested
+  @DisplayName("ArticleType 테스트")
+  class ArticleTypeTest {
 
-            Board eventBoard = Board.builder()
-                .id(2L)
-                .name("이벤트")
-                .build();
+    @Test
+    @DisplayName("정상: 이벤트 기간이 있으면 EVENT 타입을 반환한다")
+    void determineType_WithEventPeriod_ReturnsEvent() {
+      // when
+      ArticleType type = ArticleType.determineType(1L, "자유게시판", true);
 
-            when(boardRepository.findByName("이벤트")).thenReturn(Optional.of(eventBoard));
-            when(primaryKetGenerator.generateKey()).thenReturn("event-001");
-
-            // when
-            Article article = eventArticleFactory.create(request);
-
-            // then
-            assertThat(article).isInstanceOf(EventArticle.class);
-            EventArticle eventArticle = (EventArticle) article;
-            assertThat(eventArticle.getEventStartDate()).isEqualTo(startDate);
-            assertThat(eventArticle.getEventEndDate()).isEqualTo(endDate);
-            assertThat(eventArticle.getBoard().getName()).isEqualTo("이벤트");
-        }
+      // then
+      assertThat(type).isEqualTo(ArticleType.EVENT);
     }
 
-    @Nested
-    @DisplayName("NoticeArticleFactory 테스트")
-    class NoticeArticleFactoryTest {
+    @Test
+    @DisplayName("정상: 공지사항 보드면 NOTICE 타입을 반환한다")
+    void determineType_NoticeBoard_ReturnsNotice() {
+      // when
+      ArticleType type = ArticleType.determineType(3L, "공지사항", false);
 
-        @Test
-        @DisplayName("정상: 공지사항을 생성할 수 있다")
-        void createNoticeArticle_Success() {
-            // given
-            ArticleCreateRequest request = ArticleCreateRequest.builder()
-                .title("공지사항 제목")
-                .content("공지사항 내용")
-                .writerId("admin")
-                .build();
-
-            Board noticeBoard = Board.builder()
-                .id(3L)
-                .name("공지사항")
-                .build();
-
-            when(boardRepository.findByName("공지사항")).thenReturn(Optional.of(noticeBoard));
-            when(primaryKetGenerator.generateKey()).thenReturn("notice-001");
-
-            // when
-            Article article = noticeArticleFactory.create(request);
-
-            // then
-            assertThat(article).isInstanceOf(NoticeArticle.class);
-            assertThat(article.getBoard().getName()).isEqualTo("공지사항");
-        }
+      // then
+      assertThat(type).isEqualTo(ArticleType.NOTICE);
     }
 
-    @Nested
-    @DisplayName("ArticleFactoryRegistry 테스트")
-    class ArticleFactoryRegistryTest {
+    @Test
+    @DisplayName("정상: 기본값은 REGULAR 타입이다")
+    void determineType_Default_ReturnsRegular() {
+      // when
+      ArticleType type = ArticleType.determineType(1L, "자유게시판", false);
 
-        @Test
-        @DisplayName("정상: 타입별로 적절한 팩토리를 반환한다")
-        void getFactory_Success() {
-            // when & then
-            assertThat(registry.getFactory(ArticleType.REGULAR))
-                .isInstanceOf(RegularArticleFactory.class);
-            assertThat(registry.getFactory(ArticleType.EVENT))
-                .isInstanceOf(EventArticleFactory.class);
-            assertThat(registry.getFactory(ArticleType.NOTICE))
-                .isInstanceOf(NoticeArticleFactory.class);
-        }
-
-        @Test
-        @DisplayName("정상: 지원되는 모든 타입을 반환한다")
-        void getSupportedTypes_Success() {
-            // when
-            ArticleType[] types = registry.getSupportedTypes();
-
-            // then
-            assertThat(types).containsExactlyInAnyOrder(
-                ArticleType.REGULAR,
-                ArticleType.EVENT,
-                ArticleType.NOTICE
-            );
-        }
+      // then
+      assertThat(type).isEqualTo(ArticleType.REGULAR);
     }
-
-    @Nested
-    @DisplayName("ArticleType 테스트")
-    class ArticleTypeTest {
-
-        @Test
-        @DisplayName("정상: 이벤트 기간이 있으면 EVENT 타입을 반환한다")
-        void determineType_WithEventPeriod_ReturnsEvent() {
-            // when
-            ArticleType type = ArticleType.determineType(
-                1L, "자유게시판", true
-            );
-
-            // then
-            assertThat(type).isEqualTo(ArticleType.EVENT);
-        }
-
-        @Test
-        @DisplayName("정상: 공지사항 보드면 NOTICE 타입을 반환한다")
-        void determineType_NoticeBoard_ReturnsNotice() {
-            // when
-            ArticleType type = ArticleType.determineType(
-                3L, "공지사항", false
-            );
-
-            // then
-            assertThat(type).isEqualTo(ArticleType.NOTICE);
-        }
-
-        @Test
-        @DisplayName("정상: 기본값은 REGULAR 타입이다")
-        void determineType_Default_ReturnsRegular() {
-            // when
-            ArticleType type = ArticleType.determineType(
-                1L, "자유게시판", false
-            );
-
-            // then
-            assertThat(type).isEqualTo(ArticleType.REGULAR);
-        }
-    }
+  }
 }

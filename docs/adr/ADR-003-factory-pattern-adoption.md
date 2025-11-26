@@ -16,24 +16,24 @@ Article Server는 다양한 게시글 타입(Regular, Event, Notice)을 지원�
 ```java
 // AS-IS: 복잡한 분기 로직
 public Article createArticle(ArticleCreateRequest request) {
-    if (boardName.equals("이벤트")) {
-        if (request.getEventStartDate() == null) {
-            throw new ValidationException("Event start date is required");
-        }
-        EventArticle article = new EventArticle();
-        article.setEventStartDate(request.getEventStartDate());
-        article.setEventEndDate(request.getEventEndDate());
-        // ... 더 많은 이벤트 관련 로직
-        return article;
-    } else if (boardName.equals("공지사항")) {
-        NoticeArticle article = new NoticeArticle();
-        // ... 공지사항 관련 로직
-        return article;
-    } else {
-        RegularArticle article = new RegularArticle();
-        // ... 일반 게시글 로직
-        return article;
-    }
+	if (boardName.equals("이벤트")) {
+		if (request.getEventStartDate() == null) {
+			throw new ValidationException("Event start date is required");
+		}
+		EventArticle article = new EventArticle();
+		article.setEventStartDate(request.getEventStartDate());
+		article.setEventEndDate(request.getEventEndDate());
+		// ... 더 많은 이벤트 관련 로직
+		return article;
+	} else if (boardName.equals("공지사항")) {
+		NoticeArticle article = new NoticeArticle();
+		// ... 공지사항 관련 로직
+		return article;
+	} else {
+		RegularArticle article = new RegularArticle();
+		// ... 일반 게시글 로직
+		return article;
+	}
 }
 ```
 
@@ -51,13 +51,13 @@ public Article createArticle(ArticleCreateRequest request) {
 
 ```java
 public interface ArticleCreationStrategy {
-    Article create(ArticleCreateRequest request);
+	Article create(ArticleCreateRequest request);
 }
 
 public class EventArticleStrategy implements ArticleCreationStrategy {
-    public Article create(ArticleCreateRequest request) {
-        // Event article creation logic
-    }
+	public Article create(ArticleCreateRequest request) {
+		// Event article creation logic
+	}
 }
 ```
 
@@ -75,10 +75,10 @@ public class EventArticleStrategy implements ArticleCreationStrategy {
 
 ```java
 Article article = Article.builder()
-    .title(title)
-    .content(content)
-    .eventStartDate(startDate)
-    .build();
+		.title(title)
+		.content(content)
+		.eventStartDate(startDate)
+		.build();
 ```
 
 **Pros:**
@@ -95,19 +95,20 @@ Article article = Article.builder()
 
 ```java
 public interface ArticleFactory {
-    Article create(ArticleCreateRequest request);
-    ArticleType getSupportedType();
+	Article create(ArticleCreateRequest request);
+	
+	ArticleType getSupportedType();
 }
 
 public class EventArticleFactory implements ArticleFactory {
-    public Article create(ArticleCreateRequest request) {
-        validateEventDates(request);
-        return EventArticle.create(request);
-    }
-
-    public ArticleType getSupportedType() {
-        return ArticleType.EVENT;
-    }
+	public Article create(ArticleCreateRequest request) {
+		validateEventDates(request);
+		return EventArticle.create(request);
+	}
+	
+	public ArticleType getSupportedType() {
+		return ArticleType.EVENT;
+	}
 }
 ```
 
@@ -141,176 +142,179 @@ public class EventArticleFactory implements ArticleFactory {
 
 ```java
 public interface ArticleFactory {
-    /**
-     * 게시글 생성
-     */
-    Article create(ArticleCreateRequest request);
-
-    /**
-     * 지원하는 게시글 타입
-     */
-    ArticleType getSupportedType();
-
-    /**
-     * Factory 적용 가능 여부 확인
-     */
-    default boolean supports(String boardName) {
-        return getSupportedType().matchesBoard(boardName);
-    }
+	/**
+	 * 게시글 생성
+	 */
+	Article create(ArticleCreateRequest request);
+	
+	/**
+	 * 지원하는 게시글 타입
+	 */
+	ArticleType getSupportedType();
+	
+	/**
+	 * Factory 적용 가능 여부 확인
+	 */
+	default boolean supports(String boardName) {
+		return getSupportedType().matchesBoard(boardName);
+	}
 }
 ```
 
 #### Concrete Factories
 
 ```java
+
 @Component
 @RequiredArgsConstructor
 public class RegularArticleFactory implements ArticleFactory {
-
-    private final ArticleIdGenerator idGenerator;
-    private final BoardRepository boardRepository;
-
-    @Override
-    public Article create(ArticleCreateRequest request) {
-        validateRequest(request);
-
-        RegularArticle article = new RegularArticle();
-        article.setId(idGenerator.generateArticleId(ArticleType.REGULAR));
-        article.setTitle(request.getTitle());
-        article.setContent(request.getContent());
-        article.setWriterId(request.getWriterId());
-        article.setBoard(boardRepository.findById(request.getBoardIds())
-            .orElseThrow(() -> new EntityNotFoundException("Board not found")));
-
-        return article;
-    }
-
-    @Override
-    public ArticleType getSupportedType() {
-        return ArticleType.REGULAR;
-    }
-
-    private void validateRequest(ArticleCreateRequest request) {
-        if (request.getTitle() == null || request.getTitle().isBlank()) {
-            throw new ValidationException("Title is required");
-        }
-        if (request.getContent() == null || request.getContent().isBlank()) {
-            throw new ValidationException("Content is required");
-        }
-    }
+	
+	private final ArticleIdGenerator idGenerator;
+	private final BoardRepository boardRepository;
+	
+	@Override
+	public Article create(ArticleCreateRequest request) {
+		validateRequest(request);
+		
+		RegularArticle article = new RegularArticle();
+		article.setId(idGenerator.generateArticleId(ArticleType.REGULAR));
+		article.setTitle(request.getTitle());
+		article.setContent(request.getContent());
+		article.setWriterId(request.getWriterId());
+		article.setBoard(boardRepository.findById(request.getBoardIds())
+				.orElseThrow(() -> new EntityNotFoundException("Board not found")));
+		
+		return article;
+	}
+	
+	@Override
+	public ArticleType getSupportedType() {
+		return ArticleType.REGULAR;
+	}
+	
+	private void validateRequest(ArticleCreateRequest request) {
+		if (request.getTitle() == null || request.getTitle().isBlank()) {
+			throw new ValidationException("Title is required");
+		}
+		if (request.getContent() == null || request.getContent().isBlank()) {
+			throw new ValidationException("Content is required");
+		}
+	}
 }
 
 @Component
 @RequiredArgsConstructor
 public class EventArticleFactory implements ArticleFactory {
-
-    private final ArticleIdGenerator idGenerator;
-    private final BoardRepository boardRepository;
-
-    @Override
-    public Article create(ArticleCreateRequest request) {
-        validateEventRequest(request);
-
-        EventArticle article = new EventArticle();
-        article.setId(idGenerator.generateArticleId(ArticleType.EVENT));
-        article.setTitle(request.getTitle());
-        article.setContent(request.getContent());
-        article.setWriterId(request.getWriterId());
-        article.setEventStartDate(request.getEventStartDate());
-        article.setEventEndDate(request.getEventEndDate());
-        article.setBoard(boardRepository.findById(request.getBoardIds())
-            .orElseThrow(() -> new EntityNotFoundException("Board not found")));
-
-        return article;
-    }
-
-    @Override
-    public ArticleType getSupportedType() {
-        return ArticleType.EVENT;
-    }
-
-    private void validateEventRequest(ArticleCreateRequest request) {
-        // Basic validation
-        validateRequest(request);
-
-        // Event-specific validation
-        if (request.getEventStartDate() == null) {
-            throw new ValidationException("Event start date is required");
-        }
-        if (request.getEventEndDate() == null) {
-            throw new ValidationException("Event end date is required");
-        }
-        if (request.getEventStartDate().isAfter(request.getEventEndDate())) {
-            throw new ValidationException("Event start date must be before end date");
-        }
-        if (request.getEventStartDate().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Event cannot start in the past");
-        }
-    }
+	
+	private final ArticleIdGenerator idGenerator;
+	private final BoardRepository boardRepository;
+	
+	@Override
+	public Article create(ArticleCreateRequest request) {
+		validateEventRequest(request);
+		
+		EventArticle article = new EventArticle();
+		article.setId(idGenerator.generateArticleId(ArticleType.EVENT));
+		article.setTitle(request.getTitle());
+		article.setContent(request.getContent());
+		article.setWriterId(request.getWriterId());
+		article.setEventStartDate(request.getEventStartDate());
+		article.setEventEndDate(request.getEventEndDate());
+		article.setBoard(boardRepository.findById(request.getBoardIds())
+				.orElseThrow(() -> new EntityNotFoundException("Board not found")));
+		
+		return article;
+	}
+	
+	@Override
+	public ArticleType getSupportedType() {
+		return ArticleType.EVENT;
+	}
+	
+	private void validateEventRequest(ArticleCreateRequest request) {
+		// Basic validation
+		validateRequest(request);
+		
+		// Event-specific validation
+		if (request.getEventStartDate() == null) {
+			throw new ValidationException("Event start date is required");
+		}
+		if (request.getEventEndDate() == null) {
+			throw new ValidationException("Event end date is required");
+		}
+		if (request.getEventStartDate().isAfter(request.getEventEndDate())) {
+			throw new ValidationException("Event start date must be before end date");
+		}
+		if (request.getEventStartDate().isBefore(LocalDateTime.now())) {
+			throw new ValidationException("Event cannot start in the past");
+		}
+	}
 }
 ```
 
 #### Factory Registry
 
 ```java
+
 @Component
 @RequiredArgsConstructor
 public class ArticleFactoryRegistry {
-
-    private final List<ArticleFactory> factories;
-    private final Map<ArticleType, ArticleFactory> factoryMap = new HashMap<>();
-
-    @PostConstruct
-    public void init() {
-        factories.forEach(factory ->
-            factoryMap.put(factory.getSupportedType(), factory));
-    }
-
-    public ArticleFactory getFactory(String boardName) {
-        ArticleType type = ArticleType.fromBoardName(boardName);
-        ArticleFactory factory = factoryMap.get(type);
-
-        if (factory == null) {
-            throw new UnsupportedOperationException(
-                "No factory found for board: " + boardName);
-        }
-
-        return factory;
-    }
-
-    public ArticleFactory getFactory(ArticleType type) {
-        ArticleFactory factory = factoryMap.get(type);
-
-        if (factory == null) {
-            throw new UnsupportedOperationException(
-                "No factory found for type: " + type);
-        }
-
-        return factory;
-    }
+	
+	private final List<ArticleFactory> factories;
+	private final Map<ArticleType, ArticleFactory> factoryMap = new HashMap<>();
+	
+	@PostConstruct
+	public void init() {
+		factories.forEach(factory ->
+				factoryMap.put(factory.getSupportedType(), factory));
+	}
+	
+	public ArticleFactory getFactory(String boardName) {
+		ArticleType type = ArticleType.fromBoardName(boardName);
+		ArticleFactory factory = factoryMap.get(type);
+		
+		if (factory == null) {
+			throw new UnsupportedOperationException(
+					"No factory found for board: " + boardName);
+		}
+		
+		return factory;
+	}
+	
+	public ArticleFactory getFactory(ArticleType type) {
+		ArticleFactory factory = factoryMap.get(type);
+		
+		if (factory == null) {
+			throw new UnsupportedOperationException(
+					"No factory found for type: " + type);
+		}
+		
+		return factory;
+	}
 }
 ```
 
 #### Service Layer Integration
 
 ```java
+
 @Service
 @RequiredArgsConstructor
 public class ArticleCreateService {
-
-    private final ArticleFactoryRegistry factoryRegistry;
-    private final ArticleRepository articleRepository;
-
-    public Article createArticle(ArticleCreateRequest request) {
-        // Get appropriate factory
-        ArticleFactory factory = factoryRegistry.getFactory(request.getBoardName());
-
-        // Create article using factory
-        Article article = factory.create(request);
-
-        // Save and return
-        return articleRepository.save(article);
-    }
+	
+	private final ArticleFactoryRegistry factoryRegistry;
+	private final ArticleRepository articleRepository;
+	
+	public Article createArticle(ArticleCreateRequest request) {
+		// Get appropriate factory
+		ArticleFactory factory = factoryRegistry.getFactory(request.getBoardName());
+		
+		// Create article using factory
+		Article article = factory.create(request);
+		
+		// Save and return
+		return articleRepository.save(article);
+	}
 }
 ```
 
@@ -355,37 +359,38 @@ public class ArticleCreateService {
 ## Testing Strategy
 
 ```java
+
 @Test
 void testRegularArticleFactory() {
-    // Given
-    ArticleCreateRequest request = ArticleCreateRequest.builder()
-        .title("Test Title")
-        .content("Test Content")
-        .writerId("user123")
-        .boardIds(1L)
-        .build();
-
-    // When
-    Article article = regularArticleFactory.create(request);
-
-    // Then
-    assertThat(article).isInstanceOf(RegularArticle.class);
-    assertThat(article.getTitle()).isEqualTo("Test Title");
+	// Given
+	ArticleCreateRequest request = ArticleCreateRequest.builder()
+			.title("Test Title")
+			.content("Test Content")
+			.writerId("user123")
+			.boardIds(1L)
+			.build();
+	
+	// When
+	Article article = regularArticleFactory.create(request);
+	
+	// Then
+	assertThat(article).isInstanceOf(RegularArticle.class);
+	assertThat(article.getTitle()).isEqualTo("Test Title");
 }
 
 @Test
 void testEventArticleFactory_InvalidDates() {
-    // Given
-    ArticleCreateRequest request = ArticleCreateRequest.builder()
-        .title("Event")
-        .content("Content")
-        .eventStartDate(LocalDateTime.now().plusDays(2))
-        .eventEndDate(LocalDateTime.now().plusDays(1)) // End before start
-        .build();
-
-    // When & Then
-    assertThrows(ValidationException.class,
-        () -> eventArticleFactory.create(request));
+	// Given
+	ArticleCreateRequest request = ArticleCreateRequest.builder()
+			.title("Event")
+			.content("Content")
+			.eventStartDate(LocalDateTime.now().plusDays(2))
+			.eventEndDate(LocalDateTime.now().plusDays(1)) // End before start
+			.build();
+	
+	// When & Then
+	assertThrows(ValidationException.class,
+			() -> eventArticleFactory.create(request));
 }
 ```
 
