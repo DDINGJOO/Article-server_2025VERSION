@@ -19,32 +19,32 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-/**
- * 일반 게시글 생성 팩토리
- */
+/** 일반 게시글 생성 팩토리 */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class RegularArticleFactory implements ArticleFactory {
 
-    private final BoardRepository boardRepository;
-    private final KeywordRepository keywordRepository;
-    private final PrimaryKetGenerator primaryKetGenerator;
+  private final BoardRepository boardRepository;
+  private final KeywordRepository keywordRepository;
+  private final PrimaryKetGenerator primaryKetGenerator;
 
-    @Override
-    public Article create(ArticleCreateRequest request) {
-        log.debug("Creating regular article with title: {}", request.getTitle());
+  @Override
+  public Article create(ArticleCreateRequest request) {
+    log.debug("Creating regular article with title: {}", request.getTitle());
 
-        // Board 조회
-        Board board = boardRepository
+    // Board 조회
+    Board board =
+        boardRepository
             .findById(request.getBoardIds())
             .orElseThrow(() -> new CustomException(ErrorCode.BOARD_NOT_FOUND));
 
-        // Keywords 조회
-        List<Keyword> keywords = fetchKeywords(request.getKeywordIds());
+    // Keywords 조회
+    List<Keyword> keywords = fetchKeywords(request.getKeywordIds());
 
-        // Regular Article 생성
-        RegularArticle article = RegularArticle.builder()
+    // Regular Article 생성
+    RegularArticle article =
+        RegularArticle.builder()
             .id(primaryKetGenerator.generateKey())
             .title(request.getTitle())
             .content(request.getContent())
@@ -54,24 +54,24 @@ public class RegularArticleFactory implements ArticleFactory {
             .status(Status.ACTIVE)
             .build();
 
-        // Keywords 추가
-        if (keywords != null && !keywords.isEmpty()) {
-            article.addKeywords(keywords);
-        }
-
-        log.info("Regular article created with id: {}", article.getId());
-        return article;
+    // Keywords 추가
+    if (keywords != null && !keywords.isEmpty()) {
+      article.addKeywords(keywords);
     }
 
-    @Override
-    public ArticleType getSupportedType() {
-        return ArticleType.REGULAR;
-    }
+    log.info("Regular article created with id: {}", article.getId());
+    return article;
+  }
 
-    private List<Keyword> fetchKeywords(List<Long> keywordIds) {
-        if (keywordIds == null || keywordIds.isEmpty()) {
-            return null;
-        }
-        return keywordRepository.findAllById(keywordIds);
+  @Override
+  public ArticleType getSupportedType() {
+    return ArticleType.REGULAR;
+  }
+
+  private List<Keyword> fetchKeywords(List<Long> keywordIds) {
+    if (keywordIds == null || keywordIds.isEmpty()) {
+      return null;
     }
+    return keywordRepository.findAllById(keywordIds);
+  }
 }

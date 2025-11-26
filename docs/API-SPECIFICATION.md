@@ -127,7 +127,11 @@ POST /api/v1/articles
   "content": "게시글 내용",
   "writerId": "user123",
   "boardIds": 1,
-  "keywordIds": [1, 2, 3],
+  "keywordIds": [
+    1,
+    2,
+    3
+  ],
   "eventStartDate": "2025-12-01T00:00:00",
   "eventEndDate": "2025-12-31T23:59:59"
 }
@@ -208,7 +212,10 @@ PUT /api/v1/articles/{articleId}
   "content": "수정된 내용",
   "writerId": "user123",
   "boardIds": 1,
-  "keywordIds": [2, 3]
+  "keywordIds": [
+    2,
+    3
+  ]
 }
 ```
 
@@ -288,7 +295,10 @@ POST /api/v2/articles
   "content": "게시글 내용",
   "writerId": "user123",
   "boardId": 1,
-  "keywordIds": [1, 2],
+  "keywordIds": [
+    1,
+    2
+  ],
   "eventStartDate": null,
   "eventEndDate": null
 }
@@ -321,7 +331,10 @@ GET /api/v2/articles/{articleId}
   "content": "게시글 내용",
   "writerId": "user123",
   "boardName": "자유게시판",
-  "keywords": ["공지", "중요"],
+  "keywords": [
+    "공지",
+    "중요"
+  ],
   "images": [],
   "status": "ACTIVE",
   "viewCount": 42,
@@ -360,7 +373,9 @@ GET /api/v2/articles/search
       "content": "게시글 내용",
       "writerId": "user123",
       "boardName": "자유게시판",
-      "keywords": ["공지"],
+      "keywords": [
+        "공지"
+      ],
       "images": [],
       "status": "ACTIVE",
       "viewCount": 42,
@@ -393,7 +408,10 @@ POST /api/v1/events
   "content": "이벤트 내용",
   "writerId": "admin",
   "boardIds": 2,
-  "keywordIds": [4, 5],
+  "keywordIds": [
+    4,
+    5
+  ],
   "eventStartDate": "2025-12-01T00:00:00",
   "eventEndDate": "2025-12-31T23:59:59"
 }
@@ -477,7 +495,9 @@ POST /api/v1/notices
   "content": "공지사항 내용",
   "writerId": "admin",
   "boardIds": 3,
-  "keywordIds": [1]
+  "keywordIds": [
+    1
+  ]
 }
 ```
 
@@ -575,9 +595,21 @@ GET /api/v1/enums
 
 ```json
 {
-  "articleTypes": ["REGULAR", "EVENT", "NOTICE"],
-  "articleStatus": ["ACTIVE", "DELETED", "HIDDEN"],
-  "eventStatus": ["UPCOMING", "ONGOING", "ENDED"]
+  "articleTypes": [
+    "REGULAR",
+    "EVENT",
+    "NOTICE"
+  ],
+  "articleStatus": [
+    "ACTIVE",
+    "DELETED",
+    "HIDDEN"
+  ],
+  "eventStatus": [
+    "UPCOMING",
+    "ONGOING",
+    "ENDED"
+  ]
 }
 ```
 
@@ -589,17 +621,17 @@ GET /api/v1/enums
 
 ```typescript
 interface Article {
-  articleId: string;           // Snowflake ID
-  title: string;               // Max 200 chars
-  content: string;             // Max 65535 chars
-  writerId: string;            // Max 50 chars
-  board: BoardInfo;
-  keywords: KeywordInfo[];
-  images: ImageInfo[];
-  status: "ACTIVE" | "DELETED" | "HIDDEN";
-  viewCount: number;
-  createdAt: string;           // ISO 8601
-  updatedAt: string;           // ISO 8601
+    articleId: string;           // Snowflake ID
+    title: string;               // Max 200 chars
+    content: string;             // Max 65535 chars
+    writerId: string;            // Max 50 chars
+    board: BoardInfo;
+    keywords: KeywordInfo[];
+    images: ImageInfo[];
+    status: "ACTIVE" | "DELETED" | "HIDDEN";
+    viewCount: number;
+    createdAt: string;           // ISO 8601
+    updatedAt: string;           // ISO 8601
 }
 ```
 
@@ -607,9 +639,9 @@ interface Article {
 
 ```typescript
 interface EventArticle extends Article {
-  eventStartDate: string;      // ISO 8601
-  eventEndDate: string;        // ISO 8601
-  eventStatus: "UPCOMING" | "ONGOING" | "ENDED";
+    eventStartDate: string;      // ISO 8601
+    eventEndDate: string;        // ISO 8601
+    eventStatus: "UPCOMING" | "ONGOING" | "ENDED";
 }
 ```
 
@@ -617,8 +649,8 @@ interface EventArticle extends Article {
 
 ```typescript
 interface BoardInfo {
-  boardId: number;
-  boardName: string;
+    boardId: number;
+    boardName: string;
 }
 ```
 
@@ -626,8 +658,8 @@ interface BoardInfo {
 
 ```typescript
 interface KeywordInfo {
-  keywordId: number;
-  keywordName: string;
+    keywordId: number;
+    keywordName: string;
 }
 ```
 
@@ -635,9 +667,9 @@ interface KeywordInfo {
 
 ```typescript
 interface ImageInfo {
-  imageId: number;
-  imageUrl: string;
-  displayOrder: number;
+    imageId: number;
+    imageUrl: string;
+    displayOrder: number;
 }
 ```
 
@@ -657,10 +689,13 @@ GET /api/v1/articles/search?size=20&cursorId=ART20251126050
 
 ```json
 {
-  "items": [...],
+  "items": [
+    ...
+  ],
   "hasNext": true,
   "nextCursorId": "ART20251126070",
-  "totalElements": null  // 커서 기반에서는 정확한 총 개수 제공 안 함
+  "totalElements": null
+  // 커서 기반에서는 정확한 총 개수 제공 안 함
 }
 ```
 
@@ -676,7 +711,9 @@ GET /api/v2/articles/search?page=2&size=20
 
 ```json
 {
-  "content": [...],
+  "content": [
+    ...
+  ],
   "pageable": {
     "pageNumber": 2,
     "pageSize": 20,
@@ -793,8 +830,12 @@ Article Server는 다음 이벤트를 Kafka로 발행합니다:
   "occurredAt": "2025-11-26T12:00:00Z",
   "payload": {
     "articleId": "ART20251126001",
-    "addedImages": ["img1.jpg"],
-    "removedImages": ["img2.jpg"]
+    "addedImages": [
+      "img1.jpg"
+    ],
+    "removedImages": [
+      "img2.jpg"
+    ]
   }
 }
 ```

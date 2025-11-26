@@ -25,28 +25,31 @@ Article Server는 다양한 게시글 타입(Regular, Event, Notice)을 지원�
 
 ```sql
 -- regular_articles table
-CREATE TABLE regular_articles (
+CREATE TABLE regular_articles
+(
     article_id VARCHAR(50) PRIMARY KEY,
-    title VARCHAR(200),
-    content TEXT,
+    title     VARCHAR(200),
+    content   TEXT,
     writer_id VARCHAR(50)
 );
 
 -- event_articles table
-CREATE TABLE event_articles (
-    article_id VARCHAR(50) PRIMARY KEY,
-    title VARCHAR(200),
-    content TEXT,
-    writer_id VARCHAR(50),
+CREATE TABLE event_articles
+(
+    article_id     VARCHAR(50) PRIMARY KEY,
+    title          VARCHAR(200),
+    content        TEXT,
+    writer_id      VARCHAR(50),
     event_start_date DATETIME,
     event_end_date DATETIME
 );
 
 -- notice_articles table
-CREATE TABLE notice_articles (
+CREATE TABLE notice_articles
+(
     article_id VARCHAR(50) PRIMARY KEY,
-    title VARCHAR(200),
-    content TEXT,
+    title     VARCHAR(200),
+    content   TEXT,
     writer_id VARCHAR(50)
 );
 ```
@@ -66,19 +69,21 @@ CREATE TABLE notice_articles (
 
 ```sql
 -- articles table (parent)
-CREATE TABLE articles (
+CREATE TABLE articles
+(
     article_id VARCHAR(50) PRIMARY KEY,
-    title VARCHAR(200),
-    content TEXT,
+    title     VARCHAR(200),
+    content   TEXT,
     writer_id VARCHAR(50)
 );
 
 -- event_articles table (child)
-CREATE TABLE event_articles (
-    article_id VARCHAR(50) PRIMARY KEY,
+CREATE TABLE event_articles
+(
+    article_id     VARCHAR(50) PRIMARY KEY,
     event_start_date DATETIME,
     event_end_date DATETIME,
-    FOREIGN KEY (article_id) REFERENCES articles(article_id)
+    FOREIGN KEY (article_id) REFERENCES articles (article_id)
 );
 ```
 
@@ -96,19 +101,20 @@ CREATE TABLE event_articles (
 #### Option 3: Single Table Inheritance (선택된 옵션)
 
 ```sql
-CREATE TABLE articles (
-    article_id VARCHAR(50) PRIMARY KEY,
-    article_type VARCHAR(20) NOT NULL,  -- Discriminator
-    title VARCHAR(200),
-    content TEXT,
-    writer_id VARCHAR(50),
+CREATE TABLE articles
+(
+    article_id     VARCHAR(50) PRIMARY KEY,
+    article_type   VARCHAR(20) NOT NULL, -- Discriminator
+    title          VARCHAR(200),
+    content        TEXT,
+    writer_id      VARCHAR(50),
     -- Event specific fields (NULL for other types)
     event_start_date DATETIME,
     event_end_date DATETIME,
     -- Common metadata
-    status VARCHAR(20),
-    created_at DATETIME,
-    updated_at DATETIME
+    status         VARCHAR(20),
+    created_at     DATETIME,
+    updated_at     DATETIME
 );
 ```
 
@@ -139,45 +145,46 @@ CREATE TABLE articles (
 ### Implementation
 
 ```java
+
 @Entity
 @Table(name = "articles")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "article_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class Article {
-    @Id
-    @Column(name = "article_id")
-    private String id;
-
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "content", columnDefinition = "TEXT")
-    private String content;
-
-    @Column(name = "writer_id")
-    private String writerId;
+	@Id
+	@Column(name = "article_id")
+	private String id;
+	
+	@Column(name = "title")
+	private String title;
+	
+	@Column(name = "content", columnDefinition = "TEXT")
+	private String content;
+	
+	@Column(name = "writer_id")
+	private String writerId;
 }
 
 @Entity
 @DiscriminatorValue("EVENT")
 public class EventArticle extends Article {
-    @Column(name = "event_start_date")
-    private LocalDateTime eventStartDate;
-
-    @Column(name = "event_end_date")
-    private LocalDateTime eventEndDate;
+	@Column(name = "event_start_date")
+	private LocalDateTime eventStartDate;
+	
+	@Column(name = "event_end_date")
+	private LocalDateTime eventEndDate;
 }
 
 @Entity
 @DiscriminatorValue("REGULAR")
 public class RegularArticle extends Article {
-    // No additional fields
+	// No additional fields
 }
 
 @Entity
 @DiscriminatorValue("NOTICE")
 public class NoticeArticle extends Article {
-    // No additional fields
+	// No additional fields
 }
 ```
 
@@ -185,14 +192,13 @@ public class NoticeArticle extends Article {
 
 ```sql
 -- 타입별 조회 최적화
-CREATE INDEX idx_article_type_status ON articles(article_type, status);
+CREATE INDEX idx_article_type_status ON articles (article_type, status);
 
 -- 이벤트 날짜 조회 최적화
-CREATE INDEX idx_event_dates ON articles(article_type, status, event_start_date, event_end_date)
-WHERE article_type = 'EVENT';
+CREATE INDEX idx_event_dates ON articles (article_type, status, event_start_date, event_end_date) WHERE article_type = 'EVENT';
 
 -- 일반 조회 최적화
-CREATE INDEX idx_status_created ON articles(status, created_at DESC);
+CREATE INDEX idx_status_created ON articles (status, created_at DESC);
 ```
 
 ## Consequences

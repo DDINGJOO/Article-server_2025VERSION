@@ -24,9 +24,10 @@ Article Server는 분산 환경에서 고유한 게시글 ID를 생성해야 합
 #### Option 1: Database Auto Increment
 
 ```sql
-CREATE TABLE articles (
-    article_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    ...
+CREATE TABLE articles
+(
+    article_id BIGINT AUTO_INCREMENT PRIMARY KEY, ..
+    .
 );
 ```
 
@@ -84,20 +85,20 @@ String articleId = UlidCreator.getUlid().toString();
 
 ```java
 public class SnowflakeIdGenerator {
-    // 64-bit ID structure:
-    // 1 bit: unused (sign bit)
-    // 41 bits: timestamp (milliseconds since epoch)
-    // 10 bits: machine ID
-    // 12 bits: sequence number
-
-    private static final long EPOCH = 1609459200000L; // 2021-01-01
-    private static final long MACHINE_ID_BITS = 10L;
-    private static final long SEQUENCE_BITS = 12L;
-
-    public synchronized long nextId() {
-        long timestamp = System.currentTimeMillis() - EPOCH;
-        return (timestamp << 22) | (machineId << 12) | sequence;
-    }
+	// 64-bit ID structure:
+	// 1 bit: unused (sign bit)
+	// 41 bits: timestamp (milliseconds since epoch)
+	// 10 bits: machine ID
+	// 12 bits: sequence number
+	
+	private static final long EPOCH = 1609459200000L; // 2021-01-01
+	private static final long MACHINE_ID_BITS = 10L;
+	private static final long SEQUENCE_BITS = 12L;
+	
+	public synchronized long nextId() {
+		long timestamp = System.currentTimeMillis() - EPOCH;
+		return (timestamp << 22) | (machineId << 12) | sequence;
+	}
 }
 
 // Formatted as: "ART20251126001"
@@ -132,44 +133,45 @@ public class SnowflakeIdGenerator {
 ### Implementation
 
 ```java
+
 @Component
 public class ArticleIdGenerator {
-    private static final String PREFIX_REGULAR = "ART";
-    private static final String PREFIX_EVENT = "EVT";
-    private static final String PREFIX_NOTICE = "NTC";
-
-    private final SnowflakeIdGenerator snowflakeGenerator;
-
-    public String generateArticleId(ArticleType type) {
-        long snowflakeId = snowflakeGenerator.nextId();
-        String prefix = getPrefix(type);
-        String timestamp = formatTimestamp(snowflakeId);
-        String sequence = formatSequence(snowflakeId);
-
-        // Format: ART20251126001
-        return String.format("%s%s%s", prefix, timestamp, sequence);
-    }
-
-    private String getPrefix(ArticleType type) {
-        return switch (type) {
-            case REGULAR -> PREFIX_REGULAR;
-            case EVENT -> PREFIX_EVENT;
-            case NOTICE -> PREFIX_NOTICE;
-        };
-    }
-
-    private String formatTimestamp(long snowflakeId) {
-        // Extract timestamp from snowflake ID
-        long timestamp = (snowflakeId >> 22) + EPOCH;
-        return DateTimeFormatter.ofPattern("yyyyMMdd")
-            .format(Instant.ofEpochMilli(timestamp));
-    }
-
-    private String formatSequence(long snowflakeId) {
-        // Extract sequence number (last 12 bits)
-        long sequence = snowflakeId & 0xFFF;
-        return String.format("%03d", sequence % 1000);
-    }
+	private static final String PREFIX_REGULAR = "ART";
+	private static final String PREFIX_EVENT = "EVT";
+	private static final String PREFIX_NOTICE = "NTC";
+	
+	private final SnowflakeIdGenerator snowflakeGenerator;
+	
+	public String generateArticleId(ArticleType type) {
+		long snowflakeId = snowflakeGenerator.nextId();
+		String prefix = getPrefix(type);
+		String timestamp = formatTimestamp(snowflakeId);
+		String sequence = formatSequence(snowflakeId);
+		
+		// Format: ART20251126001
+		return String.format("%s%s%s", prefix, timestamp, sequence);
+	}
+	
+	private String getPrefix(ArticleType type) {
+		return switch (type) {
+			case REGULAR -> PREFIX_REGULAR;
+			case EVENT -> PREFIX_EVENT;
+			case NOTICE -> PREFIX_NOTICE;
+		};
+	}
+	
+	private String formatTimestamp(long snowflakeId) {
+		// Extract timestamp from snowflake ID
+		long timestamp = (snowflakeId >> 22) + EPOCH;
+		return DateTimeFormatter.ofPattern("yyyyMMdd")
+				.format(Instant.ofEpochMilli(timestamp));
+	}
+	
+	private String formatSequence(long snowflakeId) {
+		// Extract sequence number (last 12 bits)
+		long sequence = snowflakeId & 0xFFF;
+		return String.format("%03d", sequence % 1000);
+	}
 }
 ```
 
@@ -185,40 +187,41 @@ snowflake:
 ### Machine ID Assignment Strategy
 
 ```java
+
 @Configuration
 public class SnowflakeConfig {
-
-    @Value("${spring.application.instance-id:}")
-    private String instanceId;
-
-    @Bean
-    public long machineId() {
-        if (StringUtils.hasText(instanceId)) {
-            // Kubernetes Pod instance
-            return extractPodOrdinal(instanceId) % 1024;
-        } else {
-            // Fallback: Use MAC address hash
-            return getMachineIdFromMac() % 1024;
-        }
-    }
-
-    private long extractPodOrdinal(String podName) {
-        // Extract ordinal from pod name (e.g., "article-server-2" -> 2)
-        String[] parts = podName.split("-");
-        return Long.parseLong(parts[parts.length - 1]);
-    }
-
-    private long getMachineIdFromMac() {
-        try {
-            InetAddress ip = InetAddress.getLocalHost();
-            NetworkInterface network = NetworkInterface.getByInetAddress(ip);
-            byte[] mac = network.getHardwareAddress();
-            return ((mac[4] & 0xFF) << 8) | (mac[5] & 0xFF);
-        } catch (Exception e) {
-            // Fallback to random
-            return new SecureRandom().nextInt(1024);
-        }
-    }
+	
+	@Value("${spring.application.instance-id:}")
+	private String instanceId;
+	
+	@Bean
+	public long machineId() {
+		if (StringUtils.hasText(instanceId)) {
+			// Kubernetes Pod instance
+			return extractPodOrdinal(instanceId) % 1024;
+		} else {
+			// Fallback: Use MAC address hash
+			return getMachineIdFromMac() % 1024;
+		}
+	}
+	
+	private long extractPodOrdinal(String podName) {
+		// Extract ordinal from pod name (e.g., "article-server-2" -> 2)
+		String[] parts = podName.split("-");
+		return Long.parseLong(parts[parts.length - 1]);
+	}
+	
+	private long getMachineIdFromMac() {
+		try {
+			InetAddress ip = InetAddress.getLocalHost();
+			NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+			byte[] mac = network.getHardwareAddress();
+			return ((mac[4] & 0xFF) << 8) | (mac[5] & 0xFF);
+		} catch (Exception e) {
+			// Fallback to random
+			return new SecureRandom().nextInt(1024);
+		}
+	}
 }
 ```
 
@@ -246,28 +249,29 @@ public class SnowflakeConfig {
 private long lastTimestamp = -1L;
 
 protected synchronized long tilNextMillis(long lastTimestamp) {
-    long timestamp = timeGen();
-    while (timestamp <= lastTimestamp) {
-        timestamp = timeGen();
-    }
-    return timestamp;
+	long timestamp = timeGen();
+	while (timestamp <= lastTimestamp) {
+		timestamp = timeGen();
+	}
+	return timestamp;
 }
 ```
 
 2. **Machine ID Collision Detection**
 
 ```java
+
 @PostConstruct
 public void validateMachineId() {
-    // Redis를 사용한 Machine ID 중복 체크
-    String key = "machine:id:" + machineId;
-    Boolean success = redisTemplate.opsForValue()
-        .setIfAbsent(key, instanceId, 1, TimeUnit.HOURS);
-
-    if (!success) {
-        throw new IllegalStateException(
-            "Machine ID collision detected: " + machineId);
-    }
+	// Redis를 사용한 Machine ID 중복 체크
+	String key = "machine:id:" + machineId;
+	Boolean success = redisTemplate.opsForValue()
+			.setIfAbsent(key, instanceId, 1, TimeUnit.HOURS);
+	
+	if (!success) {
+		throw new IllegalStateException(
+				"Machine ID collision detected: " + machineId);
+	}
 }
 ```
 
@@ -275,10 +279,10 @@ public void validateMachineId() {
 
 ```java
 public boolean isValidArticleId(String articleId) {
-    // Pattern: PREFIX(3) + DATE(8) + SEQ(3)
-    Pattern pattern = Pattern.compile(
-        "^(ART|EVT|NTC)\\d{8}\\d{3}$");
-    return pattern.matcher(articleId).matches();
+	// Pattern: PREFIX(3) + DATE(8) + SEQ(3)
+	Pattern pattern = Pattern.compile(
+			"^(ART|EVT|NTC)\\d{8}\\d{3}$");
+	return pattern.matcher(articleId).matches();
 }
 ```
 

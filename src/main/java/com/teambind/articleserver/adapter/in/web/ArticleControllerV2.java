@@ -52,7 +52,7 @@ public class ArticleControllerV2 {
 
     Article article = articleCreateService.updateArticle(articleId, request);
     return ResponseEntity.ok(ArticleResponse.fromEntity(article));
-    }
+  }
 
   /** 게시글 조회 GET /api/v2/articles/{articleId} */
   @GetMapping("/{articleId}")
@@ -71,7 +71,7 @@ public class ArticleControllerV2 {
 
     articleCreateService.deleteArticle(articleId);
     return ResponseEntity.noContent().build();
-    }
+  }
 
   /**
    * 게시글 검색 GET /api/v2/articles/search
