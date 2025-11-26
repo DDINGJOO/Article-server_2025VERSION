@@ -45,7 +45,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: validate  # Docker DB는 init script로 스키마 생성
+      ddl-auto: update  # Docker DB는 init script로 스키마 생성
 
     properties:
       hibernate:

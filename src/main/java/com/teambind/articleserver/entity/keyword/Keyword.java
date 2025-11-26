@@ -36,7 +36,7 @@ public class Keyword {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "keyword_id", nullable = false)
+  @Column(name = "id", nullable = false)
   private Long id;
 
   @Column(name = "keyword_name", nullable = false, length = 50)
