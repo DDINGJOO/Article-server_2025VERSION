@@ -1,0 +1,29 @@
+[0;34m===================================================[0m
+[0;34mStarting Complete Performance Test[0m
+[0;34mTimestamp: 20251126_183000[0m
+[0;34m===================================================[0m
+
+[1;33m[Step 1/5] Resetting Database...[0m
+time="2025-11-26T18:30:01+09:00" level=warning msg="/Users/ddingjoo/IdeaProjects/BanderProject/SERVER/Board-SERVER/Article-server/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+status
+Database reset complete
+
+[1;33m[Step 2/5] Generating 600K Complete Dataset...[0m
+[1;33mThis may take 10-15 minutes...[0m
+Data generation complete!
+Data Generation Summary	600000	36000	36000
+
+[1;33m[Step 3/5] Building Project...[0m
+
+[1;33m[Step 4/5] Running Comprehensive Performance Tests...[0m
+[1;33mThis will run multiple test scenarios...[0m
+
+[0;32mRunning ComprehensivePerformanceTest...[0m
+> Task :compileJava
+> Task :processResources UP-TO-DATE
+> Task :classes
+> Task :compileTestJava
+> Task :processTestResources
+> Task :testClasses
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+> Task :test

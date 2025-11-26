@@ -164,9 +164,9 @@ public class ComprehensivePerformanceTest {
       testMetrics.get(metricKey).add(responseTime);
 
       log.info(
-          "  {} - Response time: {:.2f}ms, Queries: {}",
+          "  {} - Response time: {}ms, Queries: {}",
           testName,
-          responseTime / 1_000_000.0,
+          String.format("%.2f", responseTime / 1_000_000.0),
           statistics.getQueryExecutionCount());
     } catch (Exception e) {
       log.error("Error in cursor test: {}", e.getMessage());
@@ -203,7 +203,9 @@ public class ComprehensivePerformanceTest {
       long responseTime = System.nanoTime() - startTime;
       testMetrics.get("filter_single").add(responseTime);
 
-      log.info("  Single Filter - Response time: {:.2f}ms", responseTime / 1_000_000.0);
+      log.info(
+          "  Single Filter - Response time: {}ms",
+          String.format("%.2f", responseTime / 1_000_000.0));
     } catch (Exception e) {
       log.error("Error in single filter test: {}", e.getMessage());
     }
@@ -227,7 +229,9 @@ public class ComprehensivePerformanceTest {
       long responseTime = System.nanoTime() - startTime;
       testMetrics.get("filter_double").add(responseTime);
 
-      log.info("  Double Filter - Response time: {:.2f}ms", responseTime / 1_000_000.0);
+      log.info(
+          "  Double Filter - Response time: {}ms",
+          String.format("%.2f", responseTime / 1_000_000.0));
     } catch (Exception e) {
       log.error("Error in double filter test: {}", e.getMessage());
     }
@@ -254,7 +258,9 @@ public class ComprehensivePerformanceTest {
       long responseTime = System.nanoTime() - startTime;
       testMetrics.get("filter_triple").add(responseTime);
 
-      log.info("  Triple Filter - Response time: {:.2f}ms", responseTime / 1_000_000.0);
+      log.info(
+          "  Triple Filter - Response time: {}ms",
+          String.format("%.2f", responseTime / 1_000_000.0));
     } catch (Exception e) {
       log.error("Error in triple filter test: {}", e.getMessage());
     }
@@ -290,7 +296,9 @@ public class ComprehensivePerformanceTest {
       long responseTime = System.nanoTime() - startTime;
       testMetrics.get("text_title").add(responseTime);
 
-      log.info("  Title Search - Response time: {:.2f}ms", responseTime / 1_000_000.0);
+      log.info(
+          "  Title Search - Response time: {}ms",
+          String.format("%.2f", responseTime / 1_000_000.0));
     } catch (Exception e) {
       log.error("Error in title search test: {}", e.getMessage());
     }
@@ -313,7 +321,9 @@ public class ComprehensivePerformanceTest {
       long responseTime = System.nanoTime() - startTime;
       testMetrics.get("text_content").add(responseTime);
 
-      log.info("  Content Search - Response time: {:.2f}ms", responseTime / 1_000_000.0);
+      log.info(
+          "  Content Search - Response time: {}ms",
+          String.format("%.2f", responseTime / 1_000_000.0));
     } catch (Exception e) {
       log.error("Error in content search test: {}", e.getMessage());
     }
@@ -336,7 +346,9 @@ public class ComprehensivePerformanceTest {
       long responseTime = System.nanoTime() - startTime;
       testMetrics.get("text_combined").add(responseTime);
 
-      log.info("  Combined Search - Response time: {:.2f}ms", responseTime / 1_000_000.0);
+      log.info(
+          "  Combined Search - Response time: {}ms",
+          String.format("%.2f", responseTime / 1_000_000.0));
     } catch (Exception e) {
       log.error("Error in combined search test: {}", e.getMessage());
     }
@@ -375,9 +387,9 @@ public class ComprehensivePerformanceTest {
       testMetrics.get(metricKey).add(responseTime);
 
       log.info(
-          "  {} - Response time: {:.2f}ms, Queries: {}",
+          "  {} - Response time: {}ms, Queries: {}",
           testName,
-          responseTime / 1_000_000.0,
+          String.format("%.2f", responseTime / 1_000_000.0),
           statistics.getQueryExecutionCount());
     } catch (Exception e) {
       log.error("Error in batch test: {}", e.getMessage());
@@ -425,11 +437,11 @@ public class ComprehensivePerformanceTest {
 
       String displayName = metricKey.replace("_", " ").toUpperCase();
       log.info(
-          "{}: P50={:.2f}ms, P95={:.2f}ms, P99={:.2f}ms",
+          "{}: P50={}ms, P95={}ms, P99={}ms",
           displayName,
-          p50 / 1_000_000.0,
-          p95 / 1_000_000.0,
-          p99 / 1_000_000.0);
+          String.format("%.2f", p50 / 1_000_000.0),
+          String.format("%.2f", p95 / 1_000_000.0),
+          String.format("%.2f", p99 / 1_000_000.0));
     }
   }
 
