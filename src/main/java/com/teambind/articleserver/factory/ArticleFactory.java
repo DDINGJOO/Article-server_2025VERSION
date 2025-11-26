@@ -1,7 +1,7 @@
 package com.teambind.articleserver.factory;
 
-import com.teambind.articleserver.dto.request.ArticleCreateRequest;
-import com.teambind.articleserver.entity.article.Article;
+import com.teambind.articleserver.adapter.in.web.dto.request.ArticleCreateRequest;
+import com.teambind.articleserver.adapter.out.persistence.entity.article.Article;
 
 /**
  * 게시글 생성 팩토리 인터페이스

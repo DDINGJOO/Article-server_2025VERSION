@@ -1,10 +1,10 @@
 package com.teambind.articleserver.adapter.in.web;
 
-import com.teambind.articleserver.dto.request.ArticleCreateRequest;
-import com.teambind.articleserver.dto.response.ArticleResponse;
-import com.teambind.articleserver.dto.response.article.ArticleBaseResponse;
-import com.teambind.articleserver.entity.article.Article;
-import com.teambind.articleserver.entity.articleType.NoticeArticle;
+import com.teambind.articleserver.adapter.in.web.dto.request.ArticleCreateRequest;
+import com.teambind.articleserver.adapter.in.web.dto.response.ArticleResponse;
+import com.teambind.articleserver.adapter.in.web.dto.response.article.ArticleBaseResponse;
+import com.teambind.articleserver.adapter.out.persistence.entity.article.Article;
+import com.teambind.articleserver.adapter.out.persistence.entity.articleType.NoticeArticle;
 import com.teambind.articleserver.service.crud.impl.ArticleCreateService;
 import com.teambind.articleserver.service.crud.impl.ArticleReadService;
 import jakarta.validation.Valid;

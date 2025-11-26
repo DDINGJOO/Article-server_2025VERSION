@@ -1,7 +1,7 @@
 package com.teambind.articleserver.service.crud;
 
-import com.teambind.articleserver.dto.condition.ArticleSearchCriteria;
-import com.teambind.articleserver.entity.article.Article;
+import com.teambind.articleserver.adapter.in.web.dto.condition.ArticleSearchCriteria;
+import com.teambind.articleserver.adapter.out.persistence.entity.article.Article;
 import org.springframework.data.domain.Slice;
 
 public interface ArticleService {

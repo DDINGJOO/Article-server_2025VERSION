@@ -1,12 +1,12 @@
 package com.teambind.articleserver.adapter.out.persistence;
 
+import com.teambind.articleserver.adapter.out.persistence.entity.article.Article;
+import com.teambind.articleserver.adapter.out.persistence.entity.enums.Status;
+import com.teambind.articleserver.adapter.out.persistence.repository.ArticleRepository;
 import com.teambind.articleserver.application.port.out.LoadArticlePort;
 import com.teambind.articleserver.application.port.out.SaveArticlePort;
-import com.teambind.articleserver.entity.article.Article;
-import com.teambind.articleserver.entity.enums.Status;
-import com.teambind.articleserver.exceptions.CustomException;
-import com.teambind.articleserver.exceptions.ErrorCode;
-import com.teambind.articleserver.repository.ArticleRepository;
+import com.teambind.articleserver.common.exception.CustomException;
+import com.teambind.articleserver.common.exception.ErrorCode;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

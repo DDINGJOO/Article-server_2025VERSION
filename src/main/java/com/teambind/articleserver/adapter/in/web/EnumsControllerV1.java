@@ -1,6 +1,6 @@
 package com.teambind.articleserver.adapter.in.web;
 
-import com.teambind.articleserver.entity.enums.Status;
+import com.teambind.articleserver.adapter.out.persistence.entity.enums.Status;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;

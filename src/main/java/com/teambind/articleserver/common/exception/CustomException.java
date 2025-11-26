@@ -1,4 +1,4 @@
-package com.teambind.articleserver.exceptions;
+package com.teambind.articleserver.common.exception;
 
 import org.springframework.http.HttpStatus;
 

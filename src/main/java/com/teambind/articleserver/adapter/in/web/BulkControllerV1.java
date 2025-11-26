@@ -1,6 +1,6 @@
 package com.teambind.articleserver.adapter.in.web;
 
-import com.teambind.articleserver.dto.response.ArticleSimpleResponse;
+import com.teambind.articleserver.adapter.in.web.dto.response.ArticleSimpleResponse;
 import com.teambind.articleserver.service.bulk.BulkReadService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

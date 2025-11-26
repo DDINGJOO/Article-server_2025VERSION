@@ -1,10 +1,10 @@
-package com.teambind.articleserver.entity.article;
+package com.teambind.articleserver.adapter.out.persistence.entity.article;
 
-import com.teambind.articleserver.entity.board.Board;
-import com.teambind.articleserver.entity.enums.Status;
-import com.teambind.articleserver.entity.image.ArticleImage;
-import com.teambind.articleserver.entity.keyword.Keyword;
-import com.teambind.articleserver.entity.keyword.KeywordMappingTable;
+import com.teambind.articleserver.adapter.out.persistence.entity.board.Board;
+import com.teambind.articleserver.adapter.out.persistence.entity.enums.Status;
+import com.teambind.articleserver.adapter.out.persistence.entity.image.ArticleImage;
+import com.teambind.articleserver.adapter.out.persistence.entity.keyword.Keyword;
+import com.teambind.articleserver.adapter.out.persistence.entity.keyword.KeywordMappingTable;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
-package com.teambind.articleserver.entity.articleType;
+package com.teambind.articleserver.adapter.out.persistence.entity.articleType;
 
-import com.teambind.articleserver.entity.article.Article;
+import com.teambind.articleserver.adapter.out.persistence.entity.article.Article;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.*;

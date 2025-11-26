@@ -1,7 +1,7 @@
 package com.teambind.articleserver.service.schedule;
 
-import com.teambind.articleserver.entity.enums.Status;
-import com.teambind.articleserver.repository.ArticleRepository;
+import com.teambind.articleserver.adapter.out.persistence.entity.enums.Status;
+import com.teambind.articleserver.adapter.out.persistence.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;

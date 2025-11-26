@@ -1,4 +1,4 @@
-package com.teambind.articleserver.event.publish;
+package com.teambind.articleserver.adapter.out.messaging;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
