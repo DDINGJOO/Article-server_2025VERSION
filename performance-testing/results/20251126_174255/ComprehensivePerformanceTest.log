@@ -1,8 +1,0 @@
-> Task :compileJava
-> Task :processResources UP-TO-DATE
-> Task :classes
-> Task :compileTestJava
-> Task :processTestResources
-> Task :testClasses
-OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
-> Task :test

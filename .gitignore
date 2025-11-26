@@ -40,3 +40,7 @@ out/
 ### env
 /.env
 .env
+
+### Performance Testing Results
+/performance-testing/results/
+performance-testing/results/

@@ -300,10 +300,11 @@ public class IndexAwarePerformanceTest {
     log.info("{} Results:", segmentName);
     log.info("  - Operations: {}", operations);
     log.info("  - Query Count: {}", queryCount);
-    log.info("  - P50 Latency: {:.2f}ms", p50 / 1_000_000.0);
-    log.info("  - P95 Latency: {:.2f}ms", p95 / 1_000_000.0);
-    log.info("  - P99 Latency: {:.2f}ms", p99 / 1_000_000.0);
-    log.info("  - Queries per Operation: {:.2f}", (double) queryCount / operations);
+    log.info("  - P50 Latency: {}ms", String.format("%.2f", p50 / 1_000_000.0));
+    log.info("  - P95 Latency: {}ms", String.format("%.2f", p95 / 1_000_000.0));
+    log.info("  - P99 Latency: {}ms", String.format("%.2f", p99 / 1_000_000.0));
+    log.info(
+        "  - Queries per Operation: {}", String.format("%.2f", (double) queryCount / operations));
   }
 
   private void generateComparativeReport(
@@ -332,10 +333,10 @@ public class IndexAwarePerformanceTest {
 
       int ops = totalOperations.getOrDefault(category, 1);
       long queries = totalQueries.getOrDefault(category, 0L);
-      log.info("  Avg Queries/Operation: {:.2f}", (double) queries / ops);
-      log.info("  P50 Latency: {:.2f}ms", p50 / 1_000_000.0);
-      log.info("  P95 Latency: {:.2f}ms", p95 / 1_000_000.0);
-      log.info("  P99 Latency: {:.2f}ms", p99 / 1_000_000.0);
+      log.info("  Avg Queries/Operation: {}", String.format("%.2f", (double) queries / ops));
+      log.info("  P50 Latency: {}ms", String.format("%.2f", p50 / 1_000_000.0));
+      log.info("  P95 Latency: {}ms", String.format("%.2f", p95 / 1_000_000.0));
+      log.info("  P99 Latency: {}ms", String.format("%.2f", p99 / 1_000_000.0));
     }
 
     // 성능 차이 분석
@@ -364,9 +365,9 @@ public class IndexAwarePerformanceTest {
       double difference = ((recentP95 - earlyP95) / earlyP95) * 100;
 
       log.info("\nIndex Position Impact:");
-      log.info("  Early Data P95: {:.2f}ms", earlyP95);
-      log.info("  Recent Data P95: {:.2f}ms", recentP95);
-      log.info("  Performance Difference: {:.1f}%", difference);
+      log.info("  Early Data P95: {}ms", String.format("%.2f", earlyP95));
+      log.info("  Recent Data P95: {}ms", String.format("%.2f", recentP95));
+      log.info("  Performance Difference: {}%", String.format("%.1f", difference));
 
       if (Math.abs(difference) > 20) {
         log.warn("  ️  Significant performance difference detected!");
@@ -376,7 +377,7 @@ public class IndexAwarePerformanceTest {
 
     if (p95Values.containsKey("realistic")) {
       log.info("\nRealistic Usage Pattern:");
-      log.info("  P95 Latency: {:.2f}ms", p95Values.get("realistic"));
+      log.info("  P95 Latency: {}ms", String.format("%.2f", p95Values.get("realistic")));
       log.info("  This represents expected production performance");
     }
 

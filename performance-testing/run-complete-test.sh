@@ -107,7 +107,7 @@ BEGIN
             created_at, updated_at, version, value
         ) VALUES (
             current_article_id,
-            'RegularArticle',  -- Using actual discriminator value
+            'REGULAR',  -- Using actual discriminator value
             CONCAT('Performance Test Article #', i,
                 CASE MOD(i, 10)
                     WHEN 0 THEN ' - Spring Boot Optimization'
