@@ -1,0 +1,15 @@
+time="2025-11-26T17:42:56+09:00" level=warning msg="/Users/ddingjoo/IdeaProjects/BanderProject/SERVER/Board-SERVER/Article-server/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+status
+Starting 600K data generation...
+status
+Data generation complete!
+Table	Op	Msg_type	Msg_text
+article_db.articles	analyze	status	OK
+Table	Op	Msg_type	Msg_text
+article_db.article_images	analyze	status	OK
+Table	Op	Msg_type	Msg_text
+article_db.keyword_mapping_table	analyze	status	OK
+Report	total_articles	total_images	total_keywords
+Data Generation Summary	600000	36000	36000
+Report	recent_30_days	middle_period	older_300_days
+Data Time Distribution	200000	200000	200000
