@@ -1,0 +1,130 @@
+server:
+  port: 8080
+
+spring:
+  # Kafka 설정 (테스트용)
+  kafka:
+    bootstrap-servers: localhost:19092
+    producer:
+      retries: 3
+      batch-size: 16384
+      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+    consumer:
+      group-id: article-consumer-group-performance-test
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
+    listener:
+      ack-mode: manual_immediate
+      concurrency: 3
+
+  datasource:
+    url: jdbc:mariadb://localhost:13306/article_db?rewriteBatchedStatements=true&useServerPrepStmts=true&cachePrepStmts=true
+    username: article_user
+    password: articlepass123
+    driver-class-name: org.mariadb.jdbc.Driver
+
+    hikari:
+      maximum-pool-size: 30
+      minimum-idle: 10
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
+      data-source-properties:
+        rewriteBatchedStatements: true
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        useLocalSessionState: true
+        useLocalTransactionState: true
+        cacheResultSetMetadata: true
+        cacheServerConfiguration: true
+        elideSetAutoCommits: true
+        maintainTimeStats: false
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+        jdbc:
+          batch_size: 1000
+          order_inserts: true
+          order_updates: true
+        connection:
+          provider_disables_autocommit: true
+        generate_statistics: true  # 성능 측정을 위한 통계 수집
+        session:
+          events:
+            log:
+              LOG_QUERIES_SLOWER_THAN_MS: 100  # 100ms 이상 걸리는 쿼리 로그
+    show-sql: false  # 대량 데이터 처리시 로그 비활성화
+
+  redis:
+    host: localhost
+    port: 16379
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 20
+        max-idle: 10
+        min-idle: 5
+
+# 성능 테스트 설정
+performance:
+  test:
+    article-count: 600000
+    batch-size: 5000
+    parallel-threads: 8
+    epochs: 5  # 각 테스트를 5번 반복하여 평균 계산
+    warmup-iterations: 50  # Warm-up 횟수
+    test-iterations: 200  # 각 Epoch당 테스트 횟수
+    expected-metrics:
+      p50-response-time: 20ms
+      p95-response-time: 50ms
+      p99-response-time: 150ms
+      max-queries-per-request: 5
+
+# 로깅 설정
+logging:
+  level:
+    root: INFO
+    com.teambind.articleserver: DEBUG
+    org.hibernate.SQL: WARN  # SQL 로그 최소화
+    org.hibernate.type.descriptor.sql: WARN
+    org.springframework.jdbc.core: WARN
+    com.zaxxer.hikari: INFO
+  file:
+    name: logs/performance-test.log
+    max-size: 100MB
+    max-history: 10
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n"
+
+# Actuator 설정 (메트릭 수집)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+  metrics:
+    enable:
+      jvm: true
+      process: true
+      system: true
+      tomcat: true
+      hikaricp: true
+    export:
+      simple:
+        enabled: true
+        step: 10s
+    tags:
+      application: article-server-performance-test
