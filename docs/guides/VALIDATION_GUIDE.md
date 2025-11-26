@@ -188,7 +188,7 @@ public Article createArticle(@Valid ArticleCreateRequest request) {
 ## 성능
 
 - DB 쿼리 제거로 약 1000배 성능 향상
-- 상세 내용은 [VALIDATION_PERFORMANCE_OPTIMIZATION.md](VALIDATION_PERFORMANCE_OPTIMIZATION.md) 참조
+- 상세 내용은 [VALIDATION_PERFORMANCE_OPTIMIZATION.md](../VALIDATION_PERFORMANCE_OPTIMIZATION.md) 참조
 
 ## 작성일
 

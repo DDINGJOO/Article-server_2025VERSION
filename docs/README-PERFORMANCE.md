@@ -153,8 +153,8 @@ Article-server/
 
 ## 상세 문서
 
-- [성능 테스트 가이드](./docs/PERFORMANCE-TEST-GUIDE.md) - 상세 사용법
-- [아키텍처 결정 기록](./docs/adr/ADR-006-performance-test-framework.md) - 설계 결정 근거
+- [성능 테스트 가이드](guides/PERFORMANCE-TEST-GUIDE.md) - 상세 사용법
+- [아키텍처 결정 기록](adr/ADR-006-performance-test-framework.md) - 설계 결정 근거
 - [성능 테스트 설계](./docs/performance-test-architecture.md) - 기술 구조
 
 ---
