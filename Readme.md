@@ -232,8 +232,8 @@
 ### 관련 문서
 
 - [API 명세서](docs/API_SPECIFICATION.md)
-- [AOP 로그 트레이서 가이드](docs/AOP_LOG_TRACER_GUIDE.md)
-- [Validation 가이드](docs/VALIDATION_GUIDE.md)
+- [AOP 로그 트레이서 가이드](docs/guides/AOP_LOG_TRACER_GUIDE.md)
+- [Validation 가이드](docs/guides/VALIDATION_GUIDE.md)
 - [Validation 성능 최적화](docs/VALIDATION_PERFORMANCE_OPTIMIZATION.md)
 
 ### 메타 정보
