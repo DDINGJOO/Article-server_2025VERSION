@@ -133,7 +133,7 @@ CREATE TABLE IF NOT EXISTS `article_images`
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci COMMENT ='게시글 이미지 테이블';
 
--- ==========================================
+-- ===============GET http://localhost:8080/api/v1/articles/search?size=50&boardIds=1&title=테스트===========================
 -- 5. Keyword Mapping Table (게시글-키워드 매핑)
 -- ==========================================
 CREATE TABLE IF NOT EXISTS `keyword_mapping_table`

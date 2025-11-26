@@ -17,13 +17,10 @@ import lombok.*;
 /**
  * Article Aggregate Root
  *
- * DDD의 Aggregate Root 패턴을 적용한 게시글 엔티티입니다.
- * - Value Object 사용
- * - 도메인 이벤트 발행
- * - 불변 조건 보장
+ * <p>DDD의 Aggregate Root 패턴을 적용한 게시글 엔티티입니다. - Value Object 사용 - 도메인 이벤트 발행 - 불변 조건 보장
  */
 @Entity
-@Table(name = "articles_v2")
+@Table(name = "articles")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "article_type", discriminatorType = DiscriminatorType.STRING)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -66,21 +63,9 @@ public abstract class ArticleAggregate extends AggregateRoot {
     @Column(name = "view_count", nullable = false)
     private Long viewCount = 0L;
 
-    @OneToMany(
-        mappedBy = "article",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true,
-        fetch = FetchType.LAZY)
-    @org.hibernate.annotations.BatchSize(size = 100)
-    private List<ArticleImage> images = new ArrayList<>();
+  @Transient private List<ArticleImage> images = new ArrayList<>();
 
-    @OneToMany(
-        mappedBy = "article",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true,
-        fetch = FetchType.LAZY)
-    @org.hibernate.annotations.BatchSize(size = 100)
-    private List<KeywordMappingTable> keywordMappings = new ArrayList<>();
+  @Transient private List<KeywordMappingTable> keywordMappings = new ArrayList<>();
 
     /**
      * 생성자

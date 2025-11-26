@@ -29,7 +29,7 @@ public class Board {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "board_id", nullable = false)
+  @Column(name = "id", nullable = false)
   private Long id;
 
   @Column(name = "board_name", nullable = false, unique = true, length = 50)
