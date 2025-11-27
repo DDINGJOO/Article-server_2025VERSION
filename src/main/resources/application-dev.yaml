@@ -32,15 +32,17 @@ spring:
     password: ${DATABASE_PASSWORD:articlepass123}
     driver-class-name: org.mariadb.jdbc.Driver
 
-    # HikariCP 설정
+    # HikariCP 설정 - 성능 최적화 (2025-11-27)
+    # 테스트 결과: 100명 동시 사용자 시 피크 42개 연결 필요
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
+      maximum-pool-size: 100      # 10 → 100 (10배 증가)
+      minimum-idle: 20             # 5 → 20 (기본 유지 연결)
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
       validation-timeout: 5000
       connection-test-query: SELECT 1
+      leak-detection-threshold: 60000  # 연결 누수 감지 (1분)
 
   jpa:
     show-sql: true

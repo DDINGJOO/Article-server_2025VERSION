@@ -28,6 +28,17 @@ spring:
     password: ${DATABASE_PASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
 
+    # HikariCP 설정 - Production 성능 최적화 (2025-11-27)
+    hikari:
+      maximum-pool-size: 150      # Production: 더 많은 동시 접속 처리
+      minimum-idle: 30            # 기본 유지 연결
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      validation-timeout: 5000
+      connection-test-query: SELECT 1
+      leak-detection-threshold: 60000  # 연결 누수 감지
+
 
   jpa:
     show-sql: false
@@ -36,8 +47,18 @@ spring:
 
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         dialect: org.hibernate.dialect.MariaDBDialect
+        # 성능 최적화 설정 (2025-11-27)
+        default_batch_fetch_size: 100    # N+1 문제 완화
+        jdbc:
+          batch_size: 50                 # 배치 INSERT/UPDATE
+          batch_versioned_data: true
+        order_inserts: true
+        order_updates: true
+        query:
+          in_clause_parameter_padding: true  # IN 절 최적화
+        generate_statistics: false            # Production에서는 통계 비활성화
 
   data:
     redis:

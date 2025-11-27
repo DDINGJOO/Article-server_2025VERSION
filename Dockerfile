@@ -22,4 +22,16 @@ COPY --from=build /app/build/libs/*.jar /app/app.jar
 # 복사 확인 (디버깅용)
 RUN ls -la /app
 
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# JVM 성능 최적화 설정 (2025-11-27)
+# - 60만 건 데이터 처리를 위한 메모리 설정
+# - G1GC 사용으로 대용량 힙에서도 낮은 지연시간 유지
+ENV JAVA_OPTS="-Xms4g -Xmx4g \
+  -XX:+UseG1GC \
+  -XX:MaxGCPauseMillis=200 \
+  -XX:+ParallelRefProcEnabled \
+  -XX:MaxMetaspaceSize=256m \
+  -XX:+HeapDumpOnOutOfMemoryError \
+  -XX:HeapDumpPath=/app/logs \
+  -Djava.security.egd=file:/dev/./urandom"
+
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]

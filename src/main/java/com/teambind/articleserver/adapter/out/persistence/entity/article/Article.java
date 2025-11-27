@@ -25,6 +25,33 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  */
 @Entity
+@NamedEntityGraphs({
+  @NamedEntityGraph(
+      name = "Article.withBoardAndImages",
+      attributeNodes = {
+        @NamedAttributeNode("board"),
+        @NamedAttributeNode("images")
+      }
+  ),
+  @NamedEntityGraph(
+      name = "Article.withAllAssociations",
+      attributeNodes = {
+        @NamedAttributeNode("board"),
+        @NamedAttributeNode("images"),
+        @NamedAttributeNode(value = "keywordMappings", subgraph = "keywordMappings")
+      },
+      subgraphs = {
+        @NamedSubgraph(
+            name = "keywordMappings",
+            attributeNodes = @NamedAttributeNode("keyword")
+        )
+      }
+  ),
+  @NamedEntityGraph(
+      name = "Article.withBoard",
+      attributeNodes = @NamedAttributeNode("board")
+  )
+})
 @Table(
     name = "articles",
     indexes = {
