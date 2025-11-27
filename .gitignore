@@ -41,6 +41,31 @@ out/
 /.env
 .env
 
-### Performance Testing Results
+### Performance Testing & Logs
+# Performance test results
 /performance-testing/results/
 performance-testing/results/
+performance-testing/*.log
+performance-testing/complete-test-output.log
+
+# Log files
+logs/
+*.log
+**/logs/
+**/*.log
+
+# Large test data files
+performance-testing/generate-*.sql
+performance-testing/data/
+test-output/
+
+# Temporary test files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Performance metrics and reports
+performance-report*.md
+metrics*.csv
+metrics*.json
