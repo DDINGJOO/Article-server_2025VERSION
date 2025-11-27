@@ -57,11 +57,11 @@ SET FOREIGN_KEY_CHECKS = 1;
 SELECT 'Database reset complete' as status;
 EOF
 
-# Step 2: Generate 600K Complete Data
-echo -e "\n${YELLOW}[Step 2/6] Generating 600K Complete Dataset...${NC}"
-echo -e "${YELLOW}This may take 10-15 minutes...${NC}"
+# Step 2: Generate 100K Complete Data
+echo -e "\n${YELLOW}[Step 2/6] Generating 100K Complete Dataset...${NC}"
+echo -e "${YELLOW}This may take 2-3 minutes...${NC}"
 
-cat > "$RESULT_DIR/generate-600k.sql" <<'EOF'
+cat > "$RESULT_DIR/generate-100k.sql" <<'EOF'
 SET FOREIGN_KEY_CHECKS = 0;
 SET autocommit = 0;
 SET unique_checks = 0;
@@ -99,9 +99,9 @@ BEGIN
     DECLARE batch_count INT DEFAULT 0;
     DECLARE current_article_id VARCHAR(50);
 
-    SELECT 'Starting 600K data generation...' as status;
+    SELECT 'Starting 100K data generation...' as status;
 
-    WHILE i <= 600000 DO
+    WHILE i <= 100000 DO
         SET current_article_id = CONCAT('PERF', LPAD(i, 15, '0'));
 
         -- Insert article with value column (required, NOT NULL)
@@ -169,9 +169,9 @@ BEGIN
             COMMIT;
             SET batch_count = 0;
 
-            -- Progress report every 100K
-            IF MOD(i, 100000) = 0 THEN
-                SELECT CONCAT('Progress: ', i, ' / 600000 (', ROUND(i * 100.0 / 600000, 1), '%)') as status;
+            -- Progress report every 10K
+            IF MOD(i, 10000) = 0 THEN
+                SELECT CONCAT('Progress: ', i, ' / 100000 (', ROUND(i * 100.0 / 100000, 1), '%)') as status;
             END IF;
         END IF;
     END WHILE;
@@ -216,7 +216,7 @@ SET unique_checks = 1;
 EOF
 
 # Execute data generation
-docker compose exec -T article-mariadb mysql -u root -particlepass123 article_db < "$RESULT_DIR/generate-600k.sql" 2>&1 | tee "$RESULT_DIR/generation.log" | grep -E "Progress:|complete|Summary"
+docker compose exec -T article-mariadb mysql -u root -particlepass123 article_db < "$RESULT_DIR/generate-100k.sql" 2>&1 | tee "$RESULT_DIR/generation.log" | grep -E "Progress:|complete|Summary"
 
 # Step 3: Build Project
 echo -e "\n${YELLOW}[Step 3/6] Building Project...${NC}"
