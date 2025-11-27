@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # ==================================================
-# Complete One-Step Performance Test Script
+# Complete Performance Test Suite Script
 # - Database reset
 # - 600K data generation
-# - Comprehensive performance tests
-# - Report generation
-# - Cleanup
+# - ALL performance tests (including new tests)
+# - Comprehensive report generation
+# - Cleanup options
 # ==================================================
 
 set -e
@@ -21,18 +21,22 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
 NC='\033[0m' # No Color
 
 # Create result directory
 mkdir -p "$RESULT_DIR"
 
 echo -e "${BLUE}===================================================${NC}"
-echo -e "${BLUE}Starting Complete Performance Test${NC}"
-echo -e "${BLUE}Timestamp: $TIMESTAMP${NC}"
+echo -e "${BLUE}       Complete Performance Test Suite${NC}"
+echo -e "${BLUE}===================================================${NC}"
+echo -e "${CYAN}Timestamp: $TIMESTAMP${NC}"
+echo -e "${CYAN}Result Directory: $RESULT_DIR${NC}"
 echo -e "${BLUE}===================================================${NC}"
 
 # Step 1: Database Reset
-echo -e "\n${YELLOW}[Step 1/5] Resetting Database...${NC}"
+echo -e "\n${YELLOW}[Step 1/6] Resetting Database...${NC}"
 docker compose exec -T article-mariadb mysql -u root -particlepass123 article_db <<EOF
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -54,7 +58,7 @@ SELECT 'Database reset complete' as status;
 EOF
 
 # Step 2: Generate 600K Complete Data
-echo -e "\n${YELLOW}[Step 2/5] Generating 600K Complete Dataset...${NC}"
+echo -e "\n${YELLOW}[Step 2/6] Generating 600K Complete Dataset...${NC}"
 echo -e "${YELLOW}This may take 10-15 minutes...${NC}"
 
 cat > "$RESULT_DIR/generate-600k.sql" <<'EOF'
@@ -215,78 +219,185 @@ EOF
 docker compose exec -T article-mariadb mysql -u root -particlepass123 article_db < "$RESULT_DIR/generate-600k.sql" 2>&1 | tee "$RESULT_DIR/generation.log" | grep -E "Progress:|complete|Summary"
 
 # Step 3: Build Project
-echo -e "\n${YELLOW}[Step 3/5] Building Project...${NC}"
+echo -e "\n${YELLOW}[Step 3/6] Building Project...${NC}"
 cd "$PROJECT_ROOT"
 ./gradlew clean build -x test > "$RESULT_DIR/build.log" 2>&1
 
-# Step 4: Run Comprehensive Performance Tests
-echo -e "\n${YELLOW}[Step 4/5] Running Comprehensive Performance Tests...${NC}"
-echo -e "${YELLOW}This will run multiple test scenarios...${NC}"
+# Step 4: Run ALL Performance Tests
+echo -e "\n${YELLOW}[Step 4/6] Running Complete Performance Test Suite...${NC}"
 
-# Run each test and save results
+# Define all test classes to run
 TEST_CLASSES=(
     "ComprehensivePerformanceTest"
     "IndexAwarePerformanceTest"
+    "ConcurrencyLoadTest"
+    "NPlusOneQueryTest"
 )
 
+# Track test results
+declare -a TEST_RESULTS
+TOTAL_TESTS=${#TEST_CLASSES[@]}
+PASSED_TESTS=0
+FAILED_TESTS=0
+
+echo -e "\n${CYAN}========== Test Suite Overview ==========${NC}"
+echo -e "${CYAN}Total Tests to Run: ${TOTAL_TESTS}${NC}"
+echo -e "${CYAN}Test Classes:${NC}"
 for TEST_CLASS in "${TEST_CLASSES[@]}"; do
-    echo -e "\n${GREEN}Running $TEST_CLASS...${NC}"
-    ./gradlew test --tests "com.teambind.articleserver.performance.measurement.$TEST_CLASS" \
+    echo -e "  ${MAGENTA}• $TEST_CLASS${NC}"
+done
+echo -e "${CYAN}=========================================${NC}"
+
+# Run each test and save results
+for i in "${!TEST_CLASSES[@]}"; do
+    TEST_CLASS="${TEST_CLASSES[$i]}"
+    TEST_NUM=$((i + 1))
+
+    echo -e "\n${BLUE}┌─────────────────────────────────────────┐${NC}"
+    echo -e "${BLUE}│  [${TEST_NUM}/${TOTAL_TESTS}] $TEST_CLASS${NC}"
+    echo -e "${BLUE}└─────────────────────────────────────────┘${NC}"
+
+    START_TIME=$(date +%s)
+
+    # Run test with proper timeout and capture result
+    if timeout 300 ./gradlew test --tests "com.teambind.articleserver.performance.measurement.$TEST_CLASS" \
         -Dspring.profiles.active=performance-test \
-        2>&1 | tee "$RESULT_DIR/${TEST_CLASS}.log"
+        --no-daemon \
+        2>&1 | tee "$RESULT_DIR/${TEST_CLASS}.log"; then
+
+        END_TIME=$(date +%s)
+        DURATION=$((END_TIME - START_TIME))
+        echo -e "${GREEN}✓ $TEST_CLASS completed successfully (${DURATION}s)${NC}"
+        TEST_RESULTS+=("$TEST_CLASS: PASSED (${DURATION}s)")
+        PASSED_TESTS=$((PASSED_TESTS + 1))
+    else
+        END_TIME=$(date +%s)
+        DURATION=$((END_TIME - START_TIME))
+        echo -e "${RED}✗ $TEST_CLASS failed or timed out (${DURATION}s)${NC}"
+        TEST_RESULTS+=("$TEST_CLASS: FAILED (${DURATION}s)")
+        FAILED_TESTS=$((FAILED_TESTS + 1))
+    fi
+
+    # Add delay between tests to avoid resource conflicts
+    if [ $TEST_NUM -lt $TOTAL_TESTS ]; then
+        echo -e "${YELLOW}Waiting 5 seconds before next test...${NC}"
+        sleep 5
+    fi
 done
 
-# Step 5: Generate Initial Report
-echo -e "\n${YELLOW}[Step 5/6] Generating Initial Report...${NC}"
+# Step 5: Generate Comprehensive Report
+echo -e "\n${YELLOW}[Step 5/6] Generating Comprehensive Report...${NC}"
 
 cat > "$RESULT_DIR/performance-report.md" <<EOF
-# Performance Test Report
+# 📊 Complete Performance Test Report
 **Date**: $TIMESTAMP
 **Data Size**: 600,000 articles
 
-## Test Summary
+## Test Execution Summary
 
-### Data Distribution
-- Recent (< 30 days): 200,000 articles
-- Middle (30-300 days): 200,000 articles
-- Old (> 300 days): 200,000 articles
+| Test Class | Status | Duration |
+|------------|--------|----------|
+EOF
 
-### Tests Executed
-1. Comprehensive Performance Test
-   - Cursor Pagination (Early/Middle/Late)
-   - Filter Combinations
-   - Text Search
-   - Batch Queries
+# Add test results to report
+for result in "${TEST_RESULTS[@]}"; do
+    IFS=': ' read -r class_name status <<< "$result"
+    if [[ "$status" == *"PASSED"* ]]; then
+        echo "| $class_name | ✅ $status |" >> "$RESULT_DIR/performance-report.md"
+    else
+        echo "| $class_name | ❌ $status |" >> "$RESULT_DIR/performance-report.md"
+    fi
+done
 
-2. Index-Aware Performance Test
-   - Early Data Performance
-   - Middle Data Performance
-   - Recent Data Performance
-   - Realistic Usage Pattern
+cat >> "$RESULT_DIR/performance-report.md" <<EOF
 
-## Results
-See individual test logs for detailed metrics:
-- ComprehensivePerformanceTest.log
-- IndexAwarePerformanceTest.log
+## Overall Statistics
+- **Total Tests**: $TOTAL_TESTS
+- **Passed**: $PASSED_TESTS
+- **Failed**: $FAILED_TESTS
+- **Success Rate**: $(echo "scale=1; $PASSED_TESTS * 100 / $TOTAL_TESTS" | bc)%
 
-## Performance Metrics Summary
+## Test Details
+
+### 1. ComprehensivePerformanceTest
+- Cursor Pagination (Early/Middle/Late)
+- Filter Combinations
+- Text Search
+- Batch Queries
+
+### 2. IndexAwarePerformanceTest
+- Early Data Performance
+- Middle Data Performance
+- Recent Data Performance
+- Realistic Usage Pattern
+
+### 3. ConcurrencyLoadTest
+- 100 Concurrent Users Simulation
+- Multiple Scenarios (Single/List/Search/Filter/JDBC)
+- Connection Pool Monitoring
+- TPS Measurement
+
+### 4. NPlusOneQueryTest
+- Lazy Loading (N+1 Problem Detection)
+- Eager Loading
+- Fetch Join Optimization
+- Entity Graph
+- Batch Fetch
+- DTO Projection
+
+## Key Metrics Summary
 EOF
 
 # Extract key metrics from logs
-echo -e "\n### Key Metrics" >> "$RESULT_DIR/performance-report.md"
-grep -E "P50|P95|P99" "$RESULT_DIR"/*.log | tail -20 >> "$RESULT_DIR/performance-report.md" 2>/dev/null || true
+echo -e "\n### Performance Metrics (P50/P95/P99)" >> "$RESULT_DIR/performance-report.md"
+echo '```' >> "$RESULT_DIR/performance-report.md"
+
+for TEST_CLASS in "${TEST_CLASSES[@]}"; do
+    if [ -f "$RESULT_DIR/${TEST_CLASS}.log" ]; then
+        echo "=== $TEST_CLASS ===" >> "$RESULT_DIR/performance-report.md"
+        grep -E "P50|P95|P99|TPS|Success Rate|Error Rate|N\+1|Query Count" "$RESULT_DIR/${TEST_CLASS}.log" | tail -10 >> "$RESULT_DIR/performance-report.md" 2>/dev/null || echo "No metrics found" >> "$RESULT_DIR/performance-report.md"
+        echo "" >> "$RESULT_DIR/performance-report.md"
+    fi
+done
+
+echo '```' >> "$RESULT_DIR/performance-report.md"
 
 # Step 6: Run Analysis Script
-echo -e "\n${YELLOW}[Step 6/6] Running Performance Analysis...${NC}"
-if [ -f "analyze-results.sh" ]; then
-    chmod +x analyze-results.sh
-    ./analyze-results.sh "$TIMESTAMP"
-    echo -e "${GREEN}✓ Analysis complete${NC}"
+echo -e "\n${YELLOW}[Step 6/6] Running Advanced Performance Analysis...${NC}"
+if [ -f "$SCRIPT_DIR/analyze-results-ko.sh" ]; then
+    chmod +x "$SCRIPT_DIR/analyze-results-ko.sh"
+    "$SCRIPT_DIR/analyze-results-ko.sh" "$TIMESTAMP"
+    echo -e "${GREEN}✓ Advanced analysis complete${NC}"
 else
-    echo -e "${YELLOW}⚠ Analysis script not found, skipping analysis${NC}"
+    echo -e "${YELLOW}⚠ Analysis script not found, basic report only${NC}"
+fi
+
+# Final Summary
+echo -e "\n${GREEN}===================================================${NC}"
+echo -e "${GREEN}      Performance Test Suite Complete!${NC}"
+echo -e "${GREEN}===================================================${NC}"
+echo -e "${CYAN}Results saved to: $RESULT_DIR${NC}"
+echo -e "${CYAN}Report files:${NC}"
+echo -e "  ${MAGENTA}• performance-report.md${NC} - Main report"
+if [ -f "$RESULT_DIR/analysis_report_ko.md" ]; then
+    echo -e "  ${MAGENTA}• analysis_report_ko.md${NC} - Korean analysis"
+fi
+echo -e "${GREEN}===================================================${NC}"
+
+# Show test summary
+echo -e "\n${BLUE}Test Results Summary:${NC}"
+echo -e "┌─────────────────────────────────────────┐"
+printf "│  Total: %2d  Passed: %2d  Failed: %2d      │\n" $TOTAL_TESTS $PASSED_TESTS $FAILED_TESTS
+echo -e "└─────────────────────────────────────────┘"
+
+# Show key metrics if available
+echo -e "\n${BLUE}Key Performance Indicators:${NC}"
+if [ -f "$RESULT_DIR/analysis_report_ko.md" ]; then
+    grep -A 5 "핵심 성과 지표" "$RESULT_DIR/analysis_report_ko.md" 2>/dev/null || true
 fi
 
 # Optional: Clean up database after tests
+echo ""
 read -p "Do you want to clean up the database? (y/n): " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -301,15 +412,4 @@ SELECT 'Cleanup complete' as status;
 EOF
 fi
 
-# Final summary
-echo -e "\n${GREEN}===================================================${NC}"
-echo -e "${GREEN}Performance Test Complete!${NC}"
-echo -e "${GREEN}Results saved to: $RESULT_DIR${NC}"
-echo -e "${GREEN}===================================================${NC}"
-echo
-echo "Files generated:"
-ls -la "$RESULT_DIR"
-
-# Show summary
-echo -e "\n${BLUE}Test Summary:${NC}"
-tail -n 50 "$RESULT_DIR/performance-report.md"
+echo -e "\n${GREEN}All done! Check $RESULT_DIR for detailed results.${NC}"
