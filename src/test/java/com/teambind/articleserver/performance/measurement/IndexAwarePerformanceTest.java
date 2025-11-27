@@ -62,18 +62,20 @@ public class IndexAwarePerformanceTest {
     LocalDateTime oneEightyDaysAgo = now.minusDays(180);
 
     // 최근 데이터 (인덱스 뒷부분 - 30일 이내)
+    // 더 많은 데이터를 가져와서 캐시 효과 최소화
     recentIds =
         articleRepository
-            .findAll(PageRequest.of(0, 5000, Sort.by(Sort.Direction.DESC, "createdAt")))
+            .findAll(PageRequest.of(0, 20000, Sort.by(Sort.Direction.DESC, "createdAt")))
             .stream()
             .filter(a -> a.getCreatedAt() != null && a.getCreatedAt().isAfter(thirtyDaysAgo))
             .map(Article::getId)
+            .limit(10000)  // 최대 10000개
             .collect(Collectors.toList());
 
     // 중간 데이터 (30일 ~ 180일)
     middleIds =
         articleRepository
-            .findAll(PageRequest.of(0, 5000, Sort.by(Sort.Direction.DESC, "createdAt")))
+            .findAll(PageRequest.of(0, 20000, Sort.by(Sort.Direction.DESC, "createdAt")))
             .stream()
             .filter(
                 a ->
@@ -81,17 +83,17 @@ public class IndexAwarePerformanceTest {
                         && a.getCreatedAt().isBefore(thirtyDaysAgo)
                         && a.getCreatedAt().isAfter(oneEightyDaysAgo))
             .map(Article::getId)
-            .limit(3000)
+            .limit(10000)  // 최대 10000개
             .collect(Collectors.toList());
 
     // 초기 데이터 (인덱스 앞부분 - 180일 이상)
     earlyIds =
         articleRepository
-            .findAll(PageRequest.of(0, 5000, Sort.by(Sort.Direction.ASC, "createdAt")))
+            .findAll(PageRequest.of(0, 20000, Sort.by(Sort.Direction.ASC, "createdAt")))
             .stream()
             .filter(a -> a.getCreatedAt() != null && a.getCreatedAt().isBefore(oneEightyDaysAgo))
             .map(Article::getId)
-            .limit(2000)
+            .limit(10000)  // 최대 10000개
             .collect(Collectors.toList());
 
     log.info("Data distribution loaded:");
@@ -182,8 +184,13 @@ public class IndexAwarePerformanceTest {
     statistics.clear();
     int operations = Math.min(TOTAL_OPERATIONS / 4, segmentIds.size() * 10);
 
+    // 고유 ID를 더 많이 사용하기 위해 셔플
+    List<String> shuffledIds = new ArrayList<>(segmentIds);
+    Collections.shuffle(shuffledIds, random);
+
     for (int i = 0; i < operations; i++) {
-      String articleId = segmentIds.get(random.nextInt(segmentIds.size()));
+      // 순환적으로 다른 ID 사용 (캐시 효과 최소화)
+      String articleId = shuffledIds.get(i % shuffledIds.size());
 
       long startTime = System.nanoTime();
       try {
@@ -192,6 +199,12 @@ public class IndexAwarePerformanceTest {
         segmentResponseTimes.get(segmentKey).add(responseTime);
       } catch (Exception e) {
         log.debug("Error reading article {}: {}", articleId, e.getMessage());
+      }
+
+      // EntityManager 캐시 비우기 (JPA 1차 캐시 초기화)
+      // 매 10회마다 캐시 비우기 (성능과 실제성의 균형)
+      if (i % 10 == 0) {
+        entityManager.clear();
       }
     }
 
@@ -214,6 +227,13 @@ public class IndexAwarePerformanceTest {
     statistics.clear();
     int operations = TOTAL_OPERATIONS / 4;
 
+    // 모든 ID를 미리 섞어서 준비
+    List<String> allIds = new ArrayList<>();
+    allIds.addAll(recentIds);
+    allIds.addAll(middleIds);
+    allIds.addAll(earlyIds);
+    Collections.shuffle(allIds, random);
+
     for (int i = 0; i < operations; i++) {
       String articleId = getRealisticPatternId();
 
@@ -226,6 +246,11 @@ public class IndexAwarePerformanceTest {
         } catch (Exception e) {
           log.debug("Error reading article {}: {}", articleId, e.getMessage());
         }
+      }
+
+      // EntityManager 캐시 비우기
+      if (i % 10 == 0) {
+        entityManager.clear();
       }
     }
 
