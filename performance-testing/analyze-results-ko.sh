@@ -193,20 +193,20 @@ cat >> "${RESULTS_DIR}/analysis_report_ko.md" << EOF
 
 \`\`\`
 ┌─────────────────────────────────────────┐
-│         종합 성능 점수: A+ (92점)        │
-├─────────────────────────────────────────┤
 EOF
 
 # 실제 메트릭 기반 KPI 계산
 if ls "${RESULTS_DIR}"/*_metrics.json 1> /dev/null 2>&1; then
-    # P50, P95, P99 평균 계산 (간단한 예시)
-    echo "│ • 평균 응답시간 (P50): 계산 중...      │" >> "${RESULTS_DIR}/analysis_report_ko.md"
-    echo "│ • 95분위 응답시간 (P95): 계산 중...    │" >> "${RESULTS_DIR}/analysis_report_ko.md"
-    echo "│ • 99분위 응답시간 (P99): 계산 중...    │" >> "${RESULTS_DIR}/analysis_report_ko.md"
+    # 실제 메트릭이 있을 때 계산
+    echo "│ • 평균 응답시간 (P50): 분석 중...      │" >> "${RESULTS_DIR}/analysis_report_ko.md"
+    echo "│ • 95분위 응답시간 (P95): 분석 중...    │" >> "${RESULTS_DIR}/analysis_report_ko.md"
+    echo "│ • 99분위 응답시간 (P99): 분석 중...    │" >> "${RESULTS_DIR}/analysis_report_ko.md"
 else
-    echo "│ • 평균 응답시간 (P50): 0.15ms [S급]    │" >> "${RESULTS_DIR}/analysis_report_ko.md"
-    echo "│ • 95분위 응답시간 (P95): 0.45ms [S급]  │" >> "${RESULTS_DIR}/analysis_report_ko.md"
-    echo "│ • 99분위 응답시간 (P99): 0.95ms [A급]  │" >> "${RESULTS_DIR}/analysis_report_ko.md"
+    # 메트릭이 없을 때 경고 표시
+    echo "│ ⚠️  테스트 실행 실패 또는 데이터 없음   │" >> "${RESULTS_DIR}/analysis_report_ko.md"
+    echo "│ • 평균 응답시간 (P50): N/A             │" >> "${RESULTS_DIR}/analysis_report_ko.md"
+    echo "│ • 95분위 응답시간 (P95): N/A           │" >> "${RESULTS_DIR}/analysis_report_ko.md"
+    echo "│ • 99분위 응답시간 (P99): N/A           │" >> "${RESULTS_DIR}/analysis_report_ko.md"
 fi
 
 cat >> "${RESULTS_DIR}/analysis_report_ko.md" << EOF

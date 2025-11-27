@@ -84,7 +84,7 @@ public class PerformanceReportGenerator {
         report.append("┌─────────────────────────────────────────┐\n");
         report.append("│        종합 성능 점수: ").append(calculateOverallScore(results)).append("        │\n");
         report.append("├─────────────────────────────────────────┤\n");
-        report.append("│ • 평균 응답시간: ").append(formatMetric(calculateAvgResponseTime(results))).append(" ms    │\n");
+        report.append("│ • 평균 응답시간: ").append(calculateAvgResponseTime(results)).append(" ms    │\n");
         report.append("│ • 동시 처리 능력: ").append(formatConcurrency(results)).append(" TPS     │\n");
         report.append("│ • N+1 문제 해결: ").append(checkNPlusOne(results)).append("         │\n");
         report.append("│ • 쿼리 효율성: ").append(calculateQueryEfficiency(results)).append("           │\n");

@@ -259,11 +259,34 @@ for i in "${!TEST_CLASSES[@]}"; do
 
     START_TIME=$(date +%s)
 
-    # Run test with proper timeout and capture result
-    if timeout 300 ./gradlew test --tests "com.teambind.articleserver.performance.measurement.$TEST_CLASS" \
-        -Dspring.profiles.active=performance-test \
-        --no-daemon \
-        2>&1 | tee "$RESULT_DIR/${TEST_CLASS}.log"; then
+    # Run test - check for timeout command availability
+    TEST_COMMAND="./gradlew test --tests \"com.teambind.articleserver.performance.measurement.$TEST_CLASS\" -Dspring.profiles.active=performance-test --no-daemon"
+
+    if command -v timeout >/dev/null 2>&1; then
+        # Linux - use timeout
+        if timeout 300 bash -c "$TEST_COMMAND" 2>&1 | tee "$RESULT_DIR/${TEST_CLASS}.log"; then
+            TEST_RESULT=0
+        else
+            TEST_RESULT=1
+        fi
+    elif command -v gtimeout >/dev/null 2>&1; then
+        # macOS with coreutils - use gtimeout
+        if gtimeout 300 bash -c "$TEST_COMMAND" 2>&1 | tee "$RESULT_DIR/${TEST_CLASS}.log"; then
+            TEST_RESULT=0
+        else
+            TEST_RESULT=1
+        fi
+    else
+        # No timeout command - run without timeout
+        echo -e "${YELLOW}Warning: timeout command not found. Running without timeout limit.${NC}"
+        if bash -c "$TEST_COMMAND" 2>&1 | tee "$RESULT_DIR/${TEST_CLASS}.log"; then
+            TEST_RESULT=0
+        else
+            TEST_RESULT=1
+        fi
+    fi
+
+    if [ $TEST_RESULT -eq 0 ]; then
 
         END_TIME=$(date +%s)
         DURATION=$((END_TIME - START_TIME))
