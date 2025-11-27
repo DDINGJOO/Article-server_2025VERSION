@@ -157,6 +157,11 @@ public class ComprehensivePerformanceTest {
           if (!results.isEmpty()) {
             lastCursor = ((Article) results.get(results.size() - 1)).getId();
           }
+
+          // EntityManager 캐시 비우기 (매 2번째 페이지마다)
+          if (i % 2 == 0) {
+            entityManager.clear();
+          }
         }
       }
 
