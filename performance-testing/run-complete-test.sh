@@ -236,8 +236,8 @@ for TEST_CLASS in "${TEST_CLASSES[@]}"; do
         2>&1 | tee "$RESULT_DIR/${TEST_CLASS}.log"
 done
 
-# Step 5: Generate Final Report
-echo -e "\n${YELLOW}[Step 5/5] Generating Final Report...${NC}"
+# Step 5: Generate Initial Report
+echo -e "\n${YELLOW}[Step 5/6] Generating Initial Report...${NC}"
 
 cat > "$RESULT_DIR/performance-report.md" <<EOF
 # Performance Test Report
@@ -275,6 +275,16 @@ EOF
 # Extract key metrics from logs
 echo -e "\n### Key Metrics" >> "$RESULT_DIR/performance-report.md"
 grep -E "P50|P95|P99" "$RESULT_DIR"/*.log | tail -20 >> "$RESULT_DIR/performance-report.md" 2>/dev/null || true
+
+# Step 6: Run Analysis Script
+echo -e "\n${YELLOW}[Step 6/6] Running Performance Analysis...${NC}"
+if [ -f "analyze-results.sh" ]; then
+    chmod +x analyze-results.sh
+    ./analyze-results.sh "$TIMESTAMP"
+    echo -e "${GREEN}✓ Analysis complete${NC}"
+else
+    echo -e "${YELLOW}⚠ Analysis script not found, skipping analysis${NC}"
+fi
 
 # Optional: Clean up database after tests
 read -p "Do you want to clean up the database? (y/n): " -n 1 -r

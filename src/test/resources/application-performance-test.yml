@@ -97,8 +97,9 @@ logging:
   level:
     root: INFO
     com.teambind.articleserver: DEBUG
-    org.hibernate.SQL: WARN  # SQL 로그 최소화
-    org.hibernate.type.descriptor.sql: WARN
+    org.hibernate.SQL: INFO  # SQL 로그 활성화 (실제 쿼리 확인용)
+    org.hibernate.type.descriptor.sql.BasicBinder: INFO  # 파라미터 바인딩 로그
+    org.hibernate.stat: DEBUG  # Hibernate 통계 로그
     org.springframework.jdbc.core: WARN
     com.zaxxer.hikari: INFO
   file:
