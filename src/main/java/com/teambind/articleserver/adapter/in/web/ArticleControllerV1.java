@@ -11,8 +11,8 @@ import com.teambind.articleserver.adapter.in.web.dto.response.ArticleResponse;
 import com.teambind.articleserver.adapter.in.web.dto.response.article.ArticleBaseResponse;
 import com.teambind.articleserver.adapter.out.persistence.entity.article.Article;
 import com.teambind.articleserver.adapter.out.persistence.entity.enums.Status;
-import com.teambind.articleserver.service.crud.impl.ArticleCreateService;
-import com.teambind.articleserver.service.crud.impl.ArticleReadService;
+import com.teambind.articleserver.application.port.in.CreateArticleUseCase;
+import com.teambind.articleserver.application.port.in.ReadArticleUseCase;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class ArticleControllerV1 {
 
-  private final ArticleCreateService articleCreateService;
-  private final ArticleReadService articleReadService;
+  private final CreateArticleUseCase createArticleUseCase;
+  private final ReadArticleUseCase readArticleUseCase;
 
   /** 게시글 생성 POST /api/v1/articles */
   @PostMapping
@@ -40,7 +40,7 @@ public class ArticleControllerV1 {
       @Valid @RequestBody ArticleCreateRequest request) {
     log.info("Creating article: title={}", request.getTitle());
 
-    Article article = articleCreateService.createArticle(request);
+    Article article = createArticleUseCase.createArticle(request);
     return ResponseEntity.ok(ArticleResponse.fromEntity(article));
   }
 
@@ -50,7 +50,7 @@ public class ArticleControllerV1 {
       @PathVariable String articleId, @Valid @RequestBody ArticleCreateRequest request) {
     log.info("Updating article: id={}", articleId);
 
-    Article article = articleCreateService.updateArticle(articleId, request);
+    Article article = createArticleUseCase.updateArticle(articleId, request);
     return ResponseEntity.ok(ArticleResponse.fromEntity(article));
   }
 
@@ -60,7 +60,7 @@ public class ArticleControllerV1 {
       @PathVariable(name = "articleId") String articleId) {
     log.info("Fetching article: id={}", articleId);
 
-    Article article = articleReadService.fetchArticleById(articleId);
+    Article article = readArticleUseCase.fetchArticleById(articleId);
     return ResponseEntity.ok(ArticleResponse.fromEntity(article));
   }
 
@@ -69,7 +69,7 @@ public class ArticleControllerV1 {
   public ResponseEntity<Void> deleteArticle(@PathVariable(name = "articleId") String articleId) {
     log.info("Deleting article: id={}", articleId);
 
-    articleCreateService.deleteArticle(articleId);
+    createArticleUseCase.deleteArticle(articleId);
     return ResponseEntity.noContent().build();
   }
 
@@ -132,7 +132,7 @@ public class ArticleControllerV1 {
     ArticleCursorPageRequest pageRequest =
         ArticleCursorPageRequest.builder().size(size).cursorId(cursorId).build();
 
-    ArticleCursorPageResponse response = articleReadService.searchArticles(criteria, pageRequest);
+    ArticleCursorPageResponse response = readArticleUseCase.searchArticles(criteria, pageRequest);
 
     return ResponseEntity.ok(response);
   }

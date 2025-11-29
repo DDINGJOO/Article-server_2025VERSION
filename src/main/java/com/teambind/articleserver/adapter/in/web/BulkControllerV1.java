@@ -1,7 +1,7 @@
 package com.teambind.articleserver.adapter.in.web;
 
 import com.teambind.articleserver.adapter.in.web.dto.response.ArticleSimpleResponse;
-import com.teambind.articleserver.service.bulk.BulkReadService;
+import com.teambind.articleserver.application.port.in.bulk.BulkReadUseCase;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class BulkControllerV1 {
 
-  private final BulkReadService bulkReadService;
+  private final BulkReadUseCase bulkReadUseCase;
 
   /**
    * 다중 게시글 조회 GET /api/v1/bulk/articles?ids=1&ids=2&ids=3
@@ -37,7 +37,7 @@ public class BulkControllerV1 {
     log.info("Bulk fetching articles: count={}", ids.size());
     log.debug("Article IDs: {}", ids);
 
-    List<ArticleSimpleResponse> articles = bulkReadService.fetchSimpleByIds(ids);
+    List<ArticleSimpleResponse> articles = bulkReadUseCase.fetchSimpleByIds(ids);
 
     log.info("Bulk fetch completed: found={} of {}", articles.size(), ids.size());
 

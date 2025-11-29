@@ -1,4 +1,4 @@
-package com.teambind.articleserver.service.crud.impl;
+package com.teambind.articleserver.application.usecase;
 
 import com.teambind.articleserver.adapter.in.web.dto.condition.ArticleSearchCriteria;
 import com.teambind.articleserver.adapter.in.web.dto.request.ArticleCursorPageRequest;
@@ -15,6 +15,9 @@ import com.teambind.articleserver.adapter.out.persistence.repository.ArticleRepo
 import com.teambind.articleserver.adapter.out.persistence.repository.EventArticleRepository;
 import com.teambind.articleserver.adapter.out.persistence.repository.NoticeArticleRepository;
 import com.teambind.articleserver.aop.LogTrace;
+import com.teambind.articleserver.application.port.in.ReadArticleUseCase;
+import com.teambind.articleserver.application.port.in.event.ReadEventUseCase;
+import com.teambind.articleserver.application.port.in.notice.ReadNoticeUseCase;
 import com.teambind.articleserver.common.exception.CustomException;
 import com.teambind.articleserver.common.exception.ErrorCode;
 import java.time.LocalDateTime;
@@ -30,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class ArticleReadService {
+public class ArticleReadService implements ReadArticleUseCase, ReadNoticeUseCase, ReadEventUseCase {
   private final ArticleRepository articleRepository;
   private final ArticleRepositoryCustomImpl articleRepositoryCustom;
   private final NoticeArticleRepository noticeArticleRepository;

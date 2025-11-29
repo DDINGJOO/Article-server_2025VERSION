@@ -1,11 +1,8 @@
 package com.teambind.articleserver.adapter.in.web;
 
-import com.teambind.articleserver.adapter.out.persistence.entity.enums.Status;
-import java.util.Arrays;
-import java.util.HashMap;
+import com.teambind.articleserver.application.port.in.enums.EnumProviderUseCase;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class EnumsControllerV1 {
 
+  private final EnumProviderUseCase enumProviderUseCase;
+
   /**
    * 사용 가능한 열거형 목록 조회 GET /api/v1/enums
    *
@@ -33,18 +32,7 @@ public class EnumsControllerV1 {
   public ResponseEntity<Map<String, List<String>>> getAvailableEnums() {
     log.debug("Fetching available enums");
 
-    Map<String, List<String>> enums = new HashMap<>();
-
-    // Article Types
-    enums.put("articleTypes", Arrays.asList("REGULAR", "EVENT", "NOTICE"));
-
-    // Article Status
-    enums.put(
-        "articleStatus",
-        Arrays.stream(Status.values()).map(Enum::name).collect(Collectors.toList()));
-
-    // Event Status
-    enums.put("eventStatus", Arrays.asList("UPCOMING", "ONGOING", "ENDED"));
+    Map<String, List<String>> enums = enumProviderUseCase.getAvailableEnums();
 
     log.debug("Available enums: {}", enums);
 
