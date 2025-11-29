@@ -191,7 +191,7 @@ public abstract class Article {
   // === 연관관계 편의 메서드 - Image ===
 
   /**
-   * 이미지 추가
+   * 이미지 추가 (자동 시퀀스)
    *
    * <p>시퀀스는 자동으로 계산되며, 첫 번째 이미지는 대표 이미지로 설정됩니다.
    *
@@ -209,6 +209,42 @@ public abstract class Article {
     }
 
     long sequence = images.size() + 1;
+    ArticleImage articleImage = new ArticleImage(this, sequence, imageUrl, imageId);
+    images.add(articleImage);
+
+    // 첫 번째 이미지를 대표 이미지로 설정
+    if (sequence == 1) {
+      this.firstImageUrl = imageUrl;
+    }
+
+    this.updatedAt = LocalDateTime.now();
+  }
+
+  /**
+   * 이미지 추가 (지정된 시퀀스)
+   *
+   * <p>Kafka 이벤트 등에서 전달된 특정 시퀀스로 이미지를 추가합니다.
+   *
+   * @param imageId 이미지 ID
+   * @param imageUrl 이미지 URL
+   * @param sequence 이미지 순서 (1부터 시작)
+   */
+  public void addImageWithSequence(String imageId, String imageUrl, Long sequence) {
+    if (imageId == null || imageUrl == null) {
+      log.warn("Cannot add image with null imageId or imageUrl");
+      return;
+    }
+
+    if (sequence == null || sequence < 1) {
+      log.warn("Invalid sequence: {}, using auto sequence", sequence);
+      addImage(imageId, imageUrl);
+      return;
+    }
+
+    if (images == null) {
+      images = new ArrayList<>();
+    }
+
     ArticleImage articleImage = new ArticleImage(this, sequence, imageUrl, imageId);
     images.add(articleImage);
 
