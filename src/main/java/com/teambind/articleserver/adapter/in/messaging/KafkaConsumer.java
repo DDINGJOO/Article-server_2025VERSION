@@ -37,6 +37,8 @@ public class KafkaConsumer {
   /**
    * 이미지 변경 이벤트 처리
    *
+   * <p>imageId와 imageUrl을 쌍으로 관리하여 이미지 정보의 무결성을 보장합니다.
+   *
    * @param message Kafka 메시지 (ImagesChangeEventWrapper JSON)
    */
   @KafkaListener(topics = "article-image-changed", groupId = "article-consumer-group")
@@ -91,19 +93,23 @@ public class KafkaConsumer {
       boolean isFirstImage = true;
 
       for (ImageChangeEvent imageEvent : images) {
-        // Null Safety: 이미지 ID와 URL 검증
-        if (imageEvent.getImageId() == null || imageEvent.getImageId().isEmpty()) {
-          log.warn("Skipping image with null or empty imageId for articleId: {}", articleId);
+        // imageId와 imageUrl 쌍 검증 - 둘 다 존재해야 함
+        if (!validateImagePair(imageEvent, articleId)) {
           continue;
         }
 
-        if (imageEvent.getImageUrl() == null || imageEvent.getImageUrl().isEmpty()) {
-          log.warn("Skipping image with null or empty imageUrl for articleId: {}", articleId);
-          continue;
+        // 이미지 추가 (imageId, imageUrl, sequence를 사용)
+        Integer eventSequence = imageEvent.getSequence();
+        if (eventSequence != null && eventSequence > 0) {
+          // sequence가 유효한 경우 해당 sequence로 추가
+          article.addImageWithSequence(
+              imageEvent.getImageId(),
+              imageEvent.getImageUrl(),
+              eventSequence.longValue());
+        } else {
+          // sequence가 없는 경우 자동 sequence로 추가
+          article.addImage(imageEvent.getImageId(), imageEvent.getImageUrl());
         }
-
-        // 이미지 추가
-        article.addImage(imageEvent.getImageId(), imageEvent.getImageUrl());
 
         // 첫 번째 유효한 이미지를 firstImageUrl로 명시적 설정
         if (isFirstImage) {
@@ -132,5 +138,48 @@ public class KafkaConsumer {
       log.error("Unexpected error processing article-image-changed message: {}", message, e);
       // 계속 진행
     }
+  }
+
+  /**
+   * 이미지 이벤트의 imageId와 imageUrl 쌍 유효성 검증
+   *
+   * <p>imageId와 imageUrl은 항상 쌍으로 존재해야 하며, 둘 다 유효한 값이어야 합니다.
+   *
+   * @param imageEvent 검증할 이미지 이벤트
+   * @param articleId 로깅을 위한 게시글 ID
+   * @return 유효한 경우 true, 그렇지 않은 경우 false
+   */
+  private boolean validateImagePair(ImageChangeEvent imageEvent, String articleId) {
+    if (imageEvent == null) {
+      log.warn("Null image event for articleId: {}", articleId);
+      return false;
+    }
+
+    String imageId = imageEvent.getImageId();
+    String imageUrl = imageEvent.getImageUrl();
+
+    // imageId와 imageUrl 둘 다 존재해야 함
+    if (imageId == null || imageId.trim().isEmpty()) {
+      log.warn("Missing imageId in image pair for articleId: {}, imageUrl: {}",
+               articleId, imageUrl);
+      return false;
+    }
+
+    if (imageUrl == null || imageUrl.trim().isEmpty()) {
+      log.warn("Missing imageUrl in image pair for articleId: {}, imageId: {}",
+               articleId, imageId);
+      return false;
+    }
+
+    // 추가 검증: URL 형식 체크
+    if (!imageUrl.startsWith("http://") && !imageUrl.startsWith("https://") && !imageUrl.startsWith("/")) {
+      log.warn("Invalid image URL format for articleId: {}, imageId: {}, imageUrl: {}",
+               articleId, imageId, imageUrl);
+      return false;
+    }
+
+    log.debug("Valid image pair for articleId: {}, imageId: {}, imageUrl: {}",
+              articleId, imageId, imageUrl);
+    return true;
   }
 }
