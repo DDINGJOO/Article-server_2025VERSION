@@ -84,10 +84,13 @@ public abstract class ArticleBaseResponse {
     // Board 정보 변환
     this.board = BoardInfo.fromEntity(article.getBoard());
 
-    // 이미지 목록 변환
+    // 이미지 목록 변환 (imageId와 imageUrl이 쌍으로 존재하는 경우만)
     if (article.getImages() != null) {
       this.images =
-          article.getImages().stream().map(ImageInfo::fromEntity).collect(Collectors.toList());
+          article.getImages().stream()
+              .map(ImageInfo::fromEntity)
+              .filter(imageInfo -> imageInfo != null)  // null 값 필터링
+              .collect(Collectors.toList());
     }
 
     // 키워드 목록 변환
