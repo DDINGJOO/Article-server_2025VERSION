@@ -3,8 +3,8 @@ package com.teambind.articleserver.adapter.in.web;
 import com.teambind.articleserver.adapter.in.web.dto.request.ArticleCreateRequest;
 import com.teambind.articleserver.adapter.in.web.dto.response.article.EventArticleResponse;
 import com.teambind.articleserver.adapter.out.persistence.entity.articleType.EventArticle;
-import com.teambind.articleserver.service.crud.impl.ArticleCreateService;
-import com.teambind.articleserver.service.crud.impl.ArticleReadService;
+import com.teambind.articleserver.application.port.in.event.CreateEventUseCase;
+import com.teambind.articleserver.application.port.in.event.ReadEventUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +23,8 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class EventArticleControllerV1 {
 
-  private final ArticleCreateService articleCreateService;
-  private final ArticleReadService articleReadService;
+  private final CreateEventUseCase createEventUseCase;
+  private final ReadEventUseCase readEventUseCase;
 
   /** 이벤트 게시글 생성 POST /api/v1/events */
   @PostMapping
@@ -32,7 +32,7 @@ public class EventArticleControllerV1 {
       @Valid @RequestBody ArticleCreateRequest request) {
     log.info("Creating event article: title={}", request.getTitle());
 
-    EventArticle article = articleCreateService.createEventArticle(request);
+    EventArticle article = createEventUseCase.createEventArticle(request);
     return ResponseEntity.ok(EventArticleResponse.fromEntity(article));
   }
 
@@ -42,7 +42,7 @@ public class EventArticleControllerV1 {
       @PathVariable String articleId, @Valid @RequestBody ArticleCreateRequest request) {
     log.info("Updating event article: id={}", articleId);
 
-    EventArticle article = articleCreateService.updateEventArticle(articleId, request);
+    EventArticle article = createEventUseCase.updateEventArticle(articleId, request);
     return ResponseEntity.ok(EventArticleResponse.fromEntity(article));
   }
 
@@ -52,7 +52,7 @@ public class EventArticleControllerV1 {
       @PathVariable(name = "articleId") String articleId) {
     log.info("Fetching event article: id={}", articleId);
 
-    EventArticle article = (EventArticle) articleReadService.fetchArticleById(articleId);
+    EventArticle article = (EventArticle) readEventUseCase.fetchArticleById(articleId);
     return ResponseEntity.ok(EventArticleResponse.fromEntity(article));
   }
 
@@ -62,7 +62,7 @@ public class EventArticleControllerV1 {
       @PathVariable(name = "articleId") String articleId) {
     log.info("Deleting event article: id={}", articleId);
 
-    articleCreateService.deleteArticle(articleId);
+    createEventUseCase.deleteArticle(articleId);
     return ResponseEntity.noContent().build();
   }
 
@@ -81,7 +81,7 @@ public class EventArticleControllerV1 {
 
     log.debug("Getting event articles: status={}, page={}, size={}", status, page, size);
 
-    Page<EventArticleResponse> events = articleReadService.getEventArticles(status, page, size);
+    Page<EventArticleResponse> events = readEventUseCase.getEventArticles(status, page, size);
     return ResponseEntity.ok(events);
   }
 }

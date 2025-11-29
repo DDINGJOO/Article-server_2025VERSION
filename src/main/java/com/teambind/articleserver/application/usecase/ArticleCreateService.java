@@ -1,4 +1,4 @@
-package com.teambind.articleserver.service.crud.impl;
+package com.teambind.articleserver.application.usecase;
 
 import com.teambind.articleserver.adapter.in.web.dto.request.ArticleCreateRequest;
 import com.teambind.articleserver.adapter.out.messaging.KafkaPublisher;
@@ -11,6 +11,9 @@ import com.teambind.articleserver.adapter.out.persistence.entity.enums.Status;
 import com.teambind.articleserver.adapter.out.persistence.entity.keyword.Keyword;
 import com.teambind.articleserver.adapter.out.persistence.repository.*;
 import com.teambind.articleserver.aop.LogTrace;
+import com.teambind.articleserver.application.port.in.CreateArticleUseCase;
+import com.teambind.articleserver.application.port.in.event.CreateEventUseCase;
+import com.teambind.articleserver.application.port.in.notice.CreateNoticeUseCase;
 import com.teambind.articleserver.common.exception.CustomException;
 import com.teambind.articleserver.common.exception.ErrorCode;
 import com.teambind.articleserver.common.util.generator.primay_key.PrimaryKetGenerator;
@@ -26,7 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class ArticleCreateService {
+public class ArticleCreateService
+    implements CreateArticleUseCase, CreateNoticeUseCase, CreateEventUseCase {
 
   private final ArticleRepository articleRepository;
   private final RegularArticleRepository regularArticleRepository;
@@ -242,4 +246,6 @@ public class ArticleCreateService {
   private void publishArticleDeletedEvent(Article article) {
     kafkaPublisher.articleDeletedEvent(ArticleCreatedEvent.from(article));
   }
+
+  
 }

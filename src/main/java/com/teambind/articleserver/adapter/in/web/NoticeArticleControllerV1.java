@@ -5,8 +5,8 @@ import com.teambind.articleserver.adapter.in.web.dto.response.ArticleResponse;
 import com.teambind.articleserver.adapter.in.web.dto.response.article.ArticleBaseResponse;
 import com.teambind.articleserver.adapter.out.persistence.entity.article.Article;
 import com.teambind.articleserver.adapter.out.persistence.entity.articleType.NoticeArticle;
-import com.teambind.articleserver.service.crud.impl.ArticleCreateService;
-import com.teambind.articleserver.service.crud.impl.ArticleReadService;
+import com.teambind.articleserver.application.port.in.notice.CreateNoticeUseCase;
+import com.teambind.articleserver.application.port.in.notice.ReadNoticeUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class NoticeArticleControllerV1 {
 
-  private final ArticleCreateService articleCreateService;
-  private final ArticleReadService articleReadService;
+  private final CreateNoticeUseCase createNoticeUseCase;
+  private final ReadNoticeUseCase readNoticeUseCase;
 
   /** 공지사항 생성 POST /api/v1/notices */
   @PostMapping
@@ -34,7 +34,7 @@ public class NoticeArticleControllerV1 {
       @Valid @RequestBody ArticleCreateRequest request) {
     log.info("Creating notice article: title={}", request.getTitle());
 
-    NoticeArticle article = articleCreateService.createNoticeArticle(request);
+    NoticeArticle article = createNoticeUseCase.createNoticeArticle(request);
     return ResponseEntity.ok(ArticleResponse.fromEntity(article));
   }
 
@@ -44,7 +44,7 @@ public class NoticeArticleControllerV1 {
       @PathVariable String articleId, @Valid @RequestBody ArticleCreateRequest request) {
     log.info("Updating notice article: id={}", articleId);
 
-    Article article = articleCreateService.updateArticle(articleId, request);
+    Article article = createNoticeUseCase.updateArticle(articleId, request);
     return ResponseEntity.ok(ArticleResponse.fromEntity(article));
   }
 
@@ -54,7 +54,7 @@ public class NoticeArticleControllerV1 {
       @PathVariable(name = "articleId") String articleId) {
     log.info("Fetching notice article: id={}", articleId);
 
-    Article article = articleReadService.fetchArticleById(articleId);
+    Article article = readNoticeUseCase.fetchArticleById(articleId);
     return ResponseEntity.ok(ArticleResponse.fromEntity(article));
   }
 
@@ -64,7 +64,7 @@ public class NoticeArticleControllerV1 {
       @PathVariable(name = "articleId") String articleId) {
     log.info("Deleting notice article: id={}", articleId);
 
-    articleCreateService.deleteArticle(articleId);
+    createNoticeUseCase.deleteArticle(articleId);
     return ResponseEntity.noContent().build();
   }
 
@@ -80,7 +80,7 @@ public class NoticeArticleControllerV1 {
 
     log.debug("Getting notice articles: page={}, size={}", page, size);
 
-    Page<ArticleBaseResponse> notices = articleReadService.getNoticeArticles(page, size);
+    Page<ArticleBaseResponse> notices = readNoticeUseCase.getNoticeArticles(page, size);
     return ResponseEntity.ok(notices);
   }
 }
