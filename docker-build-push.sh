@@ -17,7 +17,7 @@ echo -e "${YELLOW}========================================${NC}"
 echo ""
 
 # Docker 로그인 확인
-echo -e "${GREEN}[1/5] Docker Hub 로그인 상태 확인...${NC}"
+echo -e "${GREEN}[1/6] Docker Hub 로그인 상태 확인...${NC}"
 if ! docker info > /dev/null 2>&1; then
     echo -e "${RED}Docker가 실행 중이지 않습니다. Docker를 먼저 시작해주세요.${NC}"
     exit 1
@@ -37,7 +37,7 @@ echo -e "${GREEN}✓ Docker Hub 로그인 확인 완료${NC}"
 echo ""
 
 # Gradle 빌드 실행
-echo -e "${GREEN}[2/5] Gradle 빌드 실행...${NC}"
+echo -e "${GREEN}[2/6] Gradle 빌드 실행...${NC}"
 if [ -f "./gradlew" ]; then
     ./gradlew clean bootJar
     if [ $? -ne 0 ]; then
@@ -51,7 +51,7 @@ fi
 echo ""
 
 # 기존 이미지 삭제 (있는 경우)
-echo -e "${GREEN}[3/5] 기존 Docker 이미지 정리...${NC}"
+echo -e "${GREEN}[3/6] 기존 Docker 이미지 정리...${NC}"
 if docker images | grep -q "${IMAGE_NAME}"; then
     docker rmi -f ${FULL_IMAGE_NAME} 2>/dev/null || true
     echo -e "${GREEN}✓ 기존 이미지 삭제 완료${NC}"
@@ -60,27 +60,35 @@ else
 fi
 echo ""
 
-# Docker 이미지 빌드
-echo -e "${GREEN}[4/5] Docker 이미지 빌드 중...${NC}"
-docker build -t ${FULL_IMAGE_NAME} .
+# Docker buildx 설정 확인 및 생성
+echo -e "${GREEN}[4/6] Docker buildx 설정 확인...${NC}"
+if ! docker buildx ls | grep -q "mybuilder"; then
+    echo -e "${YELLOW}buildx 빌더 생성 중...${NC}"
+    docker buildx create --name mybuilder --use
+    docker buildx inspect --bootstrap
+fi
+docker buildx use mybuilder
+echo -e "${GREEN}✓ Docker buildx 설정 완료${NC}"
+echo ""
+
+# Multi-platform Docker 이미지 빌드 및 푸시
+echo -e "${GREEN}[5/6] Multi-platform Docker 이미지 빌드 및 푸시 중...${NC}"
+echo -e "${YELLOW}대상 플랫폼: linux/amd64, linux/arm64${NC}"
+docker buildx build \
+    --platform linux/amd64,linux/arm64 \
+    --tag ${FULL_IMAGE_NAME} \
+    --push \
+    .
 if [ $? -ne 0 ]; then
     echo -e "${RED}Docker 이미지 빌드 실패${NC}"
     exit 1
 fi
-echo -e "${GREEN}✓ Docker 이미지 빌드 완료: ${FULL_IMAGE_NAME}${NC}"
-echo ""
-
-# Docker Hub에 푸시
-echo -e "${GREEN}[5/5] Docker Hub에 이미지 푸시 중...${NC}"
-docker push ${FULL_IMAGE_NAME}
-if [ $? -ne 0 ]; then
-    echo -e "${RED}Docker Hub 푸시 실패${NC}"
-    exit 1
-fi
-echo -e "${GREEN}✓ Docker Hub 푸시 완료${NC}"
+echo -e "${GREEN}✓ Multi-platform Docker 이미지 빌드 및 푸시 완료: ${FULL_IMAGE_NAME}${NC}"
 echo ""
 
 # 빌드 정보 출력
+echo -e "${GREEN}[6/6] 빌드 정보 출력${NC}"
+echo ""
 echo -e "${YELLOW}========================================${NC}"
 echo -e "${GREEN}빌드 및 푸시 완료!${NC}"
 echo -e "${YELLOW}========================================${NC}"

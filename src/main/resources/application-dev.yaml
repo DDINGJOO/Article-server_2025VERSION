@@ -35,8 +35,8 @@ spring:
     # HikariCP 설정 - 성능 최적화 (2025-11-27)
     # 테스트 결과: 100명 동시 사용자 시 피크 42개 연결 필요
     hikari:
-      maximum-pool-size: 100      # 10 → 100 (10배 증가)
-      minimum-idle: 20             # 5 → 20 (기본 유지 연결)
+      maximum-pool-size: 50       # MariaDB 기본 max_connections 이내로 조정
+      minimum-idle: 10            # 기본 유지 연결 수 축소
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
@@ -47,7 +47,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: update  # Docker DB는 init script로 스키마 생성
+      ddl-auto: none  # 스키마 자동 변경 비활성화
 
     properties:
       hibernate:
