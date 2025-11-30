@@ -12,7 +12,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 이미지 서버로부터 전달되는 이미지 변경 이벤트를 처리하는 Kafka Consumer
@@ -40,9 +44,25 @@ public class KafkaConsumer {
    * <p>imageId와 imageUrl을 쌍으로 관리하여 이미지 정보의 무결성을 보장합니다.
    *
    * @param message Kafka 메시지 (ImagesChangeEventWrapper JSON)
+   * @param topic 수신한 토픽 이름
+   * @param partition 파티션 번호
+   * @param offset 오프셋
    */
-  @KafkaListener(topics = "article-image-changed", groupId = "article-consumer-group")
-  public void articleImageChanger(String message) {
+  @Transactional
+  @KafkaListener(topics = "post-image-changed", groupId = "article-consumer-group")
+  public void articleImageChanger(
+      @Payload String message,
+      @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+      @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+      @Header(KafkaHeaders.OFFSET) long offset) {
+
+    // 이벤트 수신 로그 - 토픽과 페이로드 정보 기록
+    log.info("========== Kafka Event Received ==========");
+    log.info("Topic: {}", topic);
+    log.info("Partition: {}, Offset: {}", partition, offset);
+    log.info("Payload: {}", message);
+    log.info("==========================================");
+
     try {
       // 1. 이벤트 역직렬화
       ImagesChangeEventWrapper wrapper =
@@ -100,12 +120,12 @@ public class KafkaConsumer {
 
         // 이미지 추가 (imageId, imageUrl, sequence를 사용)
         Integer eventSequence = imageEvent.getSequence();
-        if (eventSequence != null && eventSequence > 0) {
-          // sequence가 유효한 경우 해당 sequence로 추가
+        if (eventSequence != null && eventSequence >= 0) {
+          // sequence가 있는 경우 해당 sequence로 추가 (0부터 시작하므로 +1)
           article.addImageWithSequence(
               imageEvent.getImageId(),
               imageEvent.getImageUrl(),
-              eventSequence.longValue());
+              eventSequence.longValue() + 1);
         } else {
           // sequence가 없는 경우 자동 sequence로 추가
           article.addImage(imageEvent.getImageId(), imageEvent.getImageUrl());
@@ -121,7 +141,12 @@ public class KafkaConsumer {
       // 9. 변경 사항 저장
       articleRepository.save(article);
 
-      log.info("Successfully updated {} images for articleId: {}", images.size(), articleId);
+      // 이벤트 처리 완료 로그
+      log.info("========== Kafka Event Processing Complete ==========");
+      log.info("Topic: {}, ArticleId: {}", topic, articleId);
+      log.info("Images processed: {}", images.size());
+      log.info("First image URL: {}", article.getFirstImageUrl());
+      log.info("=====================================================");
 
     } catch (JsonProcessingException e) {
       // JSON 파싱 실패 시 로그만 기록하고 계속 진행 (Consumer 중단 방지)

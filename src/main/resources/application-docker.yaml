@@ -62,8 +62,8 @@ spring:
         order_updates: true
         query:
           in_clause_parameter_padding: true
-        # 통계 활성화 (개발 환경)
-        generate_statistics: true
+        # 통계 비활성화 (성능 향상)
+        generate_statistics: false
         session:
           events:
             log:
