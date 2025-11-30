@@ -16,6 +16,7 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 이미지 서버로부터 전달되는 이미지 변경 이벤트를 처리하는 Kafka Consumer
@@ -47,6 +48,7 @@ public class KafkaConsumer {
    * @param partition 파티션 번호
    * @param offset 오프셋
    */
+  @Transactional
   @KafkaListener(topics = "post-image-changed", groupId = "article-consumer-group")
   public void articleImageChanger(
       @Payload String message,
@@ -118,12 +120,12 @@ public class KafkaConsumer {
 
         // 이미지 추가 (imageId, imageUrl, sequence를 사용)
         Integer eventSequence = imageEvent.getSequence();
-        if (eventSequence != null && eventSequence > 0) {
-          // sequence가 유효한 경우 해당 sequence로 추가
+        if (eventSequence != null && eventSequence >= 0) {
+          // sequence가 있는 경우 해당 sequence로 추가 (0부터 시작하므로 +1)
           article.addImageWithSequence(
               imageEvent.getImageId(),
               imageEvent.getImageUrl(),
-              eventSequence.longValue());
+              eventSequence.longValue() + 1);
         } else {
           // sequence가 없는 경우 자동 sequence로 추가
           article.addImage(imageEvent.getImageId(), imageEvent.getImageUrl());
