@@ -1,5 +1,7 @@
 package com.teambind.articleserver.application.port.in.enums;
 
+import com.teambind.articleserver.adapter.in.web.dto.response.enums.BoardEnumDto;
+import com.teambind.articleserver.adapter.in.web.dto.response.enums.KeywordEnumDto;
 import java.util.List;
 import java.util.Map;
 
@@ -16,4 +18,18 @@ public interface EnumProviderUseCase {
    * @return 열거형 타입별 사용 가능한 값 목록
    */
   Map<String, List<String>> getAvailableEnums();
+
+  /**
+   * 게시판 목록 조회
+   *
+   * @return key: 게시판 ID (문자열), value: 게시판 정보
+   */
+  Map<String, BoardEnumDto> getBoards();
+
+  /**
+   * 키워드 목록 조회
+   *
+   * @return key: 키워드 ID (문자열), value: 키워드 정보
+   */
+  Map<String, KeywordEnumDto> getKeywords();
 }
