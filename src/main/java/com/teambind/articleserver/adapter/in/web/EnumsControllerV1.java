@@ -1,5 +1,7 @@
 package com.teambind.articleserver.adapter.in.web;
 
+import com.teambind.articleserver.adapter.in.web.dto.response.enums.BoardEnumDto;
+import com.teambind.articleserver.adapter.in.web.dto.response.enums.KeywordEnumDto;
 import com.teambind.articleserver.application.port.in.enums.EnumProviderUseCase;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +30,7 @@ public class EnumsControllerV1 {
    *
    * @return 열거형 타입별 사용 가능한 값 목록
    */
-  @GetMapping
+  @GetMapping()
   public ResponseEntity<Map<String, List<String>>> getAvailableEnums() {
     log.debug("Fetching available enums");
 
@@ -37,5 +39,37 @@ public class EnumsControllerV1 {
     log.debug("Available enums: {}", enums);
 
     return ResponseEntity.ok(enums);
+  }
+
+  /**
+   * 게시판 목록 조회 GET /api/v1/enums/boards
+   *
+   * @return key: 게시판 ID (문자열), value: 게시판 정보 (id, name, url 등)
+   */
+  @GetMapping("/boards")
+  public ResponseEntity<Map<String, BoardEnumDto>> getBoards() {
+    log.debug("Fetching board enums");
+
+    Map<String, BoardEnumDto> boards = enumProviderUseCase.getBoards();
+
+    log.debug("Available boards: {}", boards);
+
+    return ResponseEntity.ok(boards);
+  }
+
+  /**
+   * 키워드 목록 조회 GET /api/v1/enums/keywords
+   *
+   * @return key: 키워드 ID (문자열), value: 키워드 정보 (id, name, url 등)
+   */
+  @GetMapping("/keywords")
+  public ResponseEntity<Map<String, KeywordEnumDto>> getKeywords() {
+    log.debug("Fetching keyword enums");
+
+    Map<String, KeywordEnumDto> keywords = enumProviderUseCase.getKeywords();
+
+    log.debug("Available keywords: {}", keywords);
+
+    return ResponseEntity.ok(keywords);
   }
 }
