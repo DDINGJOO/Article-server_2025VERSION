@@ -7,9 +7,25 @@ public interface ArticleSimpleView {
 
   String getTitle();
 
+  String getContent();
+
   String getWriterId();
 
   Long getVersion();
 
   LocalDateTime getCreatedAt();
+
+  LocalDateTime getUpdatedAt();
+
+  Long getBoardId();
+
+  String getBoardName();
+
+  String getArticleType();
+
+  String getStatus();
+
+  Long getViewCount();
+
+  String getFirstImageUrl();
 }

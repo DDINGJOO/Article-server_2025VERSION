@@ -20,7 +20,19 @@ public interface ArticleRepository extends JpaRepository<Article, String>, Artic
   Article findAllByWriterId(String writerId, Limit limit);
 
   @Query(
-      "select a.id as id, a.title as title, a.writerId as writerId, a.version as version, a.createdAt as createdAt from Article a where a.id in :ids and a.status <> com.teambind.articleserver.adapter.out.persistence.entity.enums.Status.DELETED and a.status <> com.teambind.articleserver.adapter.out.persistence.entity.enums.Status.BLOCKED")
+      value =
+          "SELECT a.article_id as id, a.title as title, a.contents as content, a.writer_id as writerId, "
+              + "a.version as version, a.created_at as createdAt, a.updated_at as updatedAt, "
+              + "a.board_id as boardId, b.board_name as boardName, "
+              + "a.article_type as articleType, "
+              + "a.status as status, "
+              + "a.view_count as viewCount, a.first_image_url as firstImageUrl "
+              + "FROM articles a "
+              + "JOIN boards b ON a.board_id = b.id "
+              + "WHERE a.article_id IN :ids "
+              + "AND a.status <> 'DELETED' "
+              + "AND a.status <> 'BLOCKED'",
+      nativeQuery = true)
   List<ArticleSimpleView> findSimpleByIdIn(@Param("ids") Collection<String> ids);
 
   void deleteByStatus(Status status);
