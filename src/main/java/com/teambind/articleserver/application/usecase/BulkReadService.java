@@ -1,6 +1,6 @@
 package com.teambind.articleserver.application.usecase;
 
-import com.teambind.articleserver.adapter.in.web.dto.response.ArticleSimpleResponse;
+import com.teambind.articleserver.adapter.in.web.dto.response.ArticleBulkResponse;
 import com.teambind.articleserver.adapter.out.persistence.projection.ArticleSimpleView;
 import com.teambind.articleserver.adapter.out.persistence.repository.ArticleRepository;
 import com.teambind.articleserver.application.port.in.bulk.BulkReadUseCase;
@@ -23,7 +23,7 @@ public class BulkReadService implements BulkReadUseCase {
 
   @Override
   @Transactional(readOnly = true)
-  public List<ArticleSimpleResponse> fetchSimpleByIds(List<String> ids) {
+  public List<ArticleBulkResponse> fetchByIds(List<String> ids) {
     if (ids == null || ids.isEmpty()) return List.of();
 
     // Deduplicate while preserving first occurrence order
@@ -46,16 +46,24 @@ public class BulkReadService implements BulkReadUseCase {
     Map<String, ArticleSimpleView> byId =
         rows.stream().collect(Collectors.toMap(ArticleSimpleView::getId, v -> v, (a, b) -> a));
 
-    List<ArticleSimpleResponse> result = new ArrayList<>(uniqueOrderedIds.size());
+    List<ArticleBulkResponse> result = new ArrayList<>(uniqueOrderedIds.size());
     for (String id : uniqueOrderedIds) {
       ArticleSimpleView v = byId.get(id);
       if (v != null) {
         result.add(
-            ArticleSimpleResponse.builder()
+            ArticleBulkResponse.builder()
                 .articleId(v.getId())
                 .title(v.getTitle())
+                .content(v.getContent())
                 .writerId(v.getWriterId())
+                .boardId(v.getBoardId())
+                .boardName(v.getBoardName())
+                .articleType(v.getArticleType())
+                .status(v.getStatus())
+                .viewCount(v.getViewCount())
+                .firstImageUrl(v.getFirstImageUrl())
                 .createdAt(v.getCreatedAt())
+                .updatedAt(v.getUpdatedAt())
                 .build());
       }
     }
