@@ -241,22 +241,22 @@ erDiagram
     }
 
     KeywordMappingTable {
-string article_id PK_FK
-        bigint keyword_id PK_FK
-}
+        string article_id PK, FK "게시글 ID"
+        bigint keyword_id PK, FK "키워드 ID"
+    }
 
-ArticleImage {
-string article_id PK_FK
-bigint sequence_num PK "이미지 순서"
-string image_id "이미지 ID"
-string article_image_url "이미지 URL"
-}
+    ArticleImage {
+        string article_id PK, FK "게시글 ID"
+        bigint sequence_num PK "이미지 순서"
+        string image_id "이미지 ID"
+        string article_image_url "이미지 URL"
+    }
 
-EventArticle {
-string article_id PK_FK
-datetime event_start_date "이벤트 시작일"
-datetime event_end_date "이벤트 종료일"
-}
+    EventArticle {
+        string article_id PK, FK "게시글 ID"
+        datetime event_start_date "이벤트 시작일"
+        datetime event_end_date "이벤트 종료일"
+    }
 ```
 
 ### 3.2 테이블 상세
